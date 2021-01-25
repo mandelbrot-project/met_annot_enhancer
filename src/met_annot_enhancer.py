@@ -41,7 +41,7 @@ job_id = "56d01c6ccfe143eca5252017202c8fef"
 
 # this is the path for the ISDB resukts file (topX)
 #isdb_results_path = "J:/COMMON FASIE-FATHO/PF_project/Toy_Set/Toy_set_top_50_pos.out"
-isdb_results_path = "/Users/pma/Dropbox/Research_UNIGE/git_repos/taxoscorer/data_in/hysope/hysope_pos_matchmsed_ISDB_DNP.tsv"
+isdb_results_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv"
 # isdb_results_path = "/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/FBMN_bafu_ecometabo_pos_msmatched_ISDB_DNP.out"
 
 
@@ -49,7 +49,7 @@ isdb_results_path = "/Users/pma/Dropbox/Research_UNIGE/git_repos/taxoscorer/data
 metadata_path = "/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv"
 
 #Path to weighed annotation result of ISDB
-output_weighed_ISDB_path = "/Users/pma/Dropbox/Research_UNIGE/git_repos/taxoscorer/data_in/hysope/hysope_pos_matchmsed_ISDB_DNP_repond.tsv"
+output_weighed_ISDB_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv"
 
 
 # Path for the GNPS job export dir 
@@ -94,26 +94,28 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 # for f in files:
 #    os.remove(f)
 
-base_filename = 'GNPS_output'
-filename_suffix = 'zip'
+# base_filename = 'GNPS_output'
+# filename_suffix = 'zip'
 
-path_to_folder = os.path.join(gnps_job_path, base_filename)
-path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
-
-
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
-
-cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-subprocess.call(shlex.split(cmd))
-
-with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-    zip_ref.extractall(path_to_folder)
-
-# We finally remove the zip file
-cmd = 'rm '+ path_to_file
-subprocess.call(shlex.split(cmd))
+# path_to_folder = os.path.join(gnps_job_path, base_filename)
+# path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
 
 
+# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+
+# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+# subprocess.call(shlex.split(cmd))
+
+# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+#     zip_ref.extractall(path_to_folder)
+
+# # We finally remove the zip file
+# cmd = 'rm '+ path_to_file
+# subprocess.call(shlex.split(cmd))
+
+# %% Spectral matching stage
+
+# Check wether we can import the spectral matching stage here directly
 
 # %% Loading the files
 
@@ -142,7 +144,9 @@ dt_isdb_results.rename(columns={'componentindex': 'component_id',
 ## In fact we can directly start here
 ## we get the networks info (cluster id, component index and parent mass form the downloaded dolder)
 
-clusterinfo_summary = pd.read_csv('../../data_in/hysope/clusterinfo_summary/' + str(os.listdir('../../data_in/hysope/clusterinfo_summary/')[0]),
+clusterinfo_summary_path = os.path.join(path_to_folder,'clusterinfo_summary','')
+
+clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clusterinfo_summary_path)[0]),
                                   sep='\t',
                                   usecols=['cluster index', 'componentindex', 'parent mass'],
                                   error_bad_lines=False, low_memory=True)
@@ -350,10 +354,17 @@ print('Total number of annotations with unique Biosource/line: ' +
 
 
 # %% Extracting biosource / feature for line by line
+
+
+quantification_table_reformatted_path = os.path.join(path_to_folder,'quantification_table_reformatted','')
+
+metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
+
+
 if Run_line_x_line == True:
 
-    feature_intensity = pd.read_csv('../../data_in/hysope/quantification_table_reformatted/' + str(
-        os.listdir('../../data_in/hysope/quantification_table_reformatted/')[0]), sep=',')
+    feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
+        os.listdir(quantification_table_reformatted_path)[0]), sep=',')
     feature_intensity.rename(columns={'row ID': 'row_ID'}, inplace=True)
     feature_intensity.set_index('row_ID', inplace=True)
     feature_intensity = feature_intensity.filter(
@@ -366,7 +377,7 @@ if Run_line_x_line == True:
     feature_intensity.index.name = 'MS_filename'
     feature_intensity = feature_intensity.transpose()
 
-    Samples_metadata = pd.read_csv('../../data_in/hysope/metadata_table/' + str(os.listdir('../../data_in/hysope/metadata_table/')[0]), sep='\t',
+    Samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
                                    # usecols=['filename','ATTRIBUTE_phylum_cof', 'ATTRIBUTE_kingdom_cof',  'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof'])
                                    usecols=['filename', 'ATTRIBUTE_Phylum', 'ATTRIBUTE_Kingdom',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species'])
 
