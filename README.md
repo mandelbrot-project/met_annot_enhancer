@@ -18,6 +18,18 @@ And this one to activate it
 
 ## Launching the script
 
+```bash
+python met_annot_enhancer.py \
+gnps_job_id \
+gnps_path \
+spectral_lib_matcher_result_path \
+metadata_path \
+met_annot_enhancer_results_path \
+top N of desired outputs per feature \
+tolerance for MS1 match (in ppm) \
+polarity mode (Pos or Neg)
+```
+
 Example : 
 
 ```bash
