@@ -51,6 +51,12 @@ metadata_path = "/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv"
 #Path to weighed annotation result of ISDB
 output_weighed_ISDB_path = "/Users/pma/Dropbox/Research_UNIGE/git_repos/taxoscorer/data_in/hysope/hysope_pos_matchmsed_ISDB_DNP_repond.tsv"
 
+
+# Path for the GNPS job export dir 
+
+gnps_job_path = "/Users/pma/tmp/Fred_Legendre/"
+
+
 # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 use_post_taxo = True
 
@@ -71,10 +77,10 @@ polarity = 'Pos'
 
 if polarity == 'Pos':
     adducts_df = pd.read_csv(
-        '../../data_loc/interim/adduct/db_pos.tsv.gz', compression='gzip', sep='\t')
+        '../data_loc/db_pos.tsv.gz', compression='gzip', sep='\t')
 else:
     adducts_df = pd.read_csv(
-        '../../data_loc/interim/adduct/db_neg.tsv.gz', compression='gzip', sep='\t')
+        '../data_loc/db_neg.tsv.gz', compression='gzip', sep='\t')
 
 adducts_df['min'] = adducts_df['adduct_mass'] - \
     ppm_tol * (adducts_df['adduct_mass'] / 1000000)
@@ -83,19 +89,30 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 
 
 # %% Downloading GNPS files
-## TODO give possibility to create a folder if it is not existing yet 
 
-# files = glob.glob('../../data_in/hysope/*')
+# files = glob.glob(gnps_job_path)
 # for f in files:
 #    os.remove(f)
 
-# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+base_filename = 'GNPS_output'
+filename_suffix = 'zip'
 
-# cmd = 'curl -d "" '+job_url_zip+' -o ../../data_in/hysope/GNPS_output.zip'
-# subprocess.call(shlex.split(cmd))
+path_to_folder = os.path.join(gnps_job_path, base_filename)
+path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
 
-# with zipfile.ZipFile('../../data_in/hysope/GNPS_output.zip', 'r') as zip_ref:
-#     zip_ref.extractall('../../data_in/hysope/')
+
+job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+
+cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+subprocess.call(shlex.split(cmd))
+
+with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+    zip_ref.extractall(path_to_folder)
+
+# We finally remove the zip file
+cmd = 'rm '+ path_to_file
+subprocess.call(shlex.split(cmd))
+
 
 
 # %% Loading the files
