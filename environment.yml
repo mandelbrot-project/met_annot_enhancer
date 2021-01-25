@@ -7,3 +7,6 @@ dependencies:
   - pandas
   - matchms
   - tqdm
+  - pip
+  - pip :
+    - opentree

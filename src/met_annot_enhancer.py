@@ -11,6 +11,7 @@ import shlex
 import subprocess
 from tqdm import tqdm
 from tqdm import tqdm_notebook
+from opentree import OT
 
 
 
@@ -412,6 +413,24 @@ dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 
 print('Total number of annotations with unique Biosource/line: ' +
       str(len(dt_isdb_results)))
+
+# %% Resolving the taxon information from the GNPS metadata file
+
+# Now we want to get the taxonomic information for each of the samples
+
+# so we want to extract the species information from the metadata file
+# %%
+df_meta['species_cof'].dropna(inplace = True)
+df_meta['species_cof']= df_meta['species_cof'].str.lower()
+species = df_meta['species_cof'].unique()
+len_species = len(species)
+
+print("%s unique species have been selected from the metadata table." % len_species )
+# %%
+
+species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
+
+
 
 
 
