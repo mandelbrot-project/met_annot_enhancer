@@ -18,7 +18,7 @@ And this one to activate it
 
 ## Launching the script
 
-```bash
+```
 python met_annot_enhancer.py \
 gnps_job_id \
 gnps_path \
@@ -32,7 +32,7 @@ polarity mode (Pos or Neg)
 
 Example : 
 
-```bash
+```
 python met_annot_enhancer.py \
 56d01c6ccfe143eca5252017202c8fef \
 /Users/pma/tmp/Fred_Legendre/ \
