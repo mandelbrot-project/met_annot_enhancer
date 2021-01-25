@@ -1,0 +1,9 @@
+name: met_annot_enhancer_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pandas
+  - matchms
+  - tqdm
