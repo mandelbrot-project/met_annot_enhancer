@@ -5,10 +5,14 @@ import numpy as np
 import zipfile
 import glob
 import os
+import sys
+import time
 import shlex
 import subprocess
 from tqdm import tqdm
 from tqdm import tqdm_notebook
+
+
 
 
 # %% defininbg display options
@@ -17,10 +21,15 @@ pd.set_option('display.max_rows', 50)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 100)
 
+# We deactivate the iloc warning see https://stackoverflow.com/a/20627316
+pd.options.mode.chained_assignment = None  # default='warn'
+
 
 # %% Choose line by line or classic (1 species) reweighting
 
-Run_line_x_line = True
+## //TODO Maybe remove this option and systematically apply it ?
+ 
+Run_line_x_line = True 
 Top_N_Sample = 5
 
 # species_bio = 'Arabidopsis thaliana'
@@ -34,44 +43,97 @@ Top_N_Sample = 5
 
 # %% Defining the paths
 
-# GNPS FBMN Job ID
-job_id = "56d01c6ccfe143eca5252017202c8fef"
-# toy set : f840934ade8744f9a6b4438804af8287
-# LP: 75c64084d1e749748d5a29f671944231
+# # GNPS FBMN Job ID
+# job_id = "56d01c6ccfe143eca5252017202c8fef"
+# # toy set : f840934ade8744f9a6b4438804af8287
+# # LP: 75c64084d1e749748d5a29f671944231
 
-# this is the path for the ISDB resukts file (topX)
-#isdb_results_path = "J:/COMMON FASIE-FATHO/PF_project/Toy_Set/Toy_set_top_50_pos.out"
-isdb_results_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv"
-# isdb_results_path = "/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/FBMN_bafu_ecometabo_pos_msmatched_ISDB_DNP.out"
-
-
-# this is the path for the DNP or OPENNPDB datatable file
-metadata_path = "/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv"
-
-#Path to weighed annotation result of ISDB
-output_weighed_ISDB_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv"
+# # this is the path for the ISDB resukts file (topX)
+# #isdb_results_path = "J:/COMMON FASIE-FATHO/PF_project/Toy_Set/Toy_set_top_50_pos.out"
+# isdb_results_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv"
+# # isdb_results_path = "/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/FBMN_bafu_ecometabo_pos_msmatched_ISDB_DNP.out"
 
 
-# Path for the GNPS job export dir 
+# # this is the path for the DNP or OPENNPDB datatable file
+# metadata_path = "/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv"
 
-gnps_job_path = "/Users/pma/tmp/Fred_Legendre/"
+# #Path to weighed annotation result of ISDB
+# output_weighed_ISDB_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv"
 
 
-# Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
+# # Path for the GNPS job export dir 
+
+# gnps_job_path = "/Users/pma/tmp/Fred_Legendre/"
+
+
+# # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 use_post_taxo = True
 
-# MS filename extension (a common pattern in all your filenames)
+# # MS filename extension (a common pattern in all your filenames)
 file_extension = '.mzXML'
 
-# Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
+# # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 top_N_chemical_consistency = 30
 
-top_to_output = 3
+# top_to_output = 3
 
-ppm_tol = 5
+# ppm_tol = 5
 
-#polarity = 'Neg'
-polarity = 'Pos'
+# #polarity = 'Neg'
+# polarity = 'Pos'
+
+
+# defining the command line arguments
+try:
+    job_id = sys.argv[1]
+    gnps_job_path = sys.argv[2]
+    isdb_results_path = sys.argv[3]
+    metadata_path = sys.argv[4]
+    output_weighed_ISDB_path = sys.argv[5]
+    top_to_output = sys.argv[6]
+    ppm_tol = sys.argv[7]
+    polarity = sys.argv[8]
+
+    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
+          + job_id + '.\n'
+          + 'The GNPS files are downloaded locally in the following folder:' 
+          + gnps_job_path + '.\n'
+          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
+          + '   - spectral match results: ' + str(isdb_results_path) + '\n'
+          + '   - metadata file: ' + str(metadata_path) + '\n'
+          + '   - top hits to output: ' + str(top_to_output) + '\n'
+          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
+          + '   - polarity mode: ' + str(polarity) + '\n'
+          + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
+except:
+    print(
+        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
+        Example :
+        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
+
+# python met_annot_enhancer.py 
+# job_id = 56d01c6ccfe143eca5252017202c8fef \
+# gnps_job_path = /Users/pma/tmp/Fred_Legendre/ \
+# isdb_results_path = /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
+# metadata_path = /Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
+# output_weighed_ISDB_path = /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
+# top_to_output = 3 \
+# ppm_tol = 5 \
+# polarity = Pos
+
+# python met_annot_enhancer.py \
+# 56d01c6ccfe143eca5252017202c8fef \
+# /Users/pma/tmp/Fred_Legendre/ \
+# /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
+# /Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
+# /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
+# 3 \
+# 5 \
+# Pos
+
+# timer is started
+start_time = time.time()
+
 
 # %% Import MS1 list
 
@@ -83,9 +145,9 @@ else:
         '../data_loc/db_neg.tsv.gz', compression='gzip', sep='\t')
 
 adducts_df['min'] = adducts_df['adduct_mass'] - \
-    ppm_tol * (adducts_df['adduct_mass'] / 1000000)
+    int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
 adducts_df['max'] = adducts_df['adduct_mass'] + \
-    ppm_tol * (adducts_df['adduct_mass'] / 1000000)
+    int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
 
 
 # %% Downloading GNPS files
@@ -94,11 +156,11 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 # for f in files:
 #    os.remove(f)
 
-# base_filename = 'GNPS_output'
-# filename_suffix = 'zip'
+base_filename = 'GNPS_output'
+filename_suffix = 'zip'
 
-# path_to_folder = os.path.join(gnps_job_path, base_filename)
-# path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
+path_to_folder = os.path.join(gnps_job_path, base_filename)
+path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
 
 
 # job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
@@ -621,7 +683,7 @@ print('Number of annotations reweighted at the parent level: ' +
 
 
 dt_isdb_results_chem_rew = dt_isdb_results.loc[(
-    dt_isdb_results.rank_final <= top_to_output)]
+    dt_isdb_results.rank_final <= int(top_to_output))]
 dt_isdb_results_chem_rew[["feature_id", "rank_final", "component_id"]] = dt_isdb_results_chem_rew[[
     "feature_id", "rank_final", "component_id"]].apply(pd.to_numeric, downcast='signed', axis=1)
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.sort_values(
@@ -666,6 +728,13 @@ df4cyto = df4cyto.groupby('feature_id').agg(gb_spec)
 
 # %%
 df4cyto.to_csv(output_weighed_ISDB_path, sep='\t')
+
+
+# %%
+
+print('Finished in %s seconds.' % (time.time() - start_time))
+print('You can check your results here %s' % output_weighed_ISDB_path)
+
 
 # %%
 
