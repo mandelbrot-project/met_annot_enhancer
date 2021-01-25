@@ -1,0 +1,55 @@
+{
+  "context": "Asterids",
+  "governing_code": "ICN",
+  "includes_approximate_matches": true,
+  "includes_deprecated_taxa": false,
+  "includes_suppressed_names": false,
+  "matched_names": [
+    "hyssopus officinalis"
+  ],
+  "results": [
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Hyssopus officinalis",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "hyssopus officinalis",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Hyssopus officinalis",
+            "ott_id": 880695,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [
+              "Thymus hyssopus",
+              "Hyssopus officinalis vulgaris"
+            ],
+            "tax_sources": [
+              "ncbi:39324",
+              "gbif:5341387",
+              "irmng:11205031"
+            ],
+            "unique_name": "Hyssopus officinalis"
+          }
+        }
+      ],
+      "name": "hyssopus officinalis"
+    }
+  ],
+  "taxonomy": {
+    "author": "open tree of life project",
+    "name": "ott",
+    "source": "ott3.2draft9",
+    "version": "3.2",
+    "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
+  },
+  "unambiguous_names": [
+    "hyssopus officinalis"
+  ],
+  "unmatched_names": []
+}

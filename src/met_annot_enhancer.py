@@ -12,6 +12,9 @@ import subprocess
 from tqdm import tqdm
 from tqdm import tqdm_notebook
 from opentree import OT
+import json
+from pandas import json_normalize
+
 
 
 
@@ -113,14 +116,14 @@ except:
         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
 # python met_annot_enhancer.py 
-# job_id = 56d01c6ccfe143eca5252017202c8fef \
-# gnps_job_path = /Users/pma/tmp/Fred_Legendre/ \
-# isdb_results_path = /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
-# metadata_path = /Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
-# output_weighed_ISDB_path = /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
-# top_to_output = 3 \
-# ppm_tol = 5 \
-# polarity = Pos
+job_id = '56d01c6ccfe143eca5252017202c8fef'
+gnps_job_path = '/Users/pma/tmp/Fred_Legendre/'
+isdb_results_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv'
+metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
+output_weighed_ISDB_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv'
+top_to_output = 3
+ppm_tol = 5
+polarity = 'Pos'
 
 # python met_annot_enhancer.py \
 # 56d01c6ccfe143eca5252017202c8fef \
@@ -164,17 +167,17 @@ path_to_folder = os.path.join(gnps_job_path, base_filename)
 path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
 
 
-# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
-# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-# subprocess.call(shlex.split(cmd))
+cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+subprocess.call(shlex.split(cmd))
 
-# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-#     zip_ref.extractall(path_to_folder)
+with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+    zip_ref.extractall(path_to_folder)
 
-# # We finally remove the zip file
-# cmd = 'rm '+ path_to_file
-# subprocess.call(shlex.split(cmd))
+# We finally remove the zip file
+cmd = 'rm '+ path_to_file
+subprocess.call(shlex.split(cmd))
 
 # %% Spectral matching stage
 
@@ -416,13 +419,21 @@ print('Total number of annotations with unique Biosource/line: ' +
 
 # %% Resolving the taxon information from the GNPS metadata file
 
-# Now we want to get the taxonomic information for each of the samples
+# the metadata table path is generated from the base bath to the GNPS results folder
+metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
 
+organism_header = 'ATTRIBUTE_Species'
+# the metadata table is loaded using the organism column specified before
+
+samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
+                                   usecols=['filename', organism_header])
+
+# Now we want to get the taxonomic information for each of the samples
 # so we want to extract the species information from the metadata file
 # %%
-df_meta['species_cof'].dropna(inplace = True)
-df_meta['species_cof']= df_meta['species_cof'].str.lower()
-species = df_meta['species_cof'].unique()
+samples_metadata[organism_header].dropna(inplace = True)
+samples_metadata[organism_header] = samples_metadata[organism_header].str.lower()
+species = samples_metadata[organism_header].unique()
 len_species = len(species)
 
 print("%s unique species have been selected from the metadata table." % len_species )
@@ -430,6 +441,161 @@ print("%s unique species have been selected from the metadata table." % len_spec
 
 species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
 
+
+
+# %%
+
+with open('species.json', 'w') as out:
+    sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
+    out.write('{}\n'.format(sf))
+
+# %%
+with open("species.json") as tmpfile:
+        jsondic = json.loads(tmpfile.read())
+
+json_normalize(jsondic)
+# %%
+
+df_species_tnrs_matched = json_normalize(jsondic,
+               record_path=['results', 'matches']
+               )
+
+
+
+df_species_tnrs_unmatched = json_normalize(jsondic,
+               record_path=['unmatched_names']
+               )
+# %%
+
+df_species_tnrs_matched.info()
+
+
+# %%
+len(df_species_tnrs_matched['taxon.ott_id'].unique())
+# %%
+
+
+# We then want to match with the accepted name instead of the synonym in case both are present. 
+# We thus order by matched_name and then by is_synonym status prior to returning the first row.
+
+df_species_tnrs_matched.sort_values(['search_string', 'is_synonym'], axis = 0, inplace = True)
+df_species_tnrs_matched_unique = df_species_tnrs_matched.drop_duplicates('search_string', keep = 'first')
+
+# both df are finally merged
+merged_df = pd.merge(samples_metadata, df_species_tnrs_matched_unique, how='left', left_on=organism_header, right_on='search_string', indicator=True)
+
+
+# %%
+#Now we want to retrieve the upper taxa lineage for all the samples
+
+# Firsst we retrieve a list of unique ott_ids
+
+# Here when checking the columns datatype we observe that the ott_ids are as float.
+# We need to keep them as int
+# displaying the datatypes 
+display(merged_df.dtypes) 
+
+# converting 'ott_ids' from float to int (check the astype('Int64') whic will work while the astype('int') won't see https://stackoverflow.com/a/54194908)
+merged_df['taxon.ott_id'] = merged_df['taxon.ott_id'].astype('Int64')
+  
+
+# However, we then need to put them back to 
+merged_df['taxon.ott_id']
+ott_list = list(merged_df['taxon.ott_id'].dropna().astype('int'))
+
+#ott_list = ott_list[0:10]
+
+# %%
+
+taxon_info = []
+
+for i in ott_list:
+    query = OT.taxon_info(i, include_lineage=True)
+    taxon_info.append(query)
+
+# %%
+
+
+tl = []
+
+for i in taxon_info:
+    with open('taxon_info.json', 'w') as out:
+        tl.append(i.response_dict)
+        yo = json.dumps(tl)
+        out.write('{}\n'.format(yo))
+
+# %%
+
+with open("taxon_info.json") as tmpfile:
+        jsondic = json.loads(tmpfile.read())
+
+df = json_normalize(jsondic)
+
+
+# %%
+
+df_tax_lineage = json_normalize(jsondic,
+               record_path=['lineage'],
+               meta = ['ott_id', 'unique_name'],
+               record_prefix='sub_',
+               errors='ignore'
+               )
+# %%
+# This keeps the last occurence of each ott_id / sub_rank grouping https://stackoverflow.com/a/41886945
+
+df_tax_lineage_filtered = df_tax_lineage.groupby(['ott_id', 'sub_rank'], as_index=False).last()
+# %%
+#Here we pivot long to wide to get the taxonomy
+
+df_tax_lineage_filtered_flat = df_tax_lineage_filtered.pivot(index='ott_id', columns='sub_rank', values='sub_name')
+
+# %%
+# Here we actually also want the lowertaxon (species usually) name
+
+df_tax_lineage_filtered_flat = pd.merge(df_tax_lineage_filtered_flat, df_tax_lineage_filtered[['ott_id', 'unique_name']], how='left', on='ott_id', )
+
+#Despite the left join ott_id are duplicated 
+
+df_tax_lineage_filtered_flat.drop_duplicates(subset = ['ott_id', 'unique_name'], inplace = True)
+
+# %%
+# we keep the fields of interest
+
+df_tax_lineage_filtered_flat[['ott_id', 'kingdom', 'phylum',
+                              'class', 'order', 'family', 'genus', 'unique_name']]
+
+
+
+# We now rename our columns of interest
+
+renaming_dict = {'kingdom': 'query_otol_kingdom',
+                 'phylum': 'query_otol_phylum',
+                 'class': 'query_otol_class',
+                 'order': 'query_otol_order',
+                 'family': 'query_otol_family',
+                 'genus': 'query_otol_genus',
+                 'unique_name': 'query_otol_species'}
+
+
+df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
+
+# We select columns of interest 
+
+cols_to_keep = ['ott_id',
+                'query_otol_kingdom',
+                'query_otol_phylum',
+                'query_otol_class',
+                'query_otol_order',
+                'query_otol_family',
+                'query_otol_genus',
+                'query_otol_species']
+
+df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
+
+
+# We merge this back with the samplemetadata
+
+samples_metadata = pd.merge(merged_df, df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
 
 
 
@@ -457,14 +623,20 @@ if Run_line_x_line == True:
     feature_intensity = feature_intensity.transpose()
     feature_intensity.index.name = 'MS_filename'
     feature_intensity = feature_intensity.transpose()
-
-    Samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
-                                   # usecols=['filename','ATTRIBUTE_phylum_cof', 'ATTRIBUTE_kingdom_cof',  'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof'])
-                                   usecols=['filename', 'ATTRIBUTE_Phylum', 'ATTRIBUTE_Kingdom',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species'])
-
+    # Samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
+    #                                # usecols=['filename','ATTRIBUTE_phylum_cof', 'ATTRIBUTE_kingdom_cof',  'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof'])
+    #                                #    usecols=['filename', 'ATTRIBUTE_Phylum', 'ATTRIBUTE_Kingdom',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species'])
+    #                                usecols=['filename',
+    #                                         'query_otol_kingdom',
+    #                                         'query_otol_phylum',
+    #                                         'query_otol_class',
+    #                                         'query_otol_order',
+    #                                         'query_otol_family',
+    #                                         'query_otol_genus',
+    #                                         'query_otol_species'])
     res = feature_intensity[feature_intensity != 0].stack()
     df_res = res.to_frame().reset_index()
-    df_merged = pd.merge(df_res, Samples_metadata, left_on='MS_filename',
+    df_merged = pd.merge(df_res, samples_metadata, left_on='MS_filename',
                          right_on='filename', how='left').drop([0, 'MS_filename', 'filename'], axis=1)
     df_merged = df_merged.groupby('row_ID').agg(lambda x: list(x))
     df_merged.reset_index(inplace=True)
@@ -479,19 +651,26 @@ if Run_line_x_line == True:
     dt_isdb_results = pd.merge(
         dt_isdb_results, df_merged, left_on='feature_id', right_on='row_ID', how='left')
 else:
-       dt_isdb_results['ATTRIBUTE_species_cof'] = species_bio
-       dt_isdb_results['ATTRIBUTE_genus_cof'] = genus_bio
-       dt_isdb_results['ATTRIBUTE_family_cof'] = family_bio
-       dt_isdb_results['ATTRIBUTE_order_cof'] = order_bio
-       dt_isdb_results['ATTRIBUTE_class_cof'] = class_bio
-       dt_isdb_results['ATTRIBUTE_phylum_cof'] = phylum_bio
-       dt_isdb_results['ATTRIBUTE_kingdom_cof'] = kingdom_bio
+       dt_isdb_results['query_otol_species'] = species_bio
+       dt_isdb_results['query_otol_genus'] = genus_bio
+       dt_isdb_results['query_otol_family'] = family_bio
+       dt_isdb_results['query_otol_order'] = order_bio
+       dt_isdb_results['query_otol_class'] = class_bio
+       dt_isdb_results['query_otol_phylum'] = phylum_bio
+       dt_isdb_results['query_otol_kingdom'] = kingdom_bio
        
 #%% Taxonomical Reweighting
 
 cols_ref = ['Kingdom_cof_DNP', 'Phylum_cof_DNP',  'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP', 'Species_cof_DNP']
-cols_att = ['ATTRIBUTE_Kingdom', 'ATTRIBUTE_Phylum',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species']
+#cols_att = ['ATTRIBUTE_Kingdom', 'ATTRIBUTE_Phylum',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species']
 #cols_att = ['ATTRIBUTE_kingdom_cof', 'ATTRIBUTE_phylum_cof', 'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof']
+cols_att = ['query_otol_kingdom',
+            'query_otol_phylum',
+            'query_otol_class',
+            'query_otol_order',
+            'query_otol_family',
+            'query_otol_genus',
+            'query_otol_species']
 cols_match = ['matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order', 'matched_family', 'matched_genus', 'matched_species']
 
 col_prev = None
