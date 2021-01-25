@@ -74,7 +74,7 @@ Top_N_Sample = 5
 use_post_taxo = True
 
 # # MS filename extension (a common pattern in all your filenames)
-file_extension = '.mzXML'
+file_extension = '.mzML'
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 top_N_chemical_consistency = 30
@@ -116,14 +116,16 @@ except:
         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
 # python met_annot_enhancer.py 
-job_id = '56d01c6ccfe143eca5252017202c8fef'
-gnps_job_path = '/Users/pma/tmp/Fred_Legendre/'
-isdb_results_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv'
+job_id = '7f1259a161974b9fa4215b1f2a6dca5e'
+gnps_job_path = '/Users/pma/tmp/bafu_ecometabo/'
+isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
-output_weighed_ISDB_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv'
+output_weighed_ISDB_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results_repond.tsv'
 top_to_output = 3
 ppm_tol = 5
 polarity = 'Pos'
+organism_header = 'sample_type'
+
 
 # python met_annot_enhancer.py \
 # 56d01c6ccfe143eca5252017202c8fef \
@@ -422,7 +424,6 @@ print('Total number of annotations with unique Biosource/line: ' +
 # the metadata table path is generated from the base bath to the GNPS results folder
 metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
 
-organism_header = 'ATTRIBUTE_Species'
 # the metadata table is loaded using the organism column specified before
 
 samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
