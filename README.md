@@ -1,6 +1,38 @@
 # met_annot_enhancer
 A set of script to proceed to metabolite annotation results enhancement using taxonomically and structurally informed processes
 
+# Usage
+
+## Requirements 
+
+The requested package can be installed by creating the conda environment and activating it.
+
+Use the following line for environment creation 
+
+`conda env create -f environment.yml`
+
+And this one to activate it 
+
+`conda activate met_annot_enhancer_env`
+
+
+## Launching the script
+
+Example : 
+
+```bash
+python met_annot_enhancer.py \
+56d01c6ccfe143eca5252017202c8fef \
+/Users/pma/tmp/Fred_Legendre/ \
+/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
+/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
+/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
+3 \
+5 \
+Pos
+````
+
+
 # R implementation
 
 An R based implementation of the metabolite annotation enhancing process is available here https://gitlab.com/tima5/taxoscorer
