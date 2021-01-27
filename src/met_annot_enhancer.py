@@ -15,8 +15,7 @@ from opentree import OT
 import json
 from pandas import json_normalize
 
-
-
+import spectral_lib_matcher
 
 
 # %% defininbg display options
@@ -46,6 +45,38 @@ Top_N_Sample = 5
 
 
 # %% Defining the paths
+
+
+
+# defining the command line arguments
+try:
+    job_id = sys.argv[1]
+    gnps_job_path = sys.argv[2]
+    isdb_results_path = sys.argv[3]
+    metadata_path = sys.argv[4]
+    output_weighed_ISDB_path = sys.argv[5]
+    top_to_output = sys.argv[6]
+    ppm_tol = sys.argv[7]
+    polarity = sys.argv[8]
+
+    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
+          + job_id + '.\n'
+          + 'The GNPS files are downloaded locally in the following folder:' 
+          + gnps_job_path + '.\n'
+          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
+          + '   - spectral match results: ' + str(isdb_results_path) + '\n'
+          + '   - metadata file: ' + str(metadata_path) + '\n'
+          + '   - top hits to output: ' + str(top_to_output) + '\n'
+          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
+          + '   - polarity mode: ' + str(polarity) + '\n'
+          + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
+except:
+    print(
+        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
+        Example :
+        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
+
+
 
 # # GNPS FBMN Job ID
 # job_id = "56d01c6ccfe143eca5252017202c8fef"
@@ -87,44 +118,33 @@ top_N_chemical_consistency = 30
 # polarity = 'Pos'
 
 
-# defining the command line arguments
-try:
-    job_id = sys.argv[1]
-    gnps_job_path = sys.argv[2]
-    isdb_results_path = sys.argv[3]
-    metadata_path = sys.argv[4]
-    output_weighed_ISDB_path = sys.argv[5]
-    top_to_output = sys.argv[6]
-    ppm_tol = sys.argv[7]
-    polarity = sys.argv[8]
-
-    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
-          + job_id + '.\n'
-          + 'The GNPS files are downloaded locally in the following folder:' 
-          + gnps_job_path + '.\n'
-          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
-          + '   - spectral match results: ' + str(isdb_results_path) + '\n'
-          + '   - metadata file: ' + str(metadata_path) + '\n'
-          + '   - top hits to output: ' + str(top_to_output) + '\n'
-          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
-          + '   - polarity mode: ' + str(polarity) + '\n'
-          + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
-except:
-    print(
-        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
-        Example :
-        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
-
 # python met_annot_enhancer.py 
 job_id = '7f1259a161974b9fa4215b1f2a6dca5e'
 gnps_job_path = '/Users/pma/tmp/bafu_ecometabo/'
-isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
+#isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
 output_weighed_ISDB_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results_repond.tsv'
-top_to_output = 3
-ppm_tol = 5
+top_to_output = '3'
+ppm_tol = '5'
 polarity = 'Pos'
 organism_header = 'sample_type'
+
+base_filename = 'GNPS_output'
+filename_suffix = 'zip'
+path_to_folder = os.path.join(gnps_job_path, base_filename)
+path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
+
+
+query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
+db_file_path = '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf'
+parent_mz_tol = 0.01
+msms_mz_tol = 0.01
+min_cos = 0.2
+min_peaks = 6
+spectral_match_results_filename = 'bafu_ecometabo_spectral_match_results.tsv'
+isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
+
+
 
 
 # python met_annot_enhancer.py \
@@ -136,6 +156,14 @@ organism_header = 'sample_type'
 # 3 \
 # 5 \
 # Pos
+
+
+## spectral_lib_matcher params
+
+
+
+
+
 
 # timer is started
 start_time = time.time()
@@ -162,11 +190,7 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 # for f in files:
 #    os.remove(f)
 
-base_filename = 'GNPS_output'
-filename_suffix = 'zip'
 
-path_to_folder = os.path.join(gnps_job_path, base_filename)
-path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
 
 
 job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
@@ -183,7 +207,19 @@ subprocess.call(shlex.split(cmd))
 
 # %% Spectral matching stage
 
-# Check wether we can import the spectral matching stage here directly
+# Yes we can !
+
+
+spectral_lib_matcher.main(query_file_path,
+                          db_file_path,
+                          parent_mz_tol,
+                          msms_mz_tol,
+                          min_cos,
+                          min_peaks,
+                          isdb_results_path
+                          )
+
+
 
 # %% Loading the files
 
