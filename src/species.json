@@ -1,325 +1,47 @@
 {
-  "context": "All life",
-  "governing_code": "undefined",
+  "context": "Asterids",
+  "governing_code": "ICN",
   "includes_approximate_matches": true,
   "includes_deprecated_taxa": false,
   "includes_suppressed_names": false,
   "matched_names": [
-    "plantago_lanceolata",
-    "arrhenatherum_elatus",
-    "lotus_corniculatus",
-    "soil",
-    "bk"
+    "satureja montana"
   ],
   "results": [
     {
       "matches": [
         {
-          "is_approximate_match": true,
+          "is_approximate_match": false,
           "is_synonym": false,
-          "matched_name": "Plantago lanceolata",
+          "matched_name": "Satureja montana",
           "nomenclature_code": "ICN",
-          "score": 0.9473684430122375,
-          "search_string": "plantago_lanceolata",
+          "score": 1.0,
+          "search_string": "satureja montana",
           "taxon": {
             "flags": [],
             "is_suppressed": false,
             "is_suppressed_from_synth": false,
-            "name": "Plantago lanceolata",
-            "ott_id": 376074,
+            "name": "Satureja montana",
+            "ott_id": 382237,
             "rank": "species",
             "source": "ott3.2draft9",
             "synonyms": [
-              "Plantago lanceolata capitellata",
-              "Plantago lanceolata montana",
-              "Plantago lanceolata angustifolia",
-              "Plantago lanceolata maritima",
-              "Plantago altissima"
+              "Micromeria montana",
+              "Satureja confinis",
+              "Thymus montanus",
+              "Clinopodium montanum",
+              "Saturiastrum montanum"
             ],
             "tax_sources": [
-              "ncbi:39414",
-              "worms:993830",
-              "gbif:8208358",
-              "irmng:10591871"
+              "ncbi:49988",
+              "gbif:2926884",
+              "irmng:10213832"
             ],
-            "unique_name": "Plantago lanceolata"
+            "unique_name": "Satureja montana"
           }
         }
       ],
-      "name": "plantago_lanceolata"
-    },
-    {
-      "matches": [
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Arrhenatherum elatius",
-          "nomenclature_code": "ICN",
-          "score": 0.9047619104385376,
-          "search_string": "arrhenatherum_elatus",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "Arrhenatherum elatius",
-            "ott_id": 368889,
-            "rank": "species",
-            "source": "ott3.2draft9",
-            "synonyms": [
-              "Avena elatior pauciflora",
-              "Hordeum avenaceum",
-              "Arrhenatherum elatior",
-              "Arrhenatherum avenaceum subconforme",
-              "Arrhenatherum avenaceum pauciflorum",
-              "Arrhenatherum elatius cylindricum",
-              "Avena elatior mutica",
-              "Arrhenatherum avenaceum glaucum",
-              "Arrhenatherum rivulare zavadilianum",
-              "Arrhenatherum avenaceum submuticum",
-              "Arrhenatherum elatius brachycladum",
-              "Arrhenatherum rivulare asperum",
-              "Arrhenatherum avenaceum piliferum",
-              "Holcus avenaceus palustris",
-              "Arrhenatherum rivulare angustifolium",
-              "Arrhenatherum avenaceum palustris",
-              "Arrhenatherum elatius microstachyum",
-              "Avenastrum elatius",
-              "Arrhenatherum avenaceum",
-              "Arrhenatherum elatius coloratum",
-              "Holcus avenaceus",
-              "Holcus elatior",
-              "Avena elatior",
-              "Avena elata"
-            ],
-            "tax_sources": [
-              "ncbi:52139",
-              "worms:993850",
-              "gbif:2704505",
-              "irmng:10208971"
-            ],
-            "unique_name": "Arrhenatherum elatius"
-          }
-        },
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Arrhenatherum elatior",
-          "nomenclature_code": "ICN",
-          "score": 0.8095238208770752,
-          "search_string": "arrhenatherum_elatus",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "Arrhenatherum elatius",
-            "ott_id": 368889,
-            "rank": "species",
-            "source": "ott3.2draft9",
-            "synonyms": [
-              "Avena elatior pauciflora",
-              "Hordeum avenaceum",
-              "Arrhenatherum elatior",
-              "Arrhenatherum avenaceum subconforme",
-              "Arrhenatherum avenaceum pauciflorum",
-              "Arrhenatherum elatius cylindricum",
-              "Avena elatior mutica",
-              "Arrhenatherum avenaceum glaucum",
-              "Arrhenatherum rivulare zavadilianum",
-              "Arrhenatherum avenaceum submuticum",
-              "Arrhenatherum elatius brachycladum",
-              "Arrhenatherum rivulare asperum",
-              "Arrhenatherum avenaceum piliferum",
-              "Holcus avenaceus palustris",
-              "Arrhenatherum rivulare angustifolium",
-              "Arrhenatherum avenaceum palustris",
-              "Arrhenatherum elatius microstachyum",
-              "Avenastrum elatius",
-              "Arrhenatherum avenaceum",
-              "Arrhenatherum elatius coloratum",
-              "Holcus avenaceus",
-              "Holcus elatior",
-              "Avena elatior",
-              "Avena elata"
-            ],
-            "tax_sources": [
-              "ncbi:52139",
-              "worms:993850",
-              "gbif:2704505",
-              "irmng:10208971"
-            ],
-            "unique_name": "Arrhenatherum elatius"
-          }
-        }
-      ],
-      "name": "arrhenatherum_elatus"
-    },
-    {
-      "matches": [
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Lotus corniculatus",
-          "nomenclature_code": "ICN",
-          "score": 0.9444444179534912,
-          "search_string": "lotus_corniculatus",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "Lotus corniculatus",
-            "ott_id": 183572,
-            "rank": "species",
-            "source": "ott3.2draft9",
-            "synonyms": [
-              "Lotus corniculatus major",
-              "Lotus corniculatus carpetanus",
-              "Lotus ciliatus",
-              "Lotus ambiguus",
-              "Lotus carpetanus",
-              "Lotus corniculatus maritimus",
-              "Lotus olgae",
-              "Lotus balticus",
-              "Lotus caucasicus",
-              "Lotus corniculatus kochii",
-              "Lotus major",
-              "Lotus zhegulensis",
-              "Lotus arvensis",
-              "Lotus komarovii",
-              "Lotus ruprechtii",
-              "Lotus tauricus",
-              "Lotus corniculatus arvensis",
-              "Lotus corniculatus ruprechtii",
-              "Lotus corniculatus komarovii",
-              "Lotus corniculatus ambiguus",
-              "Lotus corniculatus ciliatus",
-              "Lotus corniculatus crassifolia",
-              "Lotus japonicus",
-              "Lotus frondosus"
-            ],
-            "tax_sources": [
-              "ncbi:47247",
-              "worms:426010",
-              "gbif:5357013",
-              "irmng:10926567"
-            ],
-            "unique_name": "Lotus corniculatus"
-          }
-        }
-      ],
-      "name": "lotus_corniculatus"
-    },
-    {
-      "matches": [
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Soia",
-          "nomenclature_code": "ICN",
-          "score": 0.75,
-          "search_string": "soil",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "Glycine",
-            "ott_id": 459704,
-            "rank": "genus",
-            "source": "ott3.2draft9",
-            "synonyms": [
-              "Leptolobium",
-              "Soia",
-              "Chrystolia",
-              "Sooya",
-              "Leptocyamus",
-              "Soja"
-            ],
-            "tax_sources": [
-              "ncbi:3846",
-              "gbif:7968287",
-              "irmng:1062303"
-            ],
-            "unique_name": "Glycine"
-          }
-        },
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Sol",
-          "nomenclature_code": "undefined",
-          "score": 0.6666666865348816,
-          "search_string": "soil",
-          "taxon": {
-            "flags": [
-              "hidden",
-              "extinct",
-              "major_rank_conflict",
-              "unplaced_inherited"
-            ],
-            "is_suppressed": true,
-            "is_suppressed_from_synth": true,
-            "name": "Sol",
-            "ott_id": 5157378,
-            "rank": "genus",
-            "source": "ott3.2draft9",
-            "synonyms": [],
-            "tax_sources": [
-              "irmng:1313256"
-            ],
-            "unique_name": "Sol"
-          }
-        }
-      ],
-      "name": "soil"
-    },
-    {
-      "matches": [
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "Bak",
-          "nomenclature_code": "ICZN",
-          "score": 0.6666666865348816,
-          "search_string": "bk",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "Bak",
-            "ott_id": 4682431,
-            "rank": "genus",
-            "source": "ott3.2draft9",
-            "synonyms": [],
-            "tax_sources": [
-              "gbif:4651246",
-              "irmng:1135829"
-            ],
-            "unique_name": "Bak"
-          }
-        },
-        {
-          "is_approximate_match": true,
-          "is_synonym": false,
-          "matched_name": "B7",
-          "nomenclature_code": "ICN",
-          "score": 0.5,
-          "search_string": "bk",
-          "taxon": {
-            "flags": [],
-            "is_suppressed": false,
-            "is_suppressed_from_synth": false,
-            "name": "B7",
-            "ott_id": 5248790,
-            "rank": "no rank - terminal",
-            "source": "ott3.2draft9",
-            "synonyms": [],
-            "tax_sources": [
-              "silva:FJ914409/#6"
-            ],
-            "unique_name": "B7"
-          }
-        }
-      ],
-      "name": "bk"
+      "name": "satureja montana"
     }
   ],
   "taxonomy": {
@@ -330,8 +52,7 @@
     "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
   },
   "unambiguous_names": [
-    "plantago_lanceolata",
-    "lotus_corniculatus"
+    "satureja montana"
   ],
   "unmatched_names": []
 }

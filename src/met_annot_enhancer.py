@@ -105,7 +105,7 @@ except:
 use_post_taxo = True
 
 # # MS filename extension (a common pattern in all your filenames)
-file_extension = '.mzML'
+file_extension = '.mzXML'
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 top_N_chemical_consistency = 30
@@ -119,17 +119,18 @@ top_N_chemical_consistency = 30
 
 
 # python met_annot_enhancer.py 
-job_id = '7f1259a161974b9fa4215b1f2a6dca5e'
-gnps_job_path = '/Users/pma/tmp/bafu_ecometabo/'
+job_id = '56d01c6ccfe143eca5252017202c8fef'
+gnps_job_path = '/Users/pma/tmp/Fred_Legendre/'
+project_name = 'sariette_pos'
 #isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
-output_weighed_ISDB_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results_repond.tsv'
+output_weighed_ISDB_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
 top_to_output = '3'
 ppm_tol = '5'
 polarity = 'Pos'
-organism_header = 'sample_type'
+organism_header = 'ATTRIBUTE_Species'
 
-base_filename = 'GNPS_output'
+base_filename = 'GNPS_output_' + project_name
 filename_suffix = 'zip'
 path_to_folder = os.path.join(gnps_job_path, base_filename)
 path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
@@ -141,8 +142,12 @@ parent_mz_tol = 0.01
 msms_mz_tol = 0.01
 min_cos = 0.2
 min_peaks = 6
-spectral_match_results_filename = 'bafu_ecometabo_spectral_match_results.tsv'
+spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
 isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
+sunburst_chem_filename = project_name + '_chemo_sunburst.html'
+sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
+sunburst_chem_results_path = os.path.join(path_to_folder,sunburst_chem_filename)
+sunburst_organisms_results_path = os.path.join(path_to_folder,sunburst_organisms_filename)
 
 
 
@@ -193,31 +198,31 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 
 
 
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
-cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-subprocess.call(shlex.split(cmd))
+# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+# subprocess.call(shlex.split(cmd))
 
-with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-    zip_ref.extractall(path_to_folder)
+# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+#     zip_ref.extractall(path_to_folder)
 
-# We finally remove the zip file
-cmd = 'rm '+ path_to_file
-subprocess.call(shlex.split(cmd))
+# # We finally remove the zip file
+# cmd = 'rm '+ path_to_file
+# subprocess.call(shlex.split(cmd))
 
-# %% Spectral matching stage
+# # %% Spectral matching stage
 
-# Yes we can !
+# # Yes we can !
 
 
-spectral_lib_matcher.main(query_file_path,
-                          db_file_path,
-                          parent_mz_tol,
-                          msms_mz_tol,
-                          min_cos,
-                          min_peaks,
-                          isdb_results_path
-                          )
+# spectral_lib_matcher.main(query_file_path,
+#                           db_file_path,
+#                           parent_mz_tol,
+#                           msms_mz_tol,
+#                           min_cos,
+#                           min_peaks,
+#                           isdb_results_path
+#                           )
 
 
 
@@ -441,7 +446,7 @@ cols_to_use = ['CRC_Number_DNP', 'IK_DNP', 'InChI_DNP',
                'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP',
                'Species_cof_DNP', 'ClassyFy_Status_DNP',
                'Kingdom_cf_DNP', 'Superclass_cf_DNP', 'Class_cf_DNP',
-               'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP']
+               'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP' ]
 
 dt_isdb_results.dropna(subset=['short_inchikey'], inplace=True)
 dt_isdb_results = pd.merge(
@@ -630,9 +635,10 @@ cols_to_keep = ['ott_id',
 df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
 
 
-# We merge this back with the samplemetadata
+# We merge this back with the samplemetadata only if we have an ott.id in the merged df 
 
-samples_metadata = pd.merge(merged_df, df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
+samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
+
 
 
 
@@ -940,7 +946,9 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int6
 # %%
 
 annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'InChI_DNP',
-              'Molecule_Name_DNP', 'Molecule_Formula_DNP', 'Accurate_Mass_DNP', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
+              'Molecule_Name_DNP', 'Molecule_Formula_DNP', 'Accurate_Mass_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP', 
+              'Kingdom_cof_DNP', 'Phylum_cof_DNP', 'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP' ,'Genus_cof_DNP', 'Species_cof_DNP', 
+              'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
               'matched_family', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
 
 comp_attr = ['component_id', 'Superclass_cf_DNP_consensus', 'freq_Superclass_cf_DNP', 'Class_cf_DNP_consensus',
@@ -949,7 +957,7 @@ comp_attr = ['component_id', 'Superclass_cf_DNP_consensus', 'freq_Superclass_cf_
 
 col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
-df4cyto = dt_isdb_results_chem_rew[col_to_keep]
+df4cyto_flat = dt_isdb_results_chem_rew[col_to_keep]
 
 # %%
 
@@ -959,7 +967,7 @@ for c in comp_attr:
 
 # %%
 
-df4cyto = df4cyto.groupby('feature_id').agg(gb_spec)
+df4cyto = df4cyto_flat.groupby('feature_id').agg(gb_spec)
 
 # %%
 df4cyto.to_csv(output_weighed_ISDB_path, sep='\t')
@@ -986,3 +994,70 @@ print('You can check your results here %s' % output_weighed_ISDB_path)
 
 # df4cyto['rank_spec'] = df4cyto['rank_spec'].apply(lambda x: [x])
 
+
+# %%
+# using px express to plot some quick and dirty sunbursts (https://plotly.com/python/sunburst-charts/)
+# customize fonts in titles following https://stackoverflow.com/a/57926862
+# customize margins following https://stackoverflow.com/a/63162535
+
+import plotly.express as px
+
+
+fig = px.sunburst(df4cyto_flat, path=['Superclass_cf_DNP_consensus', 'Class_cf_DNP_consensus', 'Subclass_cf_DNP_consensus', 'Parent_Level_1_cf_DNP_consensus'],
+                  )
+fig.update_layout(
+    #font_family="Courier New",
+    title_font_family="Courier New",
+    title_font_color="black",
+    title_font_size=14,
+    legend_title_font_color="black",
+    title_text="<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + project_name + "</b>",
+    title_x=0.5
+)
+
+fig.update_layout(
+    title={
+        'text': "<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+        'y':0.96,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'})
+
+fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+#,paper_bgcolor="Black"
+)
+
+fig.show()
+fig.write_html(sunburst_chem_results_path)
+
+# %%
+
+fig = px.sunburst(df4cyto_flat, path=['Kingdom_cof_DNP', 'Phylum_cof_DNP', 'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP' ,'Genus_cof_DNP', 'Species_cof_DNP'],
+                  )
+fig.update_layout(
+    #font_family="Courier New",
+    title_font_family="Courier New",
+    title_font_color="black",
+    title_font_size=14,
+    legend_title_font_color="black",
+    title_text="<b> Overview of the source organisms of the chemical annotation <br> as the kingfom, phylum, class, order, family, genus and species level for <br>" + project_name + "</b>",
+    title_x=0.5
+)
+
+fig.update_layout(
+    title={
+        'text': "<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+        'y':0.96,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'})
+
+fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+#,paper_bgcolor="Black"
+)
+
+fig.show()
+fig.write_html(sunburst_organisms_results_path)
+
+
+# %%
