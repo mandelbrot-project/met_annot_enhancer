@@ -5,7 +5,7 @@
   "includes_deprecated_taxa": false,
   "includes_suppressed_names": false,
   "matched_names": [
-    "satureja montana"
+    "hyssopus officinalis"
   ],
   "results": [
     {
@@ -13,35 +13,32 @@
         {
           "is_approximate_match": false,
           "is_synonym": false,
-          "matched_name": "Satureja montana",
+          "matched_name": "Hyssopus officinalis",
           "nomenclature_code": "ICN",
           "score": 1.0,
-          "search_string": "satureja montana",
+          "search_string": "hyssopus officinalis",
           "taxon": {
             "flags": [],
             "is_suppressed": false,
             "is_suppressed_from_synth": false,
-            "name": "Satureja montana",
-            "ott_id": 382237,
+            "name": "Hyssopus officinalis",
+            "ott_id": 880695,
             "rank": "species",
             "source": "ott3.2draft9",
             "synonyms": [
-              "Micromeria montana",
-              "Satureja confinis",
-              "Thymus montanus",
-              "Clinopodium montanum",
-              "Saturiastrum montanum"
+              "Thymus hyssopus",
+              "Hyssopus officinalis vulgaris"
             ],
             "tax_sources": [
-              "ncbi:49988",
-              "gbif:2926884",
-              "irmng:10213832"
+              "ncbi:39324",
+              "gbif:5341387",
+              "irmng:11205031"
             ],
-            "unique_name": "Satureja montana"
+            "unique_name": "Hyssopus officinalis"
           }
         }
       ],
-      "name": "satureja montana"
+      "name": "hyssopus officinalis"
     }
   ],
   "taxonomy": {
@@ -52,7 +49,7 @@
     "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
   },
   "unambiguous_names": [
-    "satureja montana"
+    "hyssopus officinalis"
   ],
   "unmatched_names": []
 }

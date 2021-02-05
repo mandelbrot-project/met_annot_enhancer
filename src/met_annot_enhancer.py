@@ -121,7 +121,7 @@ top_N_chemical_consistency = 30
 # python met_annot_enhancer.py 
 job_id = '56d01c6ccfe143eca5252017202c8fef'
 gnps_job_path = '/Users/pma/tmp/Fred_Legendre/'
-project_name = 'sariette_pos'
+project_name = 'hysope_pos'
 #isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
 output_weighed_ISDB_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
@@ -1028,7 +1028,10 @@ fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
 )
 
 fig.show()
-fig.write_html(sunburst_chem_results_path)
+
+fig.write_html(sunburst_chem_results_path,
+               full_html=False,
+               include_plotlyjs='cdn')
 
 # %%
 
@@ -1046,7 +1049,7 @@ fig.update_layout(
 
 fig.update_layout(
     title={
-        'text': "<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+        'text': "<b> Overview of the source organisms of the chemical annotation <br> as the kingfom, phylum, class, order, family, genus and species level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
         'y':0.96,
         'x':0.5,
         'xanchor': 'center',
@@ -1057,7 +1060,9 @@ fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
 )
 
 fig.show()
-fig.write_html(sunburst_organisms_results_path)
+
+fig.write_html(sunburst_organisms_results_path,
+               full_html=False,
+               include_plotlyjs='cdn')
 
 
-# %%
