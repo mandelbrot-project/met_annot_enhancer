@@ -119,16 +119,18 @@ top_N_chemical_consistency = 30
 
 
 # python met_annot_enhancer.py 
-job_id = '56d01c6ccfe143eca5252017202c8fef'
-gnps_job_path = '/Users/pma/tmp/Fred_Legendre/'
-project_name = 'hysope_pos'
+job_id = '3197f70bed224f9ba6f59f62906839e9'
+
+gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/MEMO'
+project_name = 'GNPS_3'
 #isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
-output_weighed_ISDB_path = '/Users/pma/tmp/Fred_Legendre/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
+#output_weighed_ISDB_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
+output_weighed_ISDB_path = gnps_job_path + '/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
 top_to_output = '3'
 ppm_tol = '5'
 polarity = 'Pos'
-organism_header = 'ATTRIBUTE_Species'
+organism_header = 'species'
 
 base_filename = 'GNPS_output_' + project_name
 filename_suffix = 'zip'
@@ -198,31 +200,31 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 
 
 
-# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
-# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-# subprocess.call(shlex.split(cmd))
+cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+subprocess.call(shlex.split(cmd))
 
-# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-#     zip_ref.extractall(path_to_folder)
+with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+    zip_ref.extractall(path_to_folder)
 
-# # We finally remove the zip file
-# cmd = 'rm '+ path_to_file
-# subprocess.call(shlex.split(cmd))
+# We finally remove the zip file
+cmd = 'rm '+ path_to_file
+subprocess.call(shlex.split(cmd))
 
-# # %% Spectral matching stage
+# %% Spectral matching stage
 
-# # Yes we can !
+# Yes we can !
 
 
-# spectral_lib_matcher.main(query_file_path,
-#                           db_file_path,
-#                           parent_mz_tol,
-#                           msms_mz_tol,
-#                           min_cos,
-#                           min_peaks,
-#                           isdb_results_path
-#                           )
+spectral_lib_matcher.main(query_file_path,
+                          db_file_path,
+                          parent_mz_tol,
+                          msms_mz_tol,
+                          min_cos,
+                          min_peaks,
+                          isdb_results_path
+                          )
 
 
 
@@ -971,7 +973,8 @@ df4cyto = df4cyto_flat.groupby('feature_id').agg(gb_spec)
 
 # %%
 df4cyto.to_csv(output_weighed_ISDB_path, sep='\t')
-
+output_weighed_ISDB_path
+df4cyto_flat.to_csv('/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_GT3/GT3_isdb_repond_flat.tsv', sep='\t')
 
 # %%
 
@@ -1064,5 +1067,6 @@ fig.show()
 fig.write_html(sunburst_organisms_results_path,
                full_html=False,
                include_plotlyjs='cdn')
+
 
 

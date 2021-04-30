@@ -5,7 +5,7 @@
   "includes_deprecated_taxa": false,
   "includes_suppressed_names": false,
   "matched_names": [
-    "hyssopus officinalis"
+    "camellia sinensis"
   ],
   "results": [
     {
@@ -13,32 +13,43 @@
         {
           "is_approximate_match": false,
           "is_synonym": false,
-          "matched_name": "Hyssopus officinalis",
+          "matched_name": "Camellia sinensis",
           "nomenclature_code": "ICN",
           "score": 1.0,
-          "search_string": "hyssopus officinalis",
+          "search_string": "camellia sinensis",
           "taxon": {
             "flags": [],
             "is_suppressed": false,
             "is_suppressed_from_synth": false,
-            "name": "Hyssopus officinalis",
-            "ott_id": 880695,
+            "name": "Camellia sinensis",
+            "ott_id": 1058509,
             "rank": "species",
             "source": "ott3.2draft9",
             "synonyms": [
-              "Thymus hyssopus",
-              "Hyssopus officinalis vulgaris"
+              "Thea sinensis",
+              "Thea bohea",
+              "Camellia thea",
+              "Camellia theifera",
+              "Thea viridis"
             ],
             "tax_sources": [
-              "ncbi:39324",
-              "gbif:5341387",
-              "irmng:11205031"
+              "ncbi:4442",
+              "gbif:3189635",
+              "irmng:10858538"
             ],
-            "unique_name": "Hyssopus officinalis"
+            "unique_name": "Camellia sinensis"
           }
         }
       ],
-      "name": "hyssopus officinalis"
+      "name": "camellia sinensis"
+    },
+    {
+      "matches": [],
+      "name": "curcuma\ufffdlonga"
+    },
+    {
+      "matches": [],
+      "name": "bk"
     }
   ],
   "taxonomy": {
@@ -49,7 +60,10 @@
     "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
   },
   "unambiguous_names": [
-    "hyssopus officinalis"
+    "camellia sinensis"
   ],
-  "unmatched_names": []
+  "unmatched_names": [
+    "curcuma\ufffdlonga",
+    "bk"
+  ]
 }
