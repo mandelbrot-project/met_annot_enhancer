@@ -1,11 +1,11 @@
 {
-  "context": "Asterids",
+  "context": "Rosids",
   "governing_code": "ICN",
   "includes_approximate_matches": true,
   "includes_deprecated_taxa": false,
   "includes_suppressed_names": false,
   "matched_names": [
-    "camellia sinensis"
+    "melochia umbellata"
   ],
   "results": [
     {
@@ -13,43 +13,48 @@
         {
           "is_approximate_match": false,
           "is_synonym": false,
-          "matched_name": "Camellia sinensis",
+          "matched_name": "Melochia umbellata",
           "nomenclature_code": "ICN",
           "score": 1.0,
-          "search_string": "camellia sinensis",
+          "search_string": "melochia umbellata",
           "taxon": {
-            "flags": [],
+            "flags": [
+              "sibling_higher"
+            ],
             "is_suppressed": false,
             "is_suppressed_from_synth": false,
-            "name": "Camellia sinensis",
-            "ott_id": 1058509,
+            "name": "Melochia umbellata",
+            "ott_id": 101131,
             "rank": "species",
             "source": "ott3.2draft9",
             "synonyms": [
-              "Thea sinensis",
-              "Thea bohea",
-              "Camellia thea",
-              "Camellia theifera",
-              "Thea viridis"
+              "Visenia alba",
+              "Riedlea cordata",
+              "Melochia indica",
+              "Melochia velutina",
+              "Riedlea velutina",
+              "Glossospermum velutinum",
+              "Glossospermum cordatum",
+              "Visenia umbellata",
+              "Visenia tomentosa",
+              "Visenia tiliifolia",
+              "Visenia javanica",
+              "Visenia indica",
+              "Melochia arborea",
+              "Visenia velutina",
+              "Riedlea wallichiana",
+              "Riedlea tiliifolia"
             ],
             "tax_sources": [
-              "ncbi:4442",
-              "gbif:3189635",
-              "irmng:10858538"
+              "ncbi:1085467",
+              "gbif:3152126",
+              "irmng:11035847"
             ],
-            "unique_name": "Camellia sinensis"
+            "unique_name": "Melochia umbellata"
           }
         }
       ],
-      "name": "camellia sinensis"
-    },
-    {
-      "matches": [],
-      "name": "curcuma\ufffdlonga"
-    },
-    {
-      "matches": [],
-      "name": "bk"
+      "name": "melochia umbellata"
     }
   ],
   "taxonomy": {
@@ -60,10 +65,7 @@
     "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
   },
   "unambiguous_names": [
-    "camellia sinensis"
+    "melochia umbellata"
   ],
-  "unmatched_names": [
-    "curcuma\ufffdlonga",
-    "bk"
-  ]
+  "unmatched_names": []
 }
