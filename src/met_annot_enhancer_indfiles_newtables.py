@@ -32,7 +32,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 ## //TODO Maybe remove this option and systematically apply it ?
  
-Run_line_x_line = False 
+Run_line_x_line = True 
 # Top_N_Sample = 5
 
 # species_bio = 'Arabidopsis thaliana'
@@ -124,10 +124,13 @@ top_N_chemical_consistency = 30
 # gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/MEMO'
 # project_name = 'GNPS_3'
 # #isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
-metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
+#metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
+metadata_path = '/Users/pma/210505_dnp_metadata.csv'
+metadata_path2 = '/Users/pma/210505_frozen_metadata.csv'
+
 # #output_weighed_ISDB_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
 # output_weighed_ISDB_path = gnps_job_path + '/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
-top_to_output = '3'
+top_to_output = '1'
 ppm_tol = '5'
 polarity = 'Pos'
 
@@ -348,7 +351,12 @@ for sample_dir in samples_dir:
 
 
         dt_metadata = pd.read_csv(metadata_path,
-                                sep='\t', error_bad_lines=False, low_memory=True)
+                                sep=',', error_bad_lines=False, low_memory=True)
+
+        dt_metadata['short_inchikey'] = dt_metadata.structure_inchikey.str.split(
+            "-", expand=True)[0]
+        dt_metadata.reset_index(inplace=True)
+
 
         cluster_count = dt_isdb_results.drop_duplicates(
             subset=['feature_id', 'component_id']).groupby("component_id").count()
@@ -393,18 +401,18 @@ for sample_dir in samples_dir:
 
 
         # %%
-        df_meta_2 = dt_metadata[['IK_DNP', 'Accurate_Mass_DNP']]
-        df_meta_2.rename(columns={'IK_DNP': 'inchikey'}, inplace=True)
+        df_meta_2 = dt_metadata[['structure_inchikey', 'structure_exact_mass']]
+        df_meta_2.rename(columns={'structure_inchikey': 'inchikey'}, inplace=True)
 
-        df_meta_2 = df_meta_2.dropna(subset=['Accurate_Mass_DNP'])
+        df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
         df_meta_2 = df_meta_2.drop_duplicates(
-            subset=['inchikey', 'Accurate_Mass_DNP'])
+            subset=['inchikey', 'structure_exact_mass'])
 
-        df_meta_2 = df_meta_2.round({'Accurate_Mass_DNP': 5})
+        df_meta_2 = df_meta_2.round({'structure_exact_mass': 5})
         df_MS1 = df_MS1.round({'exact_mass': 5})
 
         df_MS1_merge = pd.merge(df_MS1, df_meta_2, left_on='exact_mass',
-                                right_on='Accurate_Mass_DNP', how='left')
+                                right_on='structure_exact_mass', how='left')
         df_MS1_merge = df_MS1_merge.dropna(subset=['inchikey'])
 
         df_MS1_merge['match_mzerror_MS1'] = df_MS1_merge['mz'] - \
@@ -413,7 +421,7 @@ for sample_dir in samples_dir:
             'match_mzerror_MS1': 'str'})
 
         df_MS1_merge = df_MS1_merge.drop(
-            ['Accurate_Mass_DNP', 'adduct_mass', 'exact_mass'], axis=1)
+            ['structure_exact_mass', 'adduct_mass', 'exact_mass'], axis=1)
         df_MS1_merge['score_input'] = 0
 
         #df_MS1_merge = df_MS1_merge.astype({'score_input': 'str'})
@@ -516,17 +524,17 @@ for sample_dir in samples_dir:
 
         # now we merge with the DNP metadata after selection of our columns of interest
 
-        cols_to_use = ['CRC_Number_DNP', 'IK_DNP', 'InChI_DNP',
-                    'Molecule_Name_DNP', 'Molecule_Formula_DNP',
-                    'Accurate_Mass_DNP', 'Short_IK_DNP', 'Kingdom_cof_DNP', 'Phylum_cof_DNP',
-                    'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP',
-                    'Species_cof_DNP', 'ClassyFy_Status_DNP',
-                    'Kingdom_cf_DNP', 'Superclass_cf_DNP', 'Class_cf_DNP',
-                    'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP' ]
+        cols_to_use = ['structure_inchikey', 'structure_inchi',
+                    'structure_smiles', 'structure_molecular_formula',
+                    'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
+                    'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+                    'organism_name', 'organism_taxonomy_ottid',
+                    'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+                    'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas' ]
 
         dt_isdb_results.dropna(subset=['short_inchikey'], inplace=True)
         dt_isdb_results = pd.merge(
-            left=dt_isdb_results, right=dt_metadata[cols_to_use], left_on='short_inchikey', right_on='Short_IK_DNP', how='outer')
+            left=dt_isdb_results, right=dt_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
         dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 
 
@@ -679,18 +687,25 @@ for sample_dir in samples_dir:
         # %%
         # we keep the fields of interest
 
-        df_tax_lineage_filtered_flat[['ott_id', 'kingdom', 'phylum',
-                                    'class', 'order', 'family', 'genus', 'unique_name']]
+        # here we want to have these columns whatevere happens
+        col_list = ['ott_id', 'domain', 'kingdom', 'phylum',
+                                    'class', 'order', 'family', 'tribe', 'genus', 'unique_name']
 
+        df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat.reindex(columns=col_list, fill_value = np.NaN)
+
+        # df_tax_lineage_filtered_flat[['ott_id', 'domain', 'kingdom', 'phylum',
+        #                             'class', 'order', 'family', 'tribe', 'genus', 'unique_name']]
 
 
         # We now rename our columns of interest
 
-        renaming_dict = {'kingdom': 'query_otol_kingdom',
+        renaming_dict = {'domain': 'query_otol_domain',
+                        'kingdom': 'query_otol_kingdom',
                         'phylum': 'query_otol_phylum',
                         'class': 'query_otol_class',
                         'order': 'query_otol_order',
                         'family': 'query_otol_family',
+                        'tribe': 'query_otol_tribe',
                         'genus': 'query_otol_genus',
                         'unique_name': 'query_otol_species'}
 
@@ -700,11 +715,13 @@ for sample_dir in samples_dir:
         # We select columns of interest 
 
         cols_to_keep = ['ott_id',
+                        'query_otol_domain',
                         'query_otol_kingdom',
                         'query_otol_phylum',
                         'query_otol_class',
                         'query_otol_order',
                         'query_otol_family',
+                        'query_otol_tribe',
                         'query_otol_genus',
                         'query_otol_species']
 
@@ -727,95 +744,45 @@ for sample_dir in samples_dir:
         # metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
 
 
-        if Run_line_x_line == True:
-
-            feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
-                os.listdir(quantification_table_reformatted_path)[0]), sep=',')
-            feature_intensity.rename(columns={'row ID': 'row_ID'}, inplace=True)
-            feature_intensity.set_index('row_ID', inplace=True)
-            feature_intensity = feature_intensity.filter(
-                regex=file_extension + '|row_ID')
-            feature_intensity = feature_intensity.where(feature_intensity.apply(
-                lambda x: x.isin(x.nlargest(Top_N_Sample)), axis=1), 0)  # top N here
-            feature_intensity.columns = feature_intensity.columns.str.replace(
-                r' Peak area', '')
-            feature_intensity = feature_intensity.transpose()
-            feature_intensity.index.name = 'MS_filename'
-            feature_intensity = feature_intensity.transpose()
-            # Samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
-            #                                # usecols=['filename','ATTRIBUTE_phylum_cof', 'ATTRIBUTE_kingdom_cof',  'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof'])
-            #                                #    usecols=['filename', 'ATTRIBUTE_Phylum', 'ATTRIBUTE_Kingdom',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species'])
-            #                                usecols=['filename',
-            #                                         'query_otol_kingdom',
-            #                                         'query_otol_phylum',
-            #                                         'query_otol_class',
-            #                                         'query_otol_order',
-            #                                         'query_otol_family',
-            #                                         'query_otol_genus',
-            #                                         'query_otol_species'])
-            res = feature_intensity[feature_intensity != 0].stack()
-            df_res = res.to_frame().reset_index()
-            df_merged = pd.merge(df_res, samples_metadata, left_on='MS_filename',
-                                right_on='filename', how='left').drop([0, 'MS_filename', 'filename'], axis=1)
-            df_merged = df_merged.groupby('row_ID').agg(lambda x: list(x))
-            df_merged.reset_index(inplace=True)
-
-
         # %%
 
         # Here we will add three columns (even for the simple repond this way it will be close to the multiple species repond)
         # these line will need to be defined as function arguments
 
-        if Run_line_x_line == True:
-            dt_isdb_results = pd.merge(
-                dt_isdb_results, df_merged, left_on='feature_id', right_on='row_ID', how='left')
-        else:
-            dt_isdb_results['query_otol_species'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_species')]
-            dt_isdb_results['query_otol_genus'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_genus')]
-            dt_isdb_results['query_otol_family'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_family')]
-            dt_isdb_results['query_otol_order'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_order')]
-            dt_isdb_results['query_otol_class'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_class')]
-            dt_isdb_results['query_otol_phylum'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_phylum')]
-            dt_isdb_results['query_otol_kingdom'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_kingdom')]
+        dt_isdb_results['query_otol_species'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_species')]
+        dt_isdb_results['query_otol_genus'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_genus')]
+        dt_isdb_results['query_otol_tribe'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_tribe')]
+        dt_isdb_results['query_otol_family'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_family')]
+        dt_isdb_results['query_otol_order'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_order')]
+        dt_isdb_results['query_otol_class'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_class')]
+        dt_isdb_results['query_otol_phylum'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_phylum')]
+        dt_isdb_results['query_otol_kingdom'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_kingdom')]
+        dt_isdb_results['query_otol_domain'] = samples_metadata.iloc[0, samples_metadata.columns.get_loc('query_otol_domain')]
             
         #%% Taxonomical Reweighting
 
-        cols_ref = ['Kingdom_cof_DNP', 'Phylum_cof_DNP',  'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP', 'Species_cof_DNP']
+        cols_ref = ['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',  'organism_taxonomy_03phylum', 'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe','organism_taxonomy_08genus', 'organism_taxonomy_09species' ]
         #cols_att = ['ATTRIBUTE_Kingdom', 'ATTRIBUTE_Phylum',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species']
         #cols_att = ['ATTRIBUTE_kingdom_cof', 'ATTRIBUTE_phylum_cof', 'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof']
-        cols_att = ['query_otol_kingdom',
+        cols_att = ['query_otol_domain',
+                    'query_otol_kingdom',
                     'query_otol_phylum',
                     'query_otol_class',
                     'query_otol_order',
                     'query_otol_family',
+                    'query_otol_tribe',
                     'query_otol_genus',
                     'query_otol_species']
-        cols_match = ['matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order', 'matched_family', 'matched_genus', 'matched_species']
+        cols_match = ['matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order', 'matched_family', 'matched_tribe', 'matched_genus', 'matched_species']
 
         col_prev = None
-        if Run_line_x_line == True:
-            for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
-                    dt_isdb_results[col_ref].fillna('Unknown', inplace=True)
-                    dt_isdb_results[col_ref] = dt_isdb_results[col_ref].apply(lambda x: [x])
-                    #   print(dt_isdb_results[col_ref])
-                    #   print(dt_isdb_results[col_att])
-                    #   #dt_isdb_results[col_att] = dt_isdb_results[col_att].apply(lambda x: tuple(x.split(","))) #if original biosource as string
-                    #   dt_isdb_results[col_ref] = dt_isdb_results[col_ref].apply(lambda x: list(x))
-                    #   dt_isdb_results[col_att] = dt_isdb_results[col_att].apply(lambda x: list(x))
-                    #dt_isdb_results[col_att] = dt_isdb_results[col_att].tolist()
-                    dt_isdb_results[col_match] = [list(set(a).intersection(set(b))) for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att])] # Allows to compare 2 lists
-                    dt_isdb_results[col_match] = dt_isdb_results[col_match].apply(lambda y: np.nan if len(y)==0 else y)
-                    if col_prev != None:
-                            dt_isdb_results[col_match].where(dt_isdb_results[col_prev].notnull(), np.nan)
-                    col_prev = col_match
 
-        else:
-            for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
-                    dt_isdb_results[col_ref].fillna('Unknown', inplace=True)
-                    dt_isdb_results[col_match] = np.where((dt_isdb_results[col_ref] == dt_isdb_results[col_att]), dt_isdb_results[col_att], np.nan)
-                    if col_prev != None:
-                            dt_isdb_results[col_match].where(dt_isdb_results[col_prev].notnull(), np.nan)
-                    col_prev = col_match
+        for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
+                dt_isdb_results[col_ref].fillna('Unknown', inplace=True)
+                dt_isdb_results[col_match] = np.where((dt_isdb_results[col_ref] == dt_isdb_results[col_att]), dt_isdb_results[col_att], np.nan)
+                if col_prev != None:
+                        dt_isdb_results[col_match].where(dt_isdb_results[col_prev].notnull(), np.nan)
+                col_prev = col_match
 
 
         dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
@@ -887,7 +854,10 @@ for sample_dir in samples_dir:
 
         print('Total number of annotations after filtering MS1 annotations not reweighted at order level: ' +
             str(len(dt_isdb_results)))
-        print('Number of annotations reweighted at the kingdom level: ' +
+
+        print('Number of annotations reweighted at the domain level: ' +
+            str(dt_isdb_results['matched_domain'].count()))
+        print('Number of annotations reweighted at the kingom level: ' +
             str(dt_isdb_results['matched_kingdom'].count()))
         print('Number of annotations reweighted at the phylum level: ' +
             str(dt_isdb_results['matched_phylum'].count()))
@@ -897,6 +867,8 @@ for sample_dir in samples_dir:
             str(dt_isdb_results['matched_order'].count()))
         print('Number of annotations reweighted at the family level: ' +
             str(dt_isdb_results['matched_family'].count()))
+        print('Number of annotations reweighted at the tribe level: ' +
+            str(dt_isdb_results['matched_tribe'].count()))
         print('Number of annotations reweighted at the genus level: ' +
             str(dt_isdb_results['matched_genus'].count()))
         print('Number of annotations reweighted at the species level: ' +
@@ -923,7 +895,7 @@ for sample_dir in samples_dir:
         # %%
         # Get cluster Chemical class
 
-        for col in ['Superclass_cf_DNP', 'Class_cf_DNP', 'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP']:
+        for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class']:
 
             df = dt_isdb_results.copy()
             df = df.drop_duplicates(subset=['feature_id', col])
@@ -962,20 +934,17 @@ for sample_dir in samples_dir:
 
         # %% Chemical consistency reweighting
 
-        dt_isdb_results['Superclass_cf_score'] = dt_isdb_results.apply(
-            lambda x: 1 if x.Superclass_cf_DNP == x.Superclass_cf_DNP_consensus else 0, axis=1)
-        dt_isdb_results['Class_cf_score'] = dt_isdb_results.apply(
-            lambda x: 2 if x.Class_cf_DNP == x.Class_cf_DNP_consensus else 0, axis=1)
-        dt_isdb_results['Subclass_cf_score'] = dt_isdb_results.apply(
-            lambda x: 3 if x.Subclass_cf_DNP == x.Subclass_cf_DNP_consensus else 0, axis=1)
-        dt_isdb_results['Parent_Level_1_cf_score'] = dt_isdb_results.apply(
-            lambda x: 4 if x.Parent_Level_1_cf_DNP == x.Parent_Level_1_cf_DNP_consensus else 0, axis=1)
+        dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] = dt_isdb_results.apply(
+            lambda x: 1 if x.structure_taxonomy_npclassifier_01pathway == x.structure_taxonomy_npclassifier_01pathway_consensus else 0, axis=1)
+        dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] = dt_isdb_results.apply(
+            lambda x: 2 if x.structure_taxonomy_npclassifier_02superclass == x.structure_taxonomy_npclassifier_02superclass_consensus else 0, axis=1)
+        dt_isdb_results['structure_taxonomy_npclassifier_03class_score'] = dt_isdb_results.apply(
+            lambda x: 3 if x.structure_taxonomy_npclassifier_03class == x.structure_taxonomy_npclassifier_03class_consensus else 0, axis=1)
 
         dt_isdb_results['score_max_consistency'] = dt_isdb_results[[
-            "Superclass_cf_score",
-            "Class_cf_score",
-            "Subclass_cf_score",
-            "Parent_Level_1_cf_score",
+            "structure_taxonomy_npclassifier_01pathway_score",
+            "structure_taxonomy_npclassifier_02superclass_score",
+            "structure_taxonomy_npclassifier_03class_score"
         ]].max(axis=1)
 
         dt_isdb_results['Final_score'] = dt_isdb_results['score_input'] + \
@@ -987,14 +956,12 @@ for sample_dir in samples_dir:
 
         # %%
 
-        print('Number of annotations reweighted at the superclass level: ' +
-            str(len(dt_isdb_results[(dt_isdb_results['Superclass_cf_score'] == 1)])))
-        print('Number of annotations reweighted at the class level: ' +
-            str(len(dt_isdb_results[(dt_isdb_results['Class_cf_score'] == 2)])))
-        print('Number of annotations reweighted at the subclass level: ' +
-            str(len(dt_isdb_results[(dt_isdb_results['Subclass_cf_score'] == 3)])))
-        print('Number of annotations reweighted at the parent level: ' +
-            str(len(dt_isdb_results[(dt_isdb_results['Parent_Level_1_cf_score'] == 4)])))
+        print('Number of annotations reweighted at the NPClassifier pathway level: ' +
+            str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] == 1)])))
+        print('Number of annotations reweighted at the NPClassifier superclass level: ' +
+            str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] == 2)])))
+        print('Number of annotations reweighted at the NPClassifier class level: ' +
+            str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_03class_score'] == 3)])))
 
         # %%
 
@@ -1021,15 +988,18 @@ for sample_dir in samples_dir:
 
         # %%
 
-        annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'InChI_DNP',
-                    'Molecule_Name_DNP', 'Molecule_Formula_DNP', 'Accurate_Mass_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP', 
-                    'Kingdom_cof_DNP', 'Phylum_cof_DNP', 'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP' ,'Genus_cof_DNP', 'Species_cof_DNP', 
-                    'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
-                    'matched_family', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
+        annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
+                    'structure_smiles', 'structure_molecular_formula',
+                    'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
+                    'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+                    'organism_name', 'organism_taxonomy_ottid',
+                    'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+                    'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas',  
+                    'matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
+                    'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
 
-        comp_attr = ['component_id', 'Superclass_cf_DNP_consensus', 'freq_Superclass_cf_DNP', 'Class_cf_DNP_consensus',
-                    'freq_Class_cf_DNP', 'Subclass_cf_DNP_consensus', 'freq_Subclass_cf_DNP', 'Parent_Level_1_cf_DNP_consensus',
-                    'freq_Parent_Level_1_cf_DNP']
+        comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensus', 'freq_structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass_consensus',
+                    'freq_structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class_consensus', 'freq_structure_taxonomy_npclassifier_03class']
 
         col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
