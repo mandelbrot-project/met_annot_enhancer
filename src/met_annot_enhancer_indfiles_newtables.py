@@ -125,8 +125,7 @@ top_N_chemical_consistency = 30
 # project_name = 'GNPS_3'
 # #isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
 #metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
-metadata_path = '/Users/pma/210505_dnp_metadata.csv'
-metadata_path2 = '/Users/pma/210505_frozen_metadata.csv'
+metadata_path = '/Users/pma/210505_lotus_dnp_metadata.csv'
 
 # #output_weighed_ISDB_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
 # output_weighed_ISDB_path = gnps_job_path + '/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
@@ -788,57 +787,6 @@ for sample_dir in samples_dir:
         dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 
-        # [list(set(a).intersection(set(b))) for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att])]
-
-        # a = 'Lotus corniculatus'
-        # b = ['Arrhenatherum elatus', 'Lotus corniculatus', 'Lotus corniculatus']
-        # list(set(a).intersection(set(b)))
-
-
-        # dt_isdb_results[col_ref].apply(lambda x: [x])
-
-        # # We get a AttributeError: 'tuple' object has no attribute 'split'
-        # #for dt_isdb_results[col_att].apply(lambda x: tuple(x.split(",")))#
-
-
-
-        # for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att]) :
-        #     print(a, b)
-        # # type(dt_isdb_results[col_att][0])
-        # # dt_isdb_results[col_att][0][0]
-
-        # # boh = zip(dt_isdb_results[col_att][0])
-
-        # # unlist(boh)
-
-        # # dt_isdb_results[col_att].apply(lambda x: tuple(x.split(",")))
-        # # dt_isdb_results[col_att].apply(lambda x: dt_isdb_results[col_att][][x])
-
-
-        # dt_isdb_results[cols_att]
-        # dt_isdb_results[cols_ref]
-
-
-        # # Put your dataframe here
-        # df = pd.DataFrame({'A':[1,2], 'B':[(1,2), (3,4)]})  
-
-        # print("Original Dataset")
-        # print(df)
-
-        # start = time.time()
-        # df[['B1','B2']] = pd.DataFrame(df['B'].tolist(),index=df.index)
-        # print("Method 1")
-        # print("Time elapsed :" + str(time.time()-start))
-        # print(df)
-
-        # pd.DataFrame(df['B'].tolist(),index=df.index)
-
-        # pd.DataFrame(dt_isdb_results[col_att].tolist())
-
-
-        # pd.DataFrame(dt_isdb_results['ATTRIBUTE_Species'].tolist().tolist())
-
-        # dt_isdb_results['ATTRIBUTE_Species'].apply(lambda x: tuple(x.split(",")))
 
 
 

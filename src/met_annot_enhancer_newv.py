@@ -14,7 +14,6 @@ from tqdm import tqdm_notebook
 from opentree import OT
 import json
 from pandas import json_normalize
-
 import spectral_lib_matcher
 
 
@@ -35,70 +34,38 @@ pd.options.mode.chained_assignment = None  # default='warn'
 Run_line_x_line = True 
 Top_N_Sample = 5
 
-# species_bio = 'Arabidopsis thaliana'
-# genus_bio = 'Arabidopsis'
-# family_bio = 'Brassicaceae'
-# order_bio = 'Brassicales'
-# class_bio = 'Magnoliopsida'
-# phylum_bio = 'Tracheophyta'
-# kingdom_bio = 'Plantae'
 
 
 # %% Defining the paths
 
 
-
 # defining the command line arguments
-try:
-    job_id = sys.argv[1]
-    gnps_job_path = sys.argv[2]
-    isdb_results_path = sys.argv[3]
-    metadata_path = sys.argv[4]
-    output_weighed_ISDB_path = sys.argv[5]
-    top_to_output = sys.argv[6]
-    ppm_tol = sys.argv[7]
-    polarity = sys.argv[8]
+# try:
+#     job_id = sys.argv[1]
+#     gnps_job_path = sys.argv[2]
+#     isdb_results_path = sys.argv[3]
+#     metadata_path = sys.argv[4]
+#     output_weighed_ISDB_path = sys.argv[5]
+#     top_to_output = sys.argv[6]
+#     ppm_tol = sys.argv[7]
+#     polarity = sys.argv[8]
 
-    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
-          + job_id + '.\n'
-          + 'The GNPS files are downloaded locally in the following folder:' 
-          + gnps_job_path + '.\n'
-          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
-          + '   - spectral match results: ' + str(isdb_results_path) + '\n'
-          + '   - metadata file: ' + str(metadata_path) + '\n'
-          + '   - top hits to output: ' + str(top_to_output) + '\n'
-          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
-          + '   - polarity mode: ' + str(polarity) + '\n'
-          + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
-except:
-    print(
-        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
-        Example :
-        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
-
-
-
-# # GNPS FBMN Job ID
-# job_id = "56d01c6ccfe143eca5252017202c8fef"
-# # toy set : f840934ade8744f9a6b4438804af8287
-# # LP: 75c64084d1e749748d5a29f671944231
-
-# # this is the path for the ISDB resukts file (topX)
-# #isdb_results_path = "J:/COMMON FASIE-FATHO/PF_project/Toy_Set/Toy_set_top_50_pos.out"
-# isdb_results_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv"
-# # isdb_results_path = "/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/FBMN_bafu_ecometabo_pos_msmatched_ISDB_DNP.out"
-
-
-# # this is the path for the DNP or OPENNPDB datatable file
-# metadata_path = "/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv"
-
-# #Path to weighed annotation result of ISDB
-# output_weighed_ISDB_path = "/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv"
-
-
-# # Path for the GNPS job export dir 
-
-# gnps_job_path = "/Users/pma/tmp/Fred_Legendre/"
+#     print('Proceeding to metabolite annotation enhancement on GNPS job id: '
+#           + job_id + '.\n'
+#           + 'The GNPS files are downloaded locally in the following folder:' 
+#           + gnps_job_path + '.\n'
+#           + 'The metabolite annotation enhancement is done using the following parameters: \n' 
+#           + '   - spectral match results: ' + str(isdb_results_path) + '\n'
+#           + '   - metadata file: ' + str(metadata_path) + '\n'
+#           + '   - top hits to output: ' + str(top_to_output) + '\n'
+#           + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
+#           + '   - polarity mode: ' + str(polarity) + '\n'
+#           + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
+# except:
+#     print(
+#         '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
+#         Example :
+#         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
@@ -108,34 +75,32 @@ use_post_taxo = True
 file_extension = '.mzXML'
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
-top_N_chemical_consistency = 30
+top_N_chemical_consistency = 15
 
-# top_to_output = 3
+top_to_output = '1'
 
-# ppm_tol = 5
+ppm_tol = '2'
 
-# #polarity = 'Neg'
-# polarity = 'Pos'
+# polarity = 'Neg'
+polarity = 'Pos'
 
 
 # python met_annot_enhancer.py 
-job_id = '3197f70bed224f9ba6f59f62906839e9'
+job_id = '60b9945aa3fd4810b178e79870cca905'
 
-gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/MEMO'
-project_name = 'GNPS_3'
-#isdb_results_path = '/Users/pma/tmp/bafu_ecometabo/GNPS_output/bafu_ecometabo_spectral_match_results.tsv'
-metadata_path = '/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv'
-#output_weighed_ISDB_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
-output_weighed_ISDB_path = gnps_job_path + '/GNPS_output_' + project_name + '/' + project_name + '_isdb_repond.tsv'
-top_to_output = '3'
-ppm_tol = '5'
-polarity = 'Pos'
+gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project'
+project_name = 'Fresh_Erythro_MN'
+metadata_path = '/Users/pma/210505_lotus_dnp_metadata.csv'
+
 organism_header = 'species'
+sampletype_header = 'sample_type'
 
 base_filename = 'GNPS_output_' + project_name
 filename_suffix = 'zip'
 path_to_folder = os.path.join(gnps_job_path, base_filename)
 path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
+
+
 
 
 query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
@@ -146,28 +111,16 @@ min_cos = 0.2
 min_peaks = 6
 spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
 isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
+
+spectral_match_results_repond_filename = project_name + '_spectral_match_results_repond.tsv'
+isdb_results_repond_path = os.path.join(path_to_folder,spectral_match_results_filename)
+
+
+
 sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
 sunburst_chem_results_path = os.path.join(path_to_folder,sunburst_chem_filename)
 sunburst_organisms_results_path = os.path.join(path_to_folder,sunburst_organisms_filename)
-
-
-
-
-# python met_annot_enhancer.py \
-# 56d01c6ccfe143eca5252017202c8fef \
-# /Users/pma/tmp/Fred_Legendre/ \
-# /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
-# /Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
-# /Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
-# 3 \
-# 5 \
-# Pos
-
-
-## spectral_lib_matcher params
-
-
 
 
 
@@ -198,33 +151,31 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 #    os.remove(f)
 
 
+# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
+# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+# subprocess.call(shlex.split(cmd))
 
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+#     zip_ref.extractall(path_to_folder)
 
-cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-subprocess.call(shlex.split(cmd))
-
-with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-    zip_ref.extractall(path_to_folder)
-
-# We finally remove the zip file
-cmd = 'rm '+ path_to_file
-subprocess.call(shlex.split(cmd))
+# # We finally remove the zip file
+# cmd = 'rm '+ path_to_file
+# subprocess.call(shlex.split(cmd))
 
 # %% Spectral matching stage
 
 # Yes we can !
 
 
-spectral_lib_matcher.main(query_file_path,
-                          db_file_path,
-                          parent_mz_tol,
-                          msms_mz_tol,
-                          min_cos,
-                          min_peaks,
-                          isdb_results_path
-                          )
+# spectral_lib_matcher.main(query_file_path,
+#                           db_file_path,
+#                           parent_mz_tol,
+#                           msms_mz_tol,
+#                           min_cos,
+#                           min_peaks,
+#                           isdb_results_path
+#                           )
 
 
 
@@ -246,14 +197,14 @@ dt_isdb_results = pd.read_csv(isdb_results_path,
 
 ## we add a fixed libname (to be changed later on) 
 
-dt_isdb_results['libname'] = 'DNP_ISDB'
+dt_isdb_results['libname'] = 'ISDB'
 
 dt_isdb_results.rename(columns={'componentindex': 'component_id',
                                 'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
 
 
 ## In fact we can directly start here
-## we get the networks info (cluster id, component index and parent mass form the downloaded dolder)
+## we get the networks info (cluster id, component index and parent mass form the downloaded folder)
 
 clusterinfo_summary_path = os.path.join(path_to_folder,'clusterinfo_summary','')
 
@@ -277,8 +228,14 @@ dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id'
 # dt_isdb_results['short_inchikey'] = dt_isdb_results['inchikey'].str.split("-", n=1, expand=True)[0]
 
 
+
 dt_metadata = pd.read_csv(metadata_path,
-                          sep='\t', error_bad_lines=False, low_memory=True)
+                        sep=',', error_bad_lines=False, low_memory=True)
+
+dt_metadata['short_inchikey'] = dt_metadata.structure_inchikey.str.split(
+    "-", expand=True)[0]
+dt_metadata.reset_index(inplace=True)
+
 
 cluster_count = dt_isdb_results.drop_duplicates(
     subset=['feature_id', 'component_id']).groupby("component_id").count()
@@ -287,8 +244,7 @@ cluster_count = cluster_count[['feature_id']].rename(
 
 print('Number of features: ' + str(len(dt_isdb_results)))
 print('Number of annotated features: ' +
-      str(dt_isdb_results['inchikey'].count()))
-
+    str(dt_isdb_results['inchikey'].count()))
 
 # %%
 # Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
@@ -299,7 +255,7 @@ for i, row in tqdm(clusterinfo_summary.iterrows(), total=clusterinfo_summary.sha
 
     par_mass = clusterinfo_summary.loc[i, 'mz']
 
-    df_0 = clusterinfo_summary.loc[[i], ['feature_id', 'mz']]
+    df_0 = clusterinfo_summary.loc[[i], ['feature_id', 'mz', 'component_id']]
 
     df_1 = adducts_df[(adducts_df['min'] <= par_mass) & (adducts_df['max'] >= par_mass)]
     
@@ -310,27 +266,29 @@ for i, row in tqdm(clusterinfo_summary.iterrows(), total=clusterinfo_summary.sha
     super_df.append(df_tot)
 
 df_MS1 = pd.concat(super_df, axis=0)
-del super_df, adducts_df
+del super_df
 
 df_MS1 = df_MS1.drop(['key'], axis=1).drop_duplicates(
     subset=['feature_id', 'adduct'])
+
+df_MS1['libname'] = 'MS1_match'
 
 print('MS1 annotation done')
 
 
 # %%
-df_meta_2 = dt_metadata[['IK_DNP', 'Accurate_Mass_DNP']]
-df_meta_2.rename(columns={'IK_DNP': 'inchikey'}, inplace=True)
+df_meta_2 = dt_metadata[['structure_inchikey', 'structure_exact_mass']]
+df_meta_2.rename(columns={'structure_inchikey': 'inchikey'}, inplace=True)
 
-df_meta_2 = df_meta_2.dropna(subset=['Accurate_Mass_DNP'])
+df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
 df_meta_2 = df_meta_2.drop_duplicates(
-    subset=['inchikey', 'Accurate_Mass_DNP'])
+    subset=['inchikey', 'structure_exact_mass'])
 
-df_meta_2 = df_meta_2.round({'Accurate_Mass_DNP': 5})
+df_meta_2 = df_meta_2.round({'structure_exact_mass': 5})
 df_MS1 = df_MS1.round({'exact_mass': 5})
 
 df_MS1_merge = pd.merge(df_MS1, df_meta_2, left_on='exact_mass',
-                        right_on='Accurate_Mass_DNP', how='left')
+                        right_on='structure_exact_mass', how='left')
 df_MS1_merge = df_MS1_merge.dropna(subset=['inchikey'])
 
 df_MS1_merge['match_mzerror_MS1'] = df_MS1_merge['mz'] - \
@@ -339,7 +297,7 @@ df_MS1_merge = df_MS1_merge.round({'match_mzerror_MS1': 5}).astype({
     'match_mzerror_MS1': 'str'})
 
 df_MS1_merge = df_MS1_merge.drop(
-    ['Accurate_Mass_DNP', 'adduct_mass', 'mz', 'exact_mass'], axis=1)
+    ['structure_exact_mass', 'adduct_mass', 'exact_mass'], axis=1)
 df_MS1_merge['score_input'] = 0
 
 #df_MS1_merge = df_MS1_merge.astype({'score_input': 'str'})
@@ -359,65 +317,14 @@ df_MS1_merge_gb.reset_index(inplace=True)
 dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
 dt_isdb_results.info()
 
-
-
-
-# dt_isdb_results = pd.merge(
-#     dt_isdb_results, df_MS1_merge_gb, on='feature_id', how='left')
-
-# dt_isdb_results["inchikey"] = dt_isdb_results["inchikey"].str.cat(
-#     dt_isdb_results["inchikey_MS1"], sep="|")
-# dt_isdb_results["score_input"] = dt_isdb_results["score_input"].str.cat(
-#     dt_isdb_results["score_input_MS1"], sep="|")
-# dt_isdb_results["match_mzerror"] = dt_isdb_results["match_mzerror"].str.cat(
-#     dt_isdb_results["match_mzerror_MS1"], sep="|")
-# dt_isdb_results["libname"] = dt_isdb_results["libname"].str.cat(
-#     dt_isdb_results["adduct"], sep="|")
-
-# dt_isdb_results['inchikey'].fillna(
-#     dt_isdb_results['inchikey_MS1'], inplace=True)
-# dt_isdb_results['score_input'].fillna(
-#     dt_isdb_results['score_input_MS1'], inplace=True)
-# dt_isdb_results['match_mzerror'].fillna(
-#     dt_isdb_results['match_mzerror_MS1'], inplace=True)
-# dt_isdb_results['libname'].fillna(dt_isdb_results['adduct'], inplace=True)
-
-# dt_isdb_results = dt_isdb_results.drop(
-#     ['inchikey_MS1', 'score_input_MS1', 'mz', 'match_mzerror_MS1', 'adduct'], axis=1)
-
-
-# print('Number of annotated features after MS1: ' +
-#       str(dt_isdb_results['inchikey'].count()))
-
-
 print('Number of annotated features after MS1: ' +
       str(len(df_MS1_merge['feature_id'].unique())))
 
 
 len(clusterinfo_summary['feature_id'].unique())
 
-# %% Here we want to split the unknown numbers of results (in the score and IK columns) into multiple columns
-# These stages are not mandatory anymore since we have a long file as output of matchms
-
-# dt_isdb_results = dt_isdb_results.join(
-#     dt_isdb_results['score_input'].str.split(
-#         '|', expand=True).add_prefix('score_input_')
-# ).join(dt_isdb_results['inchikey'].str.split('|', expand=True).add_prefix('inchikey_')
-#        ).join(dt_isdb_results['match_mzerror'].str.split('|', expand=True).add_prefix('match_mzerror_')
-#               ).join(dt_isdb_results['libname'].str.split('|', expand=True).add_prefix('libname_')
-#                      )
-
-# dt_isdb_results.drop(
-#     columns=['score_input', 'inchikey', 'libname', 'match_mzerror'], inplace=True)
-
 
 # %%
-# Now we melt the whole stuff. For this we use the wide to long function https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.wide_to_long.html
-
-# dt_isdb_results = pd.wide_to_long(dt_isdb_results, stubnames=[
-#                                   "score_input", "inchikey", 'match_mzerror', 'libname'], i='feature_id', j="rank_spec", sep='_')
-# dt_isdb_results.reset_index(inplace=True)
-# dt_isdb_results.dropna(subset=['inchikey'], axis=0, inplace=True)
 
 print('Total number of MSMS annotations: ' + str(len(dt_isdb_results)))
 
@@ -442,17 +349,17 @@ dt_isdb_results.reset_index(inplace=True)
 
 # now we merge with the DNP metadata after selection of our columns of interest
 
-cols_to_use = ['CRC_Number_DNP', 'IK_DNP', 'InChI_DNP',
-               'Molecule_Name_DNP', 'Molecule_Formula_DNP',
-               'Accurate_Mass_DNP', 'Short_IK_DNP', 'Kingdom_cof_DNP', 'Phylum_cof_DNP',
-               'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP',
-               'Species_cof_DNP', 'ClassyFy_Status_DNP',
-               'Kingdom_cf_DNP', 'Superclass_cf_DNP', 'Class_cf_DNP',
-               'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP' ]
+cols_to_use = ['structure_inchikey', 'structure_inchi',
+            'structure_smiles', 'structure_molecular_formula',
+            'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
+            'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+            'organism_name', 'organism_taxonomy_ottid',
+            'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+            'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas' ]
 
 dt_isdb_results.dropna(subset=['short_inchikey'], inplace=True)
 dt_isdb_results = pd.merge(
-    left=dt_isdb_results, right=dt_metadata[cols_to_use], left_on='short_inchikey', right_on='Short_IK_DNP', how='outer')
+    left=dt_isdb_results, right=dt_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
 dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 
 
@@ -605,20 +512,27 @@ df_tax_lineage_filtered_flat.drop_duplicates(subset = ['ott_id', 'unique_name'],
 # %%
 # we keep the fields of interest
 
-df_tax_lineage_filtered_flat[['ott_id', 'kingdom', 'phylum',
-                              'class', 'order', 'family', 'genus', 'unique_name']]
+# here we want to have these columns whatevere happens
+col_list = ['ott_id', 'domain', 'kingdom', 'phylum',
+                            'class', 'order', 'family', 'tribe', 'genus', 'unique_name']
 
+df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat.reindex(columns=col_list, fill_value = np.NaN)
+
+# df_tax_lineage_filtered_flat[['ott_id', 'domain', 'kingdom', 'phylum',
+#                             'class', 'order', 'family', 'tribe', 'genus', 'unique_name']]
 
 
 # We now rename our columns of interest
 
-renaming_dict = {'kingdom': 'query_otol_kingdom',
-                 'phylum': 'query_otol_phylum',
-                 'class': 'query_otol_class',
-                 'order': 'query_otol_order',
-                 'family': 'query_otol_family',
-                 'genus': 'query_otol_genus',
-                 'unique_name': 'query_otol_species'}
+renaming_dict = {'domain': 'query_otol_domain',
+                'kingdom': 'query_otol_kingdom',
+                'phylum': 'query_otol_phylum',
+                'class': 'query_otol_class',
+                'order': 'query_otol_order',
+                'family': 'query_otol_family',
+                'tribe': 'query_otol_tribe',
+                'genus': 'query_otol_genus',
+                'unique_name': 'query_otol_species'}
 
 
 df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
@@ -626,11 +540,13 @@ df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
 # We select columns of interest 
 
 cols_to_keep = ['ott_id',
+                'query_otol_domain',
                 'query_otol_kingdom',
                 'query_otol_phylum',
                 'query_otol_class',
                 'query_otol_order',
                 'query_otol_family',
+                'query_otol_tribe',
                 'query_otol_genus',
                 'query_otol_species']
 
@@ -640,6 +556,7 @@ df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
 # We merge this back with the samplemetadata only if we have an ott.id in the merged df 
 
 samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
+
 
 
 
@@ -706,29 +623,25 @@ else:
        
 #%% Taxonomical Reweighting
 
-cols_ref = ['Kingdom_cof_DNP', 'Phylum_cof_DNP',  'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP', 'Genus_cof_DNP', 'Species_cof_DNP']
-#cols_att = ['ATTRIBUTE_Kingdom', 'ATTRIBUTE_Phylum',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species']
-#cols_att = ['ATTRIBUTE_kingdom_cof', 'ATTRIBUTE_phylum_cof', 'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof']
-cols_att = ['query_otol_kingdom',
+cols_ref = ['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',  'organism_taxonomy_03phylum', 'organism_taxonomy_04class',
+            'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species']
+cols_att = ['query_otol_domain',
+            'query_otol_kingdom',
             'query_otol_phylum',
             'query_otol_class',
             'query_otol_order',
             'query_otol_family',
+            'query_otol_tribe',
             'query_otol_genus',
             'query_otol_species']
-cols_match = ['matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order', 'matched_family', 'matched_genus', 'matched_species']
+cols_match = ['matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class',
+              'matched_order', 'matched_family', 'matched_tribe', 'matched_genus', 'matched_species']
 
 col_prev = None
 if Run_line_x_line == True:
        for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
               dt_isdb_results[col_ref].fillna('Unknown', inplace=True)
               dt_isdb_results[col_ref] = dt_isdb_results[col_ref].apply(lambda x: [x])
-            #   print(dt_isdb_results[col_ref])
-            #   print(dt_isdb_results[col_att])
-            #   #dt_isdb_results[col_att] = dt_isdb_results[col_att].apply(lambda x: tuple(x.split(","))) #if original biosource as string
-            #   dt_isdb_results[col_ref] = dt_isdb_results[col_ref].apply(lambda x: list(x))
-            #   dt_isdb_results[col_att] = dt_isdb_results[col_att].apply(lambda x: list(x))
-              #dt_isdb_results[col_att] = dt_isdb_results[col_att].tolist()
               dt_isdb_results[col_match] = [list(set(a).intersection(set(b))) for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att])] # Allows to compare 2 lists
               dt_isdb_results[col_match] = dt_isdb_results[col_match].apply(lambda y: np.nan if len(y)==0 else y)
               if col_prev != None:
@@ -747,86 +660,39 @@ else:
 dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 
-# [list(set(a).intersection(set(b))) for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att])]
-
-# a = 'Lotus corniculatus'
-# b = ['Arrhenatherum elatus', 'Lotus corniculatus', 'Lotus corniculatus']
-# list(set(a).intersection(set(b)))
-
-
-# dt_isdb_results[col_ref].apply(lambda x: [x])
-
-# # We get a AttributeError: 'tuple' object has no attribute 'split'
-# #for dt_isdb_results[col_att].apply(lambda x: tuple(x.split(",")))#
-
-
-
-# for a, b in zip(dt_isdb_results[col_ref], dt_isdb_results[col_att]) :
-#     print(a, b)
-# # type(dt_isdb_results[col_att][0])
-# # dt_isdb_results[col_att][0][0]
-
-# # boh = zip(dt_isdb_results[col_att][0])
-
-# # unlist(boh)
-
-# # dt_isdb_results[col_att].apply(lambda x: tuple(x.split(",")))
-# # dt_isdb_results[col_att].apply(lambda x: dt_isdb_results[col_att][][x])
-
-
-# dt_isdb_results[cols_att]
-# dt_isdb_results[cols_ref]
-
-
-# # Put your dataframe here
-# df = pd.DataFrame({'A':[1,2], 'B':[(1,2), (3,4)]})  
-
-# print("Original Dataset")
-# print(df)
-
-# start = time.time()
-# df[['B1','B2']] = pd.DataFrame(df['B'].tolist(),index=df.index)
-# print("Method 1")
-# print("Time elapsed :" + str(time.time()-start))
-# print(df)
-
-# pd.DataFrame(df['B'].tolist(),index=df.index)
-
-# pd.DataFrame(dt_isdb_results[col_att].tolist())
-
-
-# pd.DataFrame(dt_isdb_results['ATTRIBUTE_Species'].tolist().tolist())
-
-# dt_isdb_results['ATTRIBUTE_Species'].apply(lambda x: tuple(x.split(",")))
-
-
-
 # %%
-# Filter out MS1 annotations without a reweighting at the order level at least
+# Filter out MS1 annotations without a reweighting at the family level at least
 
 if polarity == 'Pos':
-    dt_isdb_results = dt_isdb_results[(dt_isdb_results['score_taxo'] >= 4) | (
-        dt_isdb_results['libname'] == 'DNP_ISDB')]
+    dt_isdb_results = dt_isdb_results[(dt_isdb_results['score_taxo'] >= 6) | (
+        dt_isdb_results['libname'] == 'ISDB')]
 else:
     dt_isdb_results = dt_isdb_results[(dt_isdb_results['score_taxo'] >= 4) | (
-        dt_isdb_results['libname'] == 'DNP_ISDB')]
+        dt_isdb_results['libname'] == 'ISDB')]
+
 
 print('Total number of annotations after filtering MS1 annotations not reweighted at order level: ' +
-      str(len(dt_isdb_results)))
-print('Number of annotations reweighted at the kingdom level: ' +
-      str(dt_isdb_results['matched_kingdom'].count()))
+    str(len(dt_isdb_results)))
+
+print('Number of annotations reweighted at the domain level: ' +
+    str(dt_isdb_results['matched_domain'].count()))
+print('Number of annotations reweighted at the kingom level: ' +
+    str(dt_isdb_results['matched_kingdom'].count()))
 print('Number of annotations reweighted at the phylum level: ' +
-      str(dt_isdb_results['matched_phylum'].count()))
+    str(dt_isdb_results['matched_phylum'].count()))
 print('Number of annotations reweighted at the class level: ' +
-      str(dt_isdb_results['matched_class'].count()))
+    str(dt_isdb_results['matched_class'].count()))
 print('Number of annotations reweighted at the order level: ' +
-      str(dt_isdb_results['matched_order'].count()))
+    str(dt_isdb_results['matched_order'].count()))
 print('Number of annotations reweighted at the family level: ' +
-      str(dt_isdb_results['matched_family'].count()))
+    str(dt_isdb_results['matched_family'].count()))
+print('Number of annotations reweighted at the tribe level: ' +
+    str(dt_isdb_results['matched_tribe'].count()))
 print('Number of annotations reweighted at the genus level: ' +
-      str(dt_isdb_results['matched_genus'].count()))
+    str(dt_isdb_results['matched_genus'].count()))
 print('Number of annotations reweighted at the species level: ' +
-      str(dt_isdb_results['matched_species'].count()))
+    str(dt_isdb_results['matched_species'].count()))
+
 
 
 # %%
@@ -848,8 +714,7 @@ dt_isdb_results = dt_isdb_results.groupby(["feature_id"]).apply(
 
 # %%
 # Get cluster Chemical class
-
-for col in ['Superclass_cf_DNP', 'Class_cf_DNP', 'Subclass_cf_DNP', 'Parent_Level_1_cf_DNP']:
+for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class']:
 
     df = dt_isdb_results.copy()
     df = df.drop_duplicates(subset=['feature_id', col])
@@ -859,22 +724,22 @@ for col in ['Superclass_cf_DNP', 'Class_cf_DNP', 'Subclass_cf_DNP', 'Parent_Leve
         df = df.groupby(
             ["component_id", col]
         ).agg({'feature_id': 'count',
-               'rank_spec_taxo': 'mean'}
-              ).reset_index(
+            'rank_spec_taxo': 'mean'}
+            ).reset_index(
         ).rename(columns={'feature_id': (col + '_count'),
-                          'rank_spec_taxo': ('rank_' + col + '_mean')}
-                 ).merge(cluster_count, on='component_id', how='left')
+                        'rank_spec_taxo': ('rank_' + col + '_mean')}
+                ).merge(cluster_count, on='component_id', how='left')
     else:
         df = df[df.component_id != -1]
         df = df[df.rank_spec <= top_N_chemical_consistency]
         df = df.groupby(
             ["component_id", col]
         ).agg({'feature_id': 'count',
-               'rank_spec': 'mean'}
-              ).reset_index(
+            'rank_spec': 'mean'}
+            ).reset_index(
         ).rename(columns={'feature_id': (col + '_count'),
-                          'rank_spec': ('rank_' + col + '_mean')}
-                 ).merge(cluster_count, on='component_id', how='left')
+                        'rank_spec': ('rank_' + col + '_mean')}
+                ).merge(cluster_count, on='component_id', how='left')
 
     df[('freq_' + col)] = df[(col + '_count')] / df['ci_count']
     df[(col + '_score')] = df[('freq_' + col)] / \
@@ -882,26 +747,24 @@ for col in ['Superclass_cf_DNP', 'Class_cf_DNP', 'Subclass_cf_DNP', 'Parent_Leve
     df = df.sort_values(
         (col + '_score'), ascending=False
     ).drop_duplicates(['component_id']
-                      ).rename(columns={col: (col + '_consensus')})
+                    ).rename(columns={col: (col + '_consensus')})
     dt_isdb_results = dt_isdb_results.merge(
         df[[(col + '_consensus'), ('freq_' + col), 'component_id']], on='component_id', how='left')
 
-# %% Chemical consistency reweighting
+# %% 
+# Chemical consistency reweighting
 
-dt_isdb_results['Superclass_cf_score'] = dt_isdb_results.apply(
-    lambda x: 1 if x.Superclass_cf_DNP == x.Superclass_cf_DNP_consensus else 0, axis=1)
-dt_isdb_results['Class_cf_score'] = dt_isdb_results.apply(
-    lambda x: 2 if x.Class_cf_DNP == x.Class_cf_DNP_consensus else 0, axis=1)
-dt_isdb_results['Subclass_cf_score'] = dt_isdb_results.apply(
-    lambda x: 3 if x.Subclass_cf_DNP == x.Subclass_cf_DNP_consensus else 0, axis=1)
-dt_isdb_results['Parent_Level_1_cf_score'] = dt_isdb_results.apply(
-    lambda x: 4 if x.Parent_Level_1_cf_DNP == x.Parent_Level_1_cf_DNP_consensus else 0, axis=1)
+dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] = dt_isdb_results.apply(
+    lambda x: 1 if x.structure_taxonomy_npclassifier_01pathway == x.structure_taxonomy_npclassifier_01pathway_consensus else 0, axis=1)
+dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] = dt_isdb_results.apply(
+    lambda x: 2 if x.structure_taxonomy_npclassifier_02superclass == x.structure_taxonomy_npclassifier_02superclass_consensus else 0, axis=1)
+dt_isdb_results['structure_taxonomy_npclassifier_03class_score'] = dt_isdb_results.apply(
+    lambda x: 3 if x.structure_taxonomy_npclassifier_03class == x.structure_taxonomy_npclassifier_03class_consensus else 0, axis=1)
 
 dt_isdb_results['score_max_consistency'] = dt_isdb_results[[
-    "Superclass_cf_score",
-    "Class_cf_score",
-    "Subclass_cf_score",
-    "Parent_Level_1_cf_score",
+    "structure_taxonomy_npclassifier_01pathway_score",
+    "structure_taxonomy_npclassifier_02superclass_score",
+    "structure_taxonomy_npclassifier_03class_score"
 ]].max(axis=1)
 
 dt_isdb_results['Final_score'] = dt_isdb_results['score_input'] + \
@@ -911,16 +774,17 @@ dt_isdb_results['rank_final'] = dt_isdb_results.groupby(
     'feature_id')['Final_score'].rank(method='dense', ascending=False)
 
 
+
+
 # %%
 
-print('Number of annotations reweighted at the superclass level: ' +
-      str(len(dt_isdb_results[(dt_isdb_results['Superclass_cf_score'] == 1)])))
-print('Number of annotations reweighted at the class level: ' +
-      str(len(dt_isdb_results[(dt_isdb_results['Class_cf_score'] == 2)])))
-print('Number of annotations reweighted at the subclass level: ' +
-      str(len(dt_isdb_results[(dt_isdb_results['Subclass_cf_score'] == 3)])))
-print('Number of annotations reweighted at the parent level: ' +
-      str(len(dt_isdb_results[(dt_isdb_results['Parent_Level_1_cf_score'] == 4)])))
+print('Number of annotations reweighted at the NPClassifier pathway level: ' +
+    str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] == 1)])))
+print('Number of annotations reweighted at the NPClassifier superclass level: ' +
+    str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] == 2)])))
+print('Number of annotations reweighted at the NPClassifier class level: ' +
+    str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_03class_score'] == 3)])))
+
 
 # %%
 
@@ -947,15 +811,18 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int6
 
 # %%
 
-annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'InChI_DNP',
-              'Molecule_Name_DNP', 'Molecule_Formula_DNP', 'Accurate_Mass_DNP', 'Biological_Source_DNP', 'Biological_Use_DNP', 'Toxicity_DNP', 
-              'Kingdom_cof_DNP', 'Phylum_cof_DNP', 'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP' ,'Genus_cof_DNP', 'Species_cof_DNP', 
-              'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
-              'matched_family', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
+annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
+            'structure_smiles', 'structure_molecular_formula',
+            'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
+            'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+            'organism_name', 'organism_taxonomy_ottid',
+            'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+            'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas',  
+            'matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
+            'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
 
-comp_attr = ['component_id', 'Superclass_cf_DNP_consensus', 'freq_Superclass_cf_DNP', 'Class_cf_DNP_consensus',
-             'freq_Class_cf_DNP', 'Subclass_cf_DNP_consensus', 'freq_Subclass_cf_DNP', 'Parent_Level_1_cf_DNP_consensus',
-             'freq_Parent_Level_1_cf_DNP']
+comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensus', 'freq_structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass_consensus',
+            'freq_structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class_consensus', 'freq_structure_taxonomy_npclassifier_03class']
 
 col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
@@ -973,8 +840,8 @@ df4cyto = df4cyto_flat.groupby('feature_id').agg(gb_spec)
 
 # %%
 df4cyto.to_csv(output_weighed_ISDB_path, sep='\t')
-output_weighed_ISDB_path
-df4cyto_flat.to_csv('/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_GT3/GT3_isdb_repond_flat.tsv', sep='\t')
+
+#df4cyto_flat.to_csv('/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_GT3/GT3_isdb_repond_flat.tsv', sep='\t')
 
 # %%
 

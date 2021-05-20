@@ -5,56 +5,233 @@
   "includes_deprecated_taxa": false,
   "includes_suppressed_names": false,
   "matched_names": [
-    "melochia umbellata"
+    "erythroxylum novogranatense",
+    "erythroxylum coca",
+    "erythroxylum gracilipes",
+    "erythroxylum plowmanianum",
+    "erythroxylum barbatum",
+    "erythroxylum vaccinifolium",
+    "erythroxylum campinense"
   ],
   "results": [
+    {
+      "matches": [],
+      "name": "bk"
+    },
     {
       "matches": [
         {
           "is_approximate_match": false,
           "is_synonym": false,
-          "matched_name": "Melochia umbellata",
+          "matched_name": "Erythroxylum novogranatense",
           "nomenclature_code": "ICN",
           "score": 1.0,
-          "search_string": "melochia umbellata",
+          "search_string": "erythroxylum novogranatense",
           "taxon": {
-            "flags": [
-              "sibling_higher"
-            ],
+            "flags": [],
             "is_suppressed": false,
             "is_suppressed_from_synth": false,
-            "name": "Melochia umbellata",
-            "ott_id": 101131,
+            "name": "Erythroxylum novogranatense",
+            "ott_id": 3915934,
             "rank": "species",
             "source": "ott3.2draft9",
             "synonyms": [
-              "Visenia alba",
-              "Riedlea cordata",
-              "Melochia indica",
-              "Melochia velutina",
-              "Riedlea velutina",
-              "Glossospermum velutinum",
-              "Glossospermum cordatum",
-              "Visenia umbellata",
-              "Visenia tomentosa",
-              "Visenia tiliifolia",
-              "Visenia javanica",
-              "Visenia indica",
-              "Melochia arborea",
-              "Visenia velutina",
-              "Riedlea wallichiana",
-              "Riedlea tiliifolia"
+              "Erythroxylum coca var. novogranatense",
+              "Erythroxylum coca tobagense",
+              "Erythroxylum coca microphyllum",
+              "Erythroxylum coca novogranatense",
+              "Erythroxylum novogranatense tobagense"
             ],
             "tax_sources": [
-              "ncbi:1085467",
-              "gbif:3152126",
-              "irmng:11035847"
+              "ncbi:1862640",
+              "gbif:2873941",
+              "irmng:10587272"
             ],
-            "unique_name": "Melochia umbellata"
+            "unique_name": "Erythroxylum novogranatense"
           }
         }
       ],
-      "name": "melochia umbellata"
+      "name": "erythroxylum novogranatense"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum coca",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum coca",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum coca",
+            "ott_id": 57960,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [
+              "Erythroxylum peruvianum",
+              "Erythroxylum chilpei",
+              "Erythroxylum bolivianum"
+            ],
+            "tax_sources": [
+              "ncbi:289672",
+              "gbif:2873939",
+              "irmng:10953697"
+            ],
+            "unique_name": "Erythroxylum coca"
+          }
+        }
+      ],
+      "name": "erythroxylum coca"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum gracilipes",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum gracilipes",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum gracilipes",
+            "ott_id": 5750197,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [
+              "Erythroxylum novogranatense macrophyllum",
+              "Erythroxylum recurrens",
+              "Erythroxylum cuatrecasasii"
+            ],
+            "tax_sources": [
+              "ncbi:2303035",
+              "gbif:7284849"
+            ],
+            "unique_name": "Erythroxylum gracilipes"
+          }
+        }
+      ],
+      "name": "erythroxylum gracilipes"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum plowmanianum",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum plowmanianum",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum plowmanianum",
+            "ott_id": 6100354,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [],
+            "tax_sources": [
+              "ncbi:2303051",
+              "gbif:3694162"
+            ],
+            "unique_name": "Erythroxylum plowmanianum"
+          }
+        }
+      ],
+      "name": "erythroxylum plowmanianum"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum barbatum",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum barbatum",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum barbatum",
+            "ott_id": 6100213,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [],
+            "tax_sources": [
+              "ncbi:2589437",
+              "gbif:3694362"
+            ],
+            "unique_name": "Erythroxylum barbatum"
+          }
+        }
+      ],
+      "name": "erythroxylum barbatum"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum vaccinifolium",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum vaccinifolium",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum vaccinifolium",
+            "ott_id": 7634690,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [],
+            "tax_sources": [
+              "gbif:3694388"
+            ],
+            "unique_name": "Erythroxylum vaccinifolium"
+          }
+        }
+      ],
+      "name": "erythroxylum vaccinifolium"
+    },
+    {
+      "matches": [
+        {
+          "is_approximate_match": false,
+          "is_synonym": false,
+          "matched_name": "Erythroxylum campinense",
+          "nomenclature_code": "ICN",
+          "score": 1.0,
+          "search_string": "erythroxylum campinense",
+          "taxon": {
+            "flags": [],
+            "is_suppressed": false,
+            "is_suppressed_from_synth": false,
+            "name": "Erythroxylum campinense",
+            "ott_id": 6100227,
+            "rank": "species",
+            "source": "ott3.2draft9",
+            "synonyms": [],
+            "tax_sources": [
+              "ncbi:2589442",
+              "gbif:3694069"
+            ],
+            "unique_name": "Erythroxylum campinense"
+          }
+        }
+      ],
+      "name": "erythroxylum campinense"
+    },
+    {
+      "matches": [],
+      "name": "qc"
     }
   ],
   "taxonomy": {
@@ -65,7 +242,16 @@
     "weburl": "https://tree.opentreeoflife.org/about/taxonomy-version/ott3.2"
   },
   "unambiguous_names": [
-    "melochia umbellata"
+    "erythroxylum novogranatense",
+    "erythroxylum coca",
+    "erythroxylum gracilipes",
+    "erythroxylum plowmanianum",
+    "erythroxylum barbatum",
+    "erythroxylum vaccinifolium",
+    "erythroxylum campinense"
   ],
-  "unmatched_names": []
+  "unmatched_names": [
+    "bk",
+    "qc"
+  ]
 }
