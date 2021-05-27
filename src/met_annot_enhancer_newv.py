@@ -90,7 +90,7 @@ job_id = '60b9945aa3fd4810b178e79870cca905'
 
 gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project'
 project_name = 'Fresh_Erythro_MN'
-metadata_path = '/Users/pma/210505_lotus_dnp_metadata.csv'
+metadata_path = '/Users/pma/210523_lotus_dnp_metadata.csv'
 
 organism_header = 'species'
 sampletype_header = 'sample_type'
@@ -113,7 +113,17 @@ spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
 isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
 
 spectral_match_results_repond_filename = project_name + '_spectral_match_results_repond.tsv'
-isdb_results_repond_path = os.path.join(path_to_folder,spectral_match_results_filename)
+isdb_results_repond_path = os.path.join(path_to_folder,spectral_match_results_repond_filename)
+
+
+spectral_match_results_repond_flat_filename = project_name + '_spectral_match_results_repond_flat.tsv'
+isdb_results_repond_flat_path = os.path.join(path_to_folder,spectral_match_results_repond_flat_filename)
+
+
+
+### to fill if not starting from GNPS Job
+
+isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
 
 
 
@@ -812,7 +822,7 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int6
 # %%
 
 annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
-            'structure_smiles', 'structure_molecular_formula',
+            'structure_smiles', 'structure_molecular_formula', 'adduct',
             'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
             'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
             'organism_name', 'organism_taxonomy_ottid',
@@ -839,14 +849,16 @@ for c in comp_attr:
 df4cyto = df4cyto_flat.groupby('feature_id').agg(gb_spec)
 
 # %%
-df4cyto.to_csv(output_weighed_ISDB_path, sep='\t')
 
-#df4cyto_flat.to_csv('/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Joelle_taxo_rep/GNPS_output_GT3/GT3_isdb_repond_flat.tsv', sep='\t')
+df4cyto_flat.to_csv(isdb_results_repond_flat_path, sep='\t')
+
+df4cyto.to_csv(isdb_results_repond_path, sep='\t')
+
 
 # %%
 
 print('Finished in %s seconds.' % (time.time() - start_time))
-print('You can check your results here %s' % output_weighed_ISDB_path)
+print('You can check your results here %s' % isdb_results_repond_path)
 
 
 # %%
@@ -873,7 +885,7 @@ print('You can check your results here %s' % output_weighed_ISDB_path)
 import plotly.express as px
 
 
-fig = px.sunburst(df4cyto_flat, path=['Superclass_cf_DNP_consensus', 'Class_cf_DNP_consensus', 'Subclass_cf_DNP_consensus', 'Parent_Level_1_cf_DNP_consensus'],
+fig = px.sunburst(df4cyto_flat, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'],
                   )
 fig.update_layout(
     #font_family="Courier New",
@@ -881,13 +893,13 @@ fig.update_layout(
     title_font_color="black",
     title_font_size=14,
     legend_title_font_color="black",
-    title_text="<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + project_name + "</b>",
+    title_text="<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
     title_x=0.5
 )
 
 fig.update_layout(
     title={
-        'text': "<b> Overview of the consensus chemical annotions <br> as the superclass, class, subclass and parent_1 level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+        'text': "<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
         'y':0.96,
         'x':0.5,
         'xanchor': 'center',
@@ -905,7 +917,8 @@ fig.write_html(sunburst_chem_results_path,
 
 # %%
 
-fig = px.sunburst(df4cyto_flat, path=['Kingdom_cof_DNP', 'Phylum_cof_DNP', 'Class_cof_DNP', 'Order_cof_DNP', 'Family_cof_DNP' ,'Genus_cof_DNP', 'Species_cof_DNP'],
+fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+            'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
                   )
 fig.update_layout(
     #font_family="Courier New",
@@ -913,13 +926,13 @@ fig.update_layout(
     title_font_color="black",
     title_font_size=14,
     legend_title_font_color="black",
-    title_text="<b> Overview of the source organisms of the chemical annotation <br> as the kingfom, phylum, class, order, family, genus and species level for <br>" + project_name + "</b>",
+    title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
     title_x=0.5
 )
 
 fig.update_layout(
     title={
-        'text': "<b> Overview of the source organisms of the chemical annotation <br> as the kingfom, phylum, class, order, family, genus and species level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+        'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
         'y':0.96,
         'x':0.5,
         'xanchor': 'center',
