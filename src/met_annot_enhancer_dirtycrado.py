@@ -40,33 +40,33 @@ Top_N_Sample = 5
 
 
 # defining the command line arguments
-# try:
-#     job_id = sys.argv[1]
-#     gnps_job_path = sys.argv[2]
-#     isdb_results_path = sys.argv[3]
-#     metadata_path = sys.argv[4]
-#     output_weighed_ISDB_path = sys.argv[5]
-#     top_to_output = sys.argv[6]
-#     ppm_tol = sys.argv[7]
-#     polarity = sys.argv[8]
+try:
+    job_id = sys.argv[1]
+    gnps_job_path = sys.argv[2]
+    project_name = sys.argv[3]
+    metadata_path = sys.argv[4]
+    db_file_path = sys.argv[5]
+    top_to_output = sys.argv[6]
+    ppm_tol = sys.argv[7]
+    polarity = sys.argv[8]
 
-#     print('Proceeding to metabolite annotation enhancement on GNPS job id: '
-#           + job_id + '.\n'
-#           + 'The GNPS files are downloaded locally in the following folder:' 
-#           + gnps_job_path + '.\n'
-#           + 'The metabolite annotation enhancement is done using the following parameters: \n' 
-#           + '   - spectral match results: ' + str(isdb_results_path) + '\n'
-#           + '   - metadata file: ' + str(metadata_path) + '\n'
-#           + '   - top hits to output: ' + str(top_to_output) + '\n'
-#           + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
-#           + '   - polarity mode: ' + str(polarity) + '\n'
-#           + 'Results will be outputed in the follwoing file: ' + output_weighed_ISDB_path)
-# except:
-#     print(
-#         '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
-#         Example :
-#         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
+    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
+          + job_id + '.\n'
+          + 'The GNPS files are downloaded locally in the following folder:' 
+          + gnps_job_path + '.\n'
+          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
+          + '   - metadata file: ' + str(metadata_path) + '\n'
+          + '   - ISDB file: ' + str(db_file_path) + '\n'
+          + '   - top hits to output: ' + str(top_to_output) + '\n'
+          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
+          + '   - polarity mode: ' + str(polarity) + '\n')
+except:
+    print(
+        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
+        Example :
+        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
+#'python met_annot_enhancer_dirtycrado.py 60b9945aa3fd4810b178e79870cca905 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project Fresh_Erythro_MN_2 /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/ISDB_DNP_msmatchready.mgf 1 2 Pos'
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 use_post_taxo = True
@@ -77,20 +77,20 @@ file_extension = '.mzXML'
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 top_N_chemical_consistency = 15
 
-top_to_output = '1'
+#top_to_output = '1'
 
-ppm_tol = '2'
+#ppm_tol = '2'
 
 # polarity = 'Neg'
-polarity = 'Pos'
+#polarity = 'Pos'
 
 
 # python met_annot_enhancer.py 
-job_id = '60b9945aa3fd4810b178e79870cca905'
+#job_id = '60b9945aa3fd4810b178e79870cca905'
 
-gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project'
-project_name = 'Fresh_Erythro_MN_2'
-metadata_path = '/Users/pma/210523_lotus_dnp_metadata.csv'
+#gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project'
+#project_name = 'Fresh_Erythro_MN_2'
+#metadata_path = '/Users/pma/210523_lotus_dnp_metadata.csv'
 
 organism_header = 'species'
 sampletype_header = 'sample_type'
@@ -104,7 +104,7 @@ path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix
 
 
 query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
-db_file_path = '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf'
+#db_file_path = '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf'
 parent_mz_tol = 0.01
 msms_mz_tol = 0.01
 min_cos = 0.2
@@ -161,31 +161,31 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 #    os.remove(f)
 
 
-# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
-# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-# subprocess.call(shlex.split(cmd))
+cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+subprocess.call(shlex.split(cmd))
 
-# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-#     zip_ref.extractall(path_to_folder)
+with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+    zip_ref.extractall(path_to_folder)
 
-# # We finally remove the zip file
-# cmd = 'rm '+ path_to_file
-# subprocess.call(shlex.split(cmd))
+# We finally remove the zip file
+cmd = 'rm '+ path_to_file
+subprocess.call(shlex.split(cmd))
 
 # %% Spectral matching stage
 
 # Yes we can !
 
 
-# spectral_lib_matcher.main(query_file_path,
-#                           db_file_path,
-#                           parent_mz_tol,
-#                           msms_mz_tol,
-#                           min_cos,
-#                           min_peaks,
-#                           isdb_results_path
-#                           )
+spectral_lib_matcher.main(query_file_path,
+                          db_file_path,
+                          parent_mz_tol,
+                          msms_mz_tol,
+                          min_cos,
+                          min_peaks,
+                          isdb_results_path
+                          )
 
 
 
