@@ -27,12 +27,13 @@ def nostdout():
     sys.stdout = save_stdout
 
 # query_file_path = '/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/spectra/specs_ms.mgf'
-# db_file_path = '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf'
+# # db_file_path = '/Users/pma/tmp/LOTUS_DNP_ISDB.mgf'
+# db_file_path = '/Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf'
 # parent_mz_tol = 0.01
 # msms_mz_tol = 0.01
 # min_cos = 0.2
 # min_peaks = 6
-# output_file_path = '/Users/pma/tmp/lena_matched.out'
+# output_file_path = '/Users/pma/tmp/bobobob.tsv'
 
 # defining the command line arguments
 try:
@@ -60,6 +61,7 @@ except:
         Example :
         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
+# python spectral_lib_matcher.py /Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/spectra/specs_ms.mgf /Users/pma/tmp/LOTUS_DNP_ISDB.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/bobobbobo.out
 
 def main(query_file_path,
     db_file_path,
@@ -100,6 +102,18 @@ def main(query_file_path,
 
 
     # spectrums_db[0].metadata
+
+    # spectrums_db[0].metadata.get('precursor_mz')
+    # spectrums_query[0].metadata.get('precursor_mz')
+
+    # type(spectrums_db[0].metadata.get('precursor_mz'))
+    # type(spectrums_query[0].metadata.get('precursor_mz'))
+    # type(spectrums_db_cleaned[0].metadata.get('name'))
+
+    # spectrums_db[0].peaks.intensities
+
+    # dir(spectrums_db[0].peaks)
+
 
     ### some filtering
 
@@ -142,11 +156,12 @@ def main(query_file_path,
     # So it need inline cleaning. Have to check this or raise an issue on matchms git if reproducible.
     print('Cleaning the spectral database metadata fields ...')
 
+    # spectrums_db = spectrums_db
     with nostdout():
         spectrums_db_cleaned = [metadata_processing(s) for s in spectrums_db]
-        # spectrums_db_cleaned = [peak_processing(s) for s in spectrums_db_cleaned]
+    #     spectrums_db_cleaned = [peak_processing(s) for s in spectrums_db_cleaned]
 
-    #save_as_mgf(spectrums_db_cleaned, '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf')
+    # save_as_mgf(spectrums_db_cleaned, '/Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf')
 
 
     print('Proceeding to the spectral match ...')
@@ -169,7 +184,7 @@ def main(query_file_path,
                             'matched_peaks':n_matches,
                             'feature_id':x + 1,
                             'reference_id':y + 1,
-                            'inchikey': spectrums_db_cleaned[y].get("inchikey")})
+                            'inchikey': spectrums_db_cleaned[y].get("name")})
     df = pd.DataFrame(data)
 
 

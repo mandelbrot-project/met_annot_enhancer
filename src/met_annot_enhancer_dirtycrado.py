@@ -67,6 +67,8 @@ except:
         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
 #'python met_annot_enhancer_dirtycrado.py 60b9945aa3fd4810b178e79870cca905 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project Fresh_Erythro_MN_2 /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/ISDB_DNP_msmatchready.mgf 1 2 Pos'
+#'python met_annot_enhancer_dirtycrado.py 60b9945aa3fd4810b178e79870cca905 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project Fresh_Erythro_MN_LOTUS /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf 1 2 Pos'
+
 
 # # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
 use_post_taxo = True
