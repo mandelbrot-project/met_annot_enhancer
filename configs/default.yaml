@@ -1,0 +1,19 @@
+
+# default.yaml
+
+---
+# parameters
+job:
+  - job_id: e869c0f68f0f465b97a667f60acd255c
+
+paths:
+  - gnps_job_path: ./
+  - project_name: ISDB_annot
+  - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv
+  - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf
+
+params:
+    - top_to_output: 1
+    - ppm_tol: 2
+    - polarity: Pos
+

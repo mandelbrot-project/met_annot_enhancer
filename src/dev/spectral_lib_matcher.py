@@ -26,14 +26,6 @@ def nostdout():
     yield
     sys.stdout = save_stdout
 
-# query_file_path = '/Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/spectra/specs_ms.mgf'
-# # db_file_path = '/Users/pma/tmp/LOTUS_DNP_ISDB.mgf'
-# db_file_path = '/Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf'
-# parent_mz_tol = 0.01
-# msms_mz_tol = 0.01
-# min_cos = 0.2
-# min_peaks = 6
-# output_file_path = '/Users/pma/tmp/bobobob.tsv'
 
 # defining the command line arguments
 try:
@@ -61,7 +53,6 @@ except:
         Example :
         python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
 
-# python spectral_lib_matcher.py /Users/pma/tmp/bafu_ecometabo/FBMN_bafu_ecometabo_pos/spectra/specs_ms.mgf /Users/pma/tmp/LOTUS_DNP_ISDB.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/bobobbobo.out
 
 def main(query_file_path,
     db_file_path,
