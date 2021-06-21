@@ -171,10 +171,10 @@ start_time = time.time()
 
 if polarity == 'Pos':
     adducts_df = pd.read_csv(
-        '../data_loc/db_pos.tsv.gz', compression='gzip', sep='\t')
+        '../../data_loc/db_pos.tsv.gz', compression='gzip', sep='\t')
 else:
     adducts_df = pd.read_csv(
-        '../data_loc/db_neg.tsv.gz', compression='gzip', sep='\t')
+        '../../data_loc/db_neg.tsv.gz', compression='gzip', sep='\t')
 
 adducts_df['min'] = adducts_df['adduct_mass'] - \
     int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
@@ -193,6 +193,10 @@ job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&v
 
 cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
 subprocess.call(shlex.split(cmd))
+
+print(gnps_job_path)
+print(path_to_file)
+print(path_to_folder)
 
 with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
     zip_ref.extractall(path_to_folder)

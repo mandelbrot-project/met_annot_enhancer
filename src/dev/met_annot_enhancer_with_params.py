@@ -27,117 +27,59 @@ pd.set_option('display.width', 100)
 # We deactivate the iloc warning see https://stackoverflow.com/a/20627316
 pd.options.mode.chained_assignment = None  # default='warn'
 
+print(os.getcwd())
 
-# %% Choose line by line or classic (1 species) reweighting
+# Loading the parameters from yaml file
 
-## //TODO Maybe remove this option and systematically apply it ?
- 
-Run_line_x_line = True 
-Top_N_Sample = 5
-
-
-# species_bio = 'Arabidopsis thaliana'
-# genus_bio = 'Arabidopsis'
-# family_bio = 'Brassicaceae'
-# order_bio = 'Brassicales'
-# class_bio = 'Magnoliopsida'
-# phylum_bio = 'Tracheophyta'
-# kingdom_bio = 'Plantae'
+with open (r'./configs/default.yaml') as file:    
+    # The FullLoader parameter handles the conversion from YAML
+    # scalar values to Python the dictionary format
+    params_list = yaml.load(file, Loader=yaml.FullLoader)
 
 
+job_id = params_list['job'][0]['job_id']
 
-# %% Defining the paths
+gnps_job_path = params_list['paths'][0]['gnps_job_path']
+project_name = params_list['paths'][1]['project_name']
+metadata_path = params_list['paths'][2]['metadata_path']
+db_file_path = params_list['paths'][3]['db_file_path']
+adducts_pos_path = params_list['paths'][4]['adducts_pos_path']
+adducts_neg_path = params_list['paths'][5]['adducts_neg_path']
 
-#'python met_annot_enhancer_dirtycrado.py 814443cae35e44d1bf676f5b337b4664 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Luigi_annot PT_MN /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf 1 2 Pos'
-
-# job_id = 'e869c0f68f0f465b97a667f60acd255c'
-# gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Luigi_annot'
-# project_name = 'PT_MN_pos'
-# metadata_path = '/Users/pma/210523_lotus_dnp_metadata.csv'
-# db_file_path = '/Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf'
-# top_to_output = 1
-# ppm_tol = 2
-# polarity = 'Pos'
+parent_mz_tol = params_list['spectral_match_params'][0]['parent_mz_tol']
+msms_mz_tol = params_list['spectral_match_params'][1]['msms_mz_tol']
+min_cos = params_list['spectral_match_params'][2]['min_cos']
+min_peaks = params_list['spectral_match_params'][3]['min_peaks']
 
 
-# defining the command line arguments
-try:
-    job_id = sys.argv[1]
-    gnps_job_path = sys.argv[2]
-    project_name = sys.argv[3]
-    metadata_path = sys.argv[4]
-    db_file_path = sys.argv[5]
-    top_to_output = sys.argv[6]
-    ppm_tol = sys.argv[7]
-    polarity = sys.argv[8]
-
-    print('Proceeding to metabolite annotation enhancement on GNPS job id: '
-          + job_id + '.\n'
-          + 'The GNPS files are downloaded locally in the following folder:' 
-          + gnps_job_path + '.\n'
-          + 'The metabolite annotation enhancement is done using the following parameters: \n' 
-          + '   - metadata file: ' + str(metadata_path) + '\n'
-          + '   - ISDB file: ' + str(db_file_path) + '\n'
-          + '   - top hits to output: ' + str(top_to_output) + '\n'
-          + '   - parent mass tolerance: ' + str(ppm_tol) + '\n'
-          + '   - polarity mode: ' + str(polarity) + '\n')
-except:
-    print(
-        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
-        Example :
-        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
-
-#'python met_annot_enhancer_dirtycrado.py 60b9945aa3fd4810b178e79870cca905 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project Fresh_Erythro_MN_2 /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/ISDB_DNP_msmatchready.mgf 1 2 Pos'
-#'python met_annot_enhancer_dirtycrado.py 60b9945aa3fd4810b178e79870cca905 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project Fresh_Erythro_MN_LOTUS /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf 1 2 Pos'
-#'python met_annot_enhancer_dirtycrado.py 814443cae35e44d1bf676f5b337b4664 /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Luigi_annot PT_MN /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf 1 2 Pos'
-#'python met_annot_enhancer_dirtycrado.py e869c0f68f0f465b97a667f60acd255c /Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Luigi_annot PT_MN_pos_cmd /Users/pma/210523_lotus_dnp_metadata.csv /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf 1 2 Pos'
+Run_line_x_line = params_list['params'][0]['Run_line_x_line']
+Top_N_Sample = params_list['params'][1]['Top_N_Sample']
+top_to_output= params_list['params'][2]['top_to_output']
+ppm_tol = params_list['params'][3]['ppm_tol']
+polarity = params_list['params'][4]['polarity']
+organism_header = params_list['params'][5]['organism_header']
+sampletype_header = params_list['params'][6]['sampletype_header']
+use_post_taxo = params_list['params'][7]['use_post_taxo']
+top_N_chemical_consistency = params_list['params'][8]['top_N_chemical_consistency']
+file_extension = params_list['params'][9]['file_extension']
+msfile_suffix = params_list['params'][10]['msfile_suffix']
 
 
 
-
-
-# # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
-use_post_taxo = True
-
-# # MS filename extension (a common pattern in all your filenames)
-file_extension = '.mzML'
-msfile_suffix = ' Peak area'
-
-# # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination
-top_N_chemical_consistency = 15
-
-#top_to_output = '1'
-
-#ppm_tol = '2'
-
-# polarity = 'Neg'
-#polarity = 'Pos'
-
-
-# python met_annot_enhancer.py 
-#job_id = '60b9945aa3fd4810b178e79870cca905'
-
-#gnps_job_path = '/Users/pma/Dropbox/Research_UNIGE/Projets/Ongoing/Erythroxylum_project'
-#project_name = 'Fresh_Erythro_MN_2'
-#metadata_path = '/Users/pma/210523_lotus_dnp_metadata.csv'
-
-organism_header = 'ATTRIBUTE_Species'
-sampletype_header = 'sample_type'
 
 base_filename = 'GNPS_output_' + project_name
 filename_suffix = 'zip'
-path_to_folder = os.path.join(gnps_job_path, base_filename)
-path_to_file = os.path.join(gnps_job_path, base_filename + "." + filename_suffix)
+
+# Adding expanduser option to expand home path if encoded in the params file
+
+path_to_folder = os.path.expanduser(os.path.join(gnps_job_path, base_filename))
+path_to_file = os.path.expanduser(os.path.join(gnps_job_path, base_filename + "." + filename_suffix))
 
 
 
 
 query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
-#db_file_path = '/Users/pma/tmp/ISDB_DNP_msmatchready.mgf'
-parent_mz_tol = 0.01
-msms_mz_tol = 0.01
-min_cos = 0.2
-min_peaks = 6
+
 spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
 isdb_results_path = os.path.join(path_to_folder,spectral_match_results_filename)
 
@@ -172,10 +114,10 @@ start_time = time.time()
 
 if polarity == 'Pos':
     adducts_df = pd.read_csv(
-        '../data_loc/db_pos.tsv.gz', compression='gzip', sep='\t')
+        adducts_pos_path, compression='gzip', sep='\t')
 else:
     adducts_df = pd.read_csv(
-        '../data_loc/db_neg.tsv.gz', compression='gzip', sep='\t')
+        adducts_neg_path, compression='gzip', sep='\t')
 
 adducts_df['min'] = adducts_df['adduct_mass'] - \
     int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
@@ -194,6 +136,7 @@ job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&v
 
 cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
 subprocess.call(shlex.split(cmd))
+
 
 with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
     zip_ref.extractall(path_to_folder)
