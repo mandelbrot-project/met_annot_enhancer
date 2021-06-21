@@ -9,30 +9,30 @@ job:
   # https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=f8c981fe7fed4b0482667a76731f5b65 
 
 paths:
-  - gnps_job_path: ~/ # The 
-  - project_name: ISDB_annot_PA_example_set
-  - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv
-  - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf
-  - adducts_pos_path: ./data_loc/db_pos.tsv.gz
-  - adducts_neg_path: ./data_loc/db_neg.tsv.gz
+  - gnps_job_path: ~/ # The path were you want your folder to be placed
+  - project_name: ISDB_annot_PA_example_set # The name you want to give to your project
+  - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv  # Path to your spectral library file
+  - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf # Path to the metadata of the spectral file
+  - adducts_pos_path: ./data_loc/db_pos.tsv.gz # Path to the adducts file in pos mode
+  - adducts_neg_path: ./data_loc/db_neg.tsv.gz # Path to the adducts file in neg mode
 
 spectral_match_params:
-  - parent_mz_tol: 0.01
-  - msms_mz_tol: 0.01
-  - min_cos: 0.3
-  - min_peaks: 8
+  - parent_mz_tol: 0.01 # the parent mass tolerance to use for spectral matching (in Da)
+  - msms_mz_tol: 0.01 # the msms mass tolerance to use for spectral matching (in Da)
+  - min_cos: 0.3 # the minimal cosine to use for spectral matching
+  - min_peaks: 8 # the minimal matching peaks number to use for spectral matching
 
 repond_params:
-    - Run_line_x_line: True 
-    - Top_N_Sample: 3
-    - top_to_output: 1
-    - ppm_tol: 2
-    - polarity: Pos
-    - organism_header: 'ATTRIBUTE_Species' # Mandatory
-    - sampletype_header: 'SAMPLE_info' # optional
-    - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
-    - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
-    - file_extension: '.mzXML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know
-    - msfile_suffix: ' Peak area' # MS filename additional chracters (a common pattern in all your filenames) Check the header of your feature table if you dont know
+  - Run_line_x_line: True # Set to True if multiple biosource in your dataset 
+  - Top_N_Sample: 3 # Max number of contributors to take into account for taxo reponderation
+  - top_to_output: 1 # Top X for final ouput
+  - ppm_tol: 2 # ppm tol to be used for ms1 match
+  - polarity: Pos # ion mode you are working with 
+  - organism_header: 'ATTRIBUTE_Species' # Mandatory
+  - sampletype_header: 'SAMPLE_info' # optional
+  - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
+  - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
+  - file_extension: '.mzXML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know
+  - msfile_suffix: ' Peak area' # MS filename additional chracters (a common pattern in all your filenames) Check the header of your feature table if you dont know
 
 
