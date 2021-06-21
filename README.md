@@ -28,7 +28,7 @@ If you need to update the environment run
 
 ### 2.  edit the parameters in default.yaml
 
-This file is located in the configs folder here https://github.com/mandelbrot-project/met_annot_enhancer/blob/194dcde9383f63549241694f2b2ac85635a6f15f/configs/default.yaml
+This file is located in the configs folder [here](https://github.com/mandelbrot-project/met_annot_enhancer/blob/194dcde9383f63549241694f2b2ac85635a6f15f/configs/default.yaml)
 
 (detail later on here and in the yaml wich are the important params)
 
