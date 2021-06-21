@@ -289,7 +289,6 @@ df_MS1_merge_gb.reset_index(inplace=True)
 # %%
 
 dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
-dt_isdb_results.info()
 
 print('Number of annotated features after MS1: ' +
       str(len(df_MS1_merge['feature_id'].unique())))
@@ -310,10 +309,9 @@ dt_isdb_results["score_input"] = pd.to_numeric(
 dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'score_input']].groupby(
     'feature_id')['score_input'].rank(method='dense', ascending=False)
 
-dt_isdb_results.info()
 
 # %%
-# Joining the DNP metadata
+# Joining the Occurences DB metadata
 
 # we start by outputing the SIK for the ISDB output
 
@@ -321,7 +319,7 @@ dt_isdb_results['short_inchikey'] = dt_isdb_results.inchikey.str.split(
     "-", expand=True)[0]
 dt_isdb_results.reset_index(inplace=True)
 
-# now we merge with the DNP metadata after selection of our columns of interest
+# now we merge with the Occurences DB metadata after selection of our columns of interest
 
 cols_to_use = ['structure_inchikey', 'structure_inchi',
             'structure_smiles', 'structure_molecular_formula',
