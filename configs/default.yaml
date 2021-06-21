@@ -4,11 +4,11 @@
 ---
 # parameters
 job:
-  - job_id: e558d62adcc74b648636047db34ec225
+  - job_id: f8c981fe7fed4b0482667a76731f5b65
 
 paths:
   - gnps_job_path: ~/
-  - project_name: ISDB_annot_combretaceae
+  - project_name: ISDB_annot_PA_example_set
   - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv
   - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf
   - adducts_pos_path: ./data_loc/db_pos.tsv.gz
@@ -18,7 +18,7 @@ spectral_match_params:
   - parent_mz_tol: 0.01
   - msms_mz_tol: 0.01
   - min_cos: 0.3
-  - min_peaks: 6
+  - min_peaks: 8
 
 repond_params:
     - Run_line_x_line: True 
@@ -27,10 +27,10 @@ repond_params:
     - ppm_tol: 2
     - polarity: Pos
     - organism_header: 'ATTRIBUTE_Species' # Mandatory
-    - sampletype_header: 'sample_type' # optional
+    - sampletype_header: 'SAMPLE_info' # optional
     - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
     - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
-    - file_extension: '.mzML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know
+    - file_extension: '.mzXML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know
     - msfile_suffix: ' Peak area' # MS filename additional chracters (a common pattern in all your filenames) Check the header of your feature table if you dont know
 
 

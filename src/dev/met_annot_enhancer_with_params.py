@@ -126,6 +126,7 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 
 
 # %% Downloading GNPS files
+# Make this optionnal
 
 # files = glob.glob(gnps_job_path)
 # for f in files:
@@ -145,9 +146,17 @@ with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
 cmd = 'rm '+ path_to_file
 subprocess.call(shlex.split(cmd))
 
+
+# Once this folder is created we directly save the yaml params inside
+
+with open(os.path.join(path_to_folder + job_id + '.yaml'), 'w') as file:  
+    documents = yaml.dump(params_list, file)
+
+
 # %% Spectral matching stage
 
 # Yes we can !
+# Make this optionnal
 
 
 spectral_lib_matcher.main(query_file_path,
@@ -528,10 +537,6 @@ df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
 # We merge this back with the samplemetadata only if we have an ott.id in the merged df 
 
 samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
-
-
-
-
 
 
 # %% Extracting biosource / feature for line by line
