@@ -51,7 +51,7 @@ except:
     print(
         '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
         Example :
-        python spectral_lib_matcher.py /Users/pma/tmp/Lena_metabo_local/FBMN_metabo_lena/spectra/fbmn_lena_metabo_specs_ms.mgf /Users/pma/tmp/New_DNP_full_pos.mgf 0.01 0.01 0.2 6 /Users/pma/tmp/lena_matched.out''')
+        python spectral_lib_matcher.py /path/to/your/query_spectra.mgf /path/to/your/spectral_lib.mgf 0.01 0.01 0.2 6 /path/to/your/output.tsv''')
 
 
 def main(query_file_path,

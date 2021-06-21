@@ -26,7 +26,7 @@ repond_params:
     - top_to_output: 1
     - ppm_tol: 2
     - polarity: Pos
-    - organism_header: 'ATTRIBUTE_Species'
+    - organism_header: 'sample_type'
     - sampletype_header: 'sample_type'
     - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
     - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 

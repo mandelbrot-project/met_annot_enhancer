@@ -52,17 +52,17 @@ min_cos = params_list['spectral_match_params'][2]['min_cos']
 min_peaks = params_list['spectral_match_params'][3]['min_peaks']
 
 
-Run_line_x_line = params_list['params'][0]['Run_line_x_line']
-Top_N_Sample = params_list['params'][1]['Top_N_Sample']
-top_to_output= params_list['params'][2]['top_to_output']
-ppm_tol = params_list['params'][3]['ppm_tol']
-polarity = params_list['params'][4]['polarity']
-organism_header = params_list['params'][5]['organism_header']
-sampletype_header = params_list['params'][6]['sampletype_header']
-use_post_taxo = params_list['params'][7]['use_post_taxo']
-top_N_chemical_consistency = params_list['params'][8]['top_N_chemical_consistency']
-file_extension = params_list['params'][9]['file_extension']
-msfile_suffix = params_list['params'][10]['msfile_suffix']
+Run_line_x_line = params_list['repond_params'][0]['Run_line_x_line']
+Top_N_Sample = params_list['repond_params'][1]['Top_N_Sample']
+top_to_output= params_list['repond_params'][2]['top_to_output']
+ppm_tol = params_list['repond_params'][3]['ppm_tol']
+polarity = params_list['repond_params'][4]['polarity']
+organism_header = params_list['repond_params'][5]['organism_header']
+sampletype_header = params_list['repond_params'][6]['sampletype_header']
+use_post_taxo = params_list['repond_params'][7]['use_post_taxo']
+top_N_chemical_consistency = params_list['repond_params'][8]['top_N_chemical_consistency']
+file_extension = params_list['repond_params'][9]['file_extension']
+msfile_suffix = params_list['repond_params'][10]['msfile_suffix']
 
 
 
@@ -162,14 +162,6 @@ spectral_lib_matcher.main(query_file_path,
 
 
 # %% Loading the files
-
-# dt_isdb_results = pd.read_csv(isdb_results_path,
-#                               sep='\t',
-#                               usecols=['cluster index', 'componentindex', 'parent mass', 'Spectral_Score_DNP',
-#                                        'IS_libname', 'IS_match_mzerror', 'InChIKey_DNP'],
-#                               error_bad_lines=False, low_memory=True)
-
-## matchms alternative 
 
 dt_isdb_results = pd.read_csv(isdb_results_path,
                               sep='\t',
@@ -378,12 +370,12 @@ species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_
 
 # %%
 
-with open('species.json', 'w') as out:
+with open(str(path_to_folder +'species.json'), 'w') as out:
     sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
     out.write('{}\n'.format(sf))
 
 # %%
-with open("species.json") as tmpfile:
+with open(str(path_to_folder +'species.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
 json_normalize(jsondic)
@@ -452,14 +444,14 @@ for i in ott_list:
 tl = []
 
 for i in taxon_info:
-    with open('taxon_info.json', 'w') as out:
+    with open(str(path_to_folder +'taxon_info.json'), 'w') as out:
         tl.append(i.response_dict)
         yo = json.dumps(tl)
         out.write('{}\n'.format(yo))
 
 # %%
 
-with open("taxon_info.json") as tmpfile:
+with open(str(path_to_folder +'taxon_info.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
 df = json_normalize(jsondic)
