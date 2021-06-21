@@ -299,7 +299,7 @@ len(clusterinfo_summary['feature_id'].unique())
 
 # %%
 
-print('Total number of MSMS annotations: ' + str(len(dt_isdb_results)))
+print('Total number of MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
 
 # %%
 # Rank annotations based on the spectral score
@@ -536,6 +536,9 @@ samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df
 
 # %% Extracting biosource / feature for line by line
 
+print('''
+Fetching the biosource contribution per feature ...
+''')
 
 quantification_table_reformatted_path = os.path.join(path_to_folder,'quantification_table_reformatted','')
 
@@ -593,6 +596,10 @@ else:
        dt_isdb_results['query_otol_kingdom'] = kingdom_bio
        
 #%% Taxonomical Reweighting
+
+print('''
+Proceeding to taxonomically informed reponderation ...
+''')
 
 cols_ref = ['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',  'organism_taxonomy_03phylum', 'organism_taxonomy_04class',
             'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species']
@@ -725,6 +732,11 @@ for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npc
 # %% 
 # Chemical consistency reweighting
 
+print('''
+Proceeding to chemically informed reponderation ...
+''')
+
+
 dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] = dt_isdb_results.apply(
     lambda x: 1 if x.structure_taxonomy_npclassifier_01pathway == x.structure_taxonomy_npclassifier_01pathway_consensus else 0, axis=1)
 dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] = dt_isdb_results.apply(
@@ -842,6 +854,10 @@ print('You can check your results here %s' % isdb_results_repond_path)
 # using px express to plot some quick and dirty sunbursts (https://plotly.com/python/sunburst-charts/)
 # customize fonts in titles following https://stackoverflow.com/a/57926862
 # customize margins following https://stackoverflow.com/a/63162535
+
+print('''
+Generating plots ...
+''')
 
 import plotly.express as px
 

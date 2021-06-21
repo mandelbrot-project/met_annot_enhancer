@@ -4,11 +4,11 @@
 ---
 # parameters
 job:
-  - job_id: 7f1259a161974b9fa4215b1f2a6dca5e
+  - job_id: e558d62adcc74b648636047db34ec225
 
 paths:
   - gnps_job_path: ~/
-  - project_name: ISDB_annot_7f1259a161974b9fa4215b1f2a6dca5e
+  - project_name: ISDB_annot_combretaceae
   - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv
   - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf
   - adducts_pos_path: ./data_loc/db_pos.tsv.gz
@@ -17,17 +17,17 @@ paths:
 spectral_match_params:
   - parent_mz_tol: 0.01
   - msms_mz_tol: 0.01
-  - min_cos: 0.2
+  - min_cos: 0.3
   - min_peaks: 6
 
 repond_params:
     - Run_line_x_line: True 
-    - Top_N_Sample: 5
+    - Top_N_Sample: 3
     - top_to_output: 1
     - ppm_tol: 2
     - polarity: Pos
-    - organism_header: 'sample_type'
-    - sampletype_header: 'sample_type'
+    - organism_header: 'ATTRIBUTE_Species' # Mandatory
+    - sampletype_header: 'sample_type' # optional
     - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
     - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
     - file_extension: '.mzML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know
