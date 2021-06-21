@@ -44,7 +44,7 @@ This file is located in the configs folder [here](https://github.com/mandelbrot-
 
 # R implementation
 
-An R based implementation of the metabolite annotation enhancing process is available here https://gitlab.com/tima5/taxoscorer
+An R based implementation of the metabolite annotation enhancing process is available here https://gitlab.com/tima5/tima-weighter
 
 # References
 
