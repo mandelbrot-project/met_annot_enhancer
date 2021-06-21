@@ -5,6 +5,15 @@ A set of script to proceed to metabolite annotation results enhancement using ta
 
 ## Requirements 
 
+
+### 1.  clone this repo
+
+`git clone https://github.com/mandelbrot-project/met_annot_enhancer.git`
+
+
+### 2.  set the correct environmenet
+
+
 The requested package can be installed by creating the conda environment and activating it.
 
 Use the following line for environment creation 
@@ -22,15 +31,11 @@ If you need to update the environment run
 
 ## Proceeding to spectral matching and followed by taxonomically and struturally informed scoring 
 
-### 1.  clone this repo
-
-`git clone https://github.com/mandelbrot-project/met_annot_enhancer.git`
-
-### 2.  edit the parameters in default.yaml
+### 1.  edit the parameters in default.yaml
 
 (detail later on here and in the yaml wich are the important params)
 
-### 3.  launch the job
+### 2.  launch the job
 
 `python src/dev/met_annot_enhancer_with_params.py`
 
