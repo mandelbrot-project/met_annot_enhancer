@@ -368,12 +368,12 @@ species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_
 
 # %%
 
-with open(str(path_to_folder +'species.json'), 'w') as out:
+with open(str(path_to_folder +'/species.json'), 'w') as out:
     sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
     out.write('{}\n'.format(sf))
 
 # %%
-with open(str(path_to_folder +'species.json')) as tmpfile:
+with open(str(path_to_folder +'/species.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
 json_normalize(jsondic)
@@ -442,14 +442,14 @@ for i in ott_list:
 tl = []
 
 for i in taxon_info:
-    with open(str(path_to_folder +'taxon_info.json'), 'w') as out:
+    with open(str(path_to_folder +'/taxon_info.json'), 'w') as out:
         tl.append(i.response_dict)
         yo = json.dumps(tl)
         out.write('{}\n'.format(yo))
 
 # %%
 
-with open(str(path_to_folder +'taxon_info.json')) as tmpfile:
+with open(str(path_to_folder +'/taxon_info.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
 df = json_normalize(jsondic)
@@ -856,7 +856,7 @@ print('You can check your results here %s' % isdb_results_repond_path)
 # customize margins following https://stackoverflow.com/a/63162535
 
 print('''
-Generating plots ...
+Generating plots ... check your web browser !
 ''')
 
 import plotly.express as px
