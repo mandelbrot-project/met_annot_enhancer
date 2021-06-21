@@ -20,33 +20,19 @@ If you need to update the environment run
 `conda env update --file environment.yml`
 
 
-## Launching the script
+## Proceeding to spectral matching and followed by taxonomically and struturally informed scoring 
 
-```
-python met_annot_enhancer.py \
-gnps_job_id \
-gnps_path \
-spectral_lib_matcher_result_path \
-metadata_path \
-met_annot_enhancer_results_path \
-top N of desired outputs per feature \
-tolerance for MS1 match (in ppm) \
-polarity mode (Pos or Neg)
-```
+### 1.  clone this repo
 
-Example : 
+`git clone https://github.com/mandelbrot-project/met_annot_enhancer.git`
 
-```
-python met_annot_enhancer.py \
-56d01c6ccfe143eca5252017202c8fef \
-/Users/pma/tmp/Fred_Legendre/ \
-/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB.tsv \
-/Users/pma/Documents/190602_DNP_TAXcof_CF.tsv \
-/Users/pma/tmp/Fred_Legendre/GNPS_output/spectral_matcher_results_DNP_ISDB_repond.tsv \
-3 \
-5 \
-Pos
-````
+### 2.  edit the parameters in default.yaml
+
+(detail later on here and in the yaml wich are the important params)
+
+### 3.  launch the job
+
+`python src/dev/met_annot_enhancer_with_params.py`
 
 
 # R implementation

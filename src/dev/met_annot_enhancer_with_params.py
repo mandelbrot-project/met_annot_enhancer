@@ -132,6 +132,10 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 # for f in files:
 #    os.remove(f)
 
+print('''
+Fetching the GNPS job ...
+''')
+
 
 job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
@@ -149,7 +153,9 @@ subprocess.call(shlex.split(cmd))
 
 # Once this folder is created we directly save the yaml params inside
 
-with open(os.path.join(path_to_folder + job_id + '.yaml'), 'w') as file:  
+params_suffix = '.yaml'
+
+with open(os.path.join(path_to_folder, job_id + params_suffix), 'w') as file:  
     documents = yaml.dump(params_list, file)
 
 
@@ -157,6 +163,12 @@ with open(os.path.join(path_to_folder + job_id + '.yaml'), 'w') as file:
 
 # Yes we can !
 # Make this optionnal
+
+
+print('''
+Proceeding to spectral matching ...
+''')
+
 
 
 spectral_lib_matcher.main(query_file_path,

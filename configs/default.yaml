@@ -4,10 +4,12 @@
 ---
 # parameters
 job:
-  - job_id: f8c981fe7fed4b0482667a76731f5b65
+  - job_id: f8c981fe7fed4b0482667a76731f5b65 # The GNPS id of the Job you want to annotate. 
+  # You can copy paste this id directly from the url see
+  # https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=f8c981fe7fed4b0482667a76731f5b65 
 
 paths:
-  - gnps_job_path: ~/
+  - gnps_job_path: ~/ # The 
   - project_name: ISDB_annot_PA_example_set
   - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv
   - db_file_path: /Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf
