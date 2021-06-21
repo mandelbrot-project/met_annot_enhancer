@@ -49,7 +49,15 @@ try:
         + 'Results will be outputed in ' + output_file_path)
 except:
     print(
-        '''Please add input and output file path as first and second argument, InChI column header as third argument and finally the number of cpus you want to use.
+        '''Please add arguments as follow:
+        - the path to the spectral file to query [first argument]
+        - the path to the spectral library [second argument]
+        - the parent mass tolerance to use for spectral matching (in Da) [third argument]
+        - the msms mass tolerance to use for spectral matching (in Da) [forth argument]
+        - the minimal cosine to use for spectral matching [fifth argument]
+        - the minimal matching peaks number to use for spectral matching [sixth argument]
+        - the path to the outputs results [seventh and last argument]
+        
         Example :
         python spectral_lib_matcher.py /path/to/your/query_spectra.mgf /path/to/your/spectral_lib.mgf 0.01 0.01 0.2 6 /path/to/your/output.tsv''')
 
