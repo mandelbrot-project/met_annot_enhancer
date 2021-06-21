@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - bioconda
   - defaults
+  - anaconda
 dependencies:
   - python=3.8
   - pandas
@@ -10,5 +11,6 @@ dependencies:
   - tqdm
   - plotly
   - pip
+  - pyyaml
   - pip :
     - opentree

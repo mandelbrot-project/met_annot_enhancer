@@ -15,6 +15,10 @@ And this one to activate it
 
 `conda activate met_annot_enhancer_env`
 
+If you need to update the environment run 
+
+`conda env update --file environment.yml`
+
 
 ## Launching the script
 
