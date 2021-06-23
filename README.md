@@ -30,15 +30,14 @@ If you need to update the environment run
 
 ## STEP A) Download FBMN from GNPS 
 
-### 1.  edit the parameters in configs/gnps_param.yaml
-You need to pereform a FBMN in orderto get the component index (ie cluster) of the features. Edit the parameters in gnps_param.yaml [here](https://github.com/mandelbrot-project/met_annot_enhancer/blob/194dcde9383f63549241694f2b2ac85635a6f15f/configs/gnps_param.yaml).
-The best way is to include you metadata directly in th FBMN job (format is described [here](https://ccms-ucsd.github.io/GNPSDocumentation/metadata/)), especially if you have multiple ogranisms in you dataset and therefore will proceed to line by line reweighting.
+You need first to perform a FBMN in orderto get the component index (ie cluster) of the features, that will be used for the reweighting.
+You can download a pre-computed GNPS job using the following commmand line; you just need your job id. Results will be stored in the data_in/yourjobid folder
 
-In case you didn't include metadata in you job, just add it in the form of a .csv in the data_in/GNPS_output_yourprojectname/metadata_table/ folder (you will have to create the metadata_table folder) after the download.
+`python src/dev/download_from_gnps.py --job_id yourjobidgoeshere`
 
-### 2.  launch the download
+for help, use:
 
-`python src/dev/download_from_gnps.py`
+`python src/dev/download_from_gnps.py -h`
 
 ## STEP B) Proceeding to spectral matching and followed by taxonomically and struturally informed scoring 
 
