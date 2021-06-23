@@ -4,6 +4,9 @@
 ---
 # parameters
 
+job:
+  - job_id: enterjobidhere # The path were you want your folder to be placed
+  
 paths:
   - gnps_job_path: / # The path were you want your folder to be placed
   - project_name: ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name

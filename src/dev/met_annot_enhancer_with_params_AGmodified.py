@@ -31,7 +31,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # Loading the parameters from yaml file
 
-with open (r'configs/default.yaml') as file:    
+with open (r'configs/default_AG.yaml') as file:    
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     params_list = yaml.load(file, Loader=yaml.FullLoader)
