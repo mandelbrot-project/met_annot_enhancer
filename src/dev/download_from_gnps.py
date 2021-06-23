@@ -11,7 +11,7 @@ import textwrap
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter,
-     description=textwrap.dedent('''\
+    description=textwrap.dedent('''\
          This script will download a GNPS job
          --------------------------------
             You should just enter the job id 

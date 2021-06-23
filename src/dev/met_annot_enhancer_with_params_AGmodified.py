@@ -1,4 +1,4 @@
-# %% Load packages
+# Load packages
 
 import pandas as pd
 import numpy as np
@@ -17,8 +17,10 @@ from pandas import json_normalize
 import yaml
 import spectral_lib_matcher
 
+# Provisoire
+os.chdir('../../')
 
-# %% defininbg display options
+# Defining display options
 
 pd.set_option('display.max_rows', 50)
 pd.set_option('display.max_columns', 500)
@@ -29,11 +31,12 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # Loading the parameters from yaml file
 
-with open (r'../../configs/default.yaml') as file:    
+with open (r'configs/default.yaml') as file:    
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
+job_id = params_list['paths'][0]['gnps_job_id']
 project_name = params_list['paths'][1]['project_name']
 metadata_path = params_list['paths'][2]['metadata_path']
 db_file_path = params_list['paths'][3]['db_file_path']
@@ -58,46 +61,26 @@ top_N_chemical_consistency = params_list['repond_params'][9]['top_N_chemical_con
 file_extension = params_list['repond_params'][10]['file_extension']
 msfile_suffix = params_list['repond_params'][11]['msfile_suffix']
 
-# Load GNPS parameters
-with open (r'../../configs/gnps_param.yaml') as file:    
-    # The FullLoader parameter handles the conversion from YAML
-    # scalar values to Python the dictionary format
-    params_list = yaml.load(file, Loader=yaml.FullLoader)
-
-job_id = params_list['job'][0]['job_id']
-gnps_job_path = params_list['job'][1]['gnps_job_path']
-project_name = params_list['job'][2]['project_name']
-
-base_filename = 'GNPS_output_' + project_name
-filename_suffix = 'zip'
-
-path_to_folder = os.path.expanduser(os.path.join(gnps_job_path, base_filename))
-base_filename = 'GNPS_output_' + project_name
+path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id))
+path_to_results_folders = 'data_out/'+ project_name
 
 # Adding expanduser option to expand home path if encoded in the params file
 
-query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
+query_file_path = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')
 
 spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
-isdb_results_path = os.path.join(path_to_folder, spectral_match_results_filename)
+isdb_results_path = os.path.join(path_to_results_folders, spectral_match_results_filename)
 
 spectral_match_results_repond_filename = project_name + '_spectral_match_results_repond.tsv'
-isdb_results_repond_path = os.path.join(path_to_folder, spectral_match_results_repond_filename)
-
+isdb_results_repond_path = os.path.join(path_to_results_folders, spectral_match_results_repond_filename)
 
 spectral_match_results_repond_flat_filename = project_name + '_spectral_match_results_repond_flat.tsv'
-isdb_results_repond_flat_path = os.path.join(path_to_folder, spectral_match_results_repond_flat_filename)
-
-
-### to fill if not starting from GNPS Job
-isdb_results_path = os.path.join(path_to_folder, spectral_match_results_filename)
-
-
+isdb_results_repond_flat_path = os.path.join(path_to_results_folders, spectral_match_results_repond_flat_filename)
 
 sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
-sunburst_chem_results_path = os.path.join(path_to_folder,sunburst_chem_filename)
-sunburst_organisms_results_path = os.path.join(path_to_folder,sunburst_organisms_filename)
+sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
+sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
 
 # timer is started
 start_time = time.time()
@@ -116,37 +99,6 @@ adducts_df['min'] = adducts_df['adduct_mass'] - \
 adducts_df['max'] = adducts_df['adduct_mass'] + \
     int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
 
-# Downloading GNPS files
-# Make this optionnal
-
-files = glob.glob(gnps_job_path)
-for f in files:
-   os.remove(f)
-
-print('''
-Fetching the GNPS job ...
-''')
-
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
-
-cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-subprocess.call(shlex.split(cmd))
-
-with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-    zip_ref.extractall(path_to_folder)
-
-# We finally remove the zip file
-cmd = 'rm '+ path_to_file
-subprocess.call(shlex.split(cmd))
-
-
-# Once this folder is created we directly save the yaml params inside
-
-params_suffix = '.yaml'
-
-with open(os.path.join(path_to_folder, job_id + params_suffix), 'w') as file:  
-    documents = yaml.dump(params_list, file)
-
 # Spectral matching stage
 # Make this optionnal
 
@@ -162,27 +114,27 @@ spectral_lib_matcher.main(query_file_path,
                           min_peaks,
                           isdb_results_path
                           )
+print('''
+Spectral matching done !
+''')
 
-# %% Loading the files
+# Loading the files
 
 dt_isdb_results = pd.read_csv(isdb_results_path,
                               sep='\t',
                               usecols=['msms_score', 'feature_id', 'reference_id', 'inchikey'],
                               error_bad_lines=False, low_memory=True)
 
-
 ## we add a fixed libname (to be changed later on) 
 
 dt_isdb_results['libname'] = 'ISDB'
-
 dt_isdb_results.rename(columns={'componentindex': 'component_id',
                                 'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
-
 
 ## In fact we can directly start here
 ## we get the networks info (cluster id, component index and parent mass form the downloaded folder)
 
-clusterinfo_summary_path = os.path.join(path_to_folder,'clusterinfo_summary','')
+clusterinfo_summary_path = os.path.join(path_to_gnps_folder,'clusterinfo_summary','')
 
 clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clusterinfo_summary_path)[0]),
                                   sep='\t',
@@ -191,7 +143,6 @@ clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clus
 
 clusterinfo_summary.rename(columns={'cluster index': 'feature_id', 'componentindex': 'component_id',
                                 'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
-
 
 # ## we now merge this back with the isdb matched results 
 dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id')
@@ -203,12 +154,12 @@ dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id'
 
 # dt_isdb_results['short_inchikey'] = dt_isdb_results['inchikey'].str.split("-", n=1, expand=True)[0]
 
-dt_metadata = pd.read_csv(metadata_path,
+db_metadata = pd.read_csv(metadata_path,
                         sep=',', error_bad_lines=False, low_memory=True)
 
-dt_metadata['short_inchikey'] = dt_metadata.structure_inchikey.str.split(
+db_metadata['short_inchikey'] = db_metadata.structure_inchikey.str.split(
     "-", expand=True)[0]
-dt_metadata.reset_index(inplace=True)
+db_metadata.reset_index(inplace=True)
 
 cluster_count = dt_isdb_results.drop_duplicates(
     subset=['feature_id', 'component_id']).groupby("component_id").count()
@@ -216,11 +167,14 @@ cluster_count = cluster_count[['feature_id']].rename(
     columns={'feature_id': 'ci_count'}).reset_index()
 
 print('Number of features: ' + str(len(dt_isdb_results)))
-print('Number of annotated features: ' +
+print('Number of features with MS2 annotation: ' +
     str(dt_isdb_results['inchikey'].count()))
 
 # Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
 
+print('''
+Proceeding to MS1 annotation ...
+''')
 super_df = []
 
 for i, row in tqdm(clusterinfo_summary.iterrows(), total=clusterinfo_summary.shape[0]):
@@ -240,13 +194,12 @@ df_MS1 = df_MS1.drop(['key'], axis=1).drop_duplicates(
 
 df_MS1['libname'] = 'MS1_match'
 
-print('MS1 annotation done')
+print('''
+MS1 annotation done !
+''')
 
-
-
-df_meta_2 = dt_metadata[['structure_inchikey', 'structure_exact_mass']]
+df_meta_2 = db_metadata[['structure_inchikey', 'structure_exact_mass']]
 df_meta_2.rename(columns={'structure_inchikey': 'inchikey'}, inplace=True)
-
 df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
 df_meta_2 = df_meta_2.drop_duplicates(
     subset=['inchikey', 'structure_exact_mass'])
@@ -274,13 +227,12 @@ df_MS1_merge['score_input'] = 0
 # It should normally be fixed in pandas 1.2.0 As Arnaud which version he is using (probably an older one)
 # see https://github.com/pandas-dev/pandas/issues/37323 for a quick and dirty fix
 # Actually I even think no dropna is needed
-df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id'], dropna=False).agg('|'.join)
+#df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id'], dropna=False).agg('|'.join)
 
 df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id']).agg('|'.join)
 df_MS1_merge_gb.reset_index(inplace=True)
 
-# %%
-
+# Merge MS1 results with MS2 annotations
 dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
 
 print('Number of annotated features after MS1: ' +
@@ -317,7 +269,7 @@ cols_to_use = ['structure_inchikey', 'structure_inchi',
 
 dt_isdb_results.dropna(subset=['short_inchikey'], inplace=True)
 dt_isdb_results = pd.merge(
-    left=dt_isdb_results, right=dt_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
+    left=dt_isdb_results, right=db_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
 dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 
 print('Total number of annotations with unique Biosource/line: ' +
@@ -327,7 +279,7 @@ print('Total number of annotations with unique Biosource/line: ' +
 if Run_line_x_line == True:
 
     # the metadata table path is generated from the base bath to the GNPS results folder
-    metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
+    metadata_table_path = os.path.join(path_to_gnps_folder,'metadata_table','')
 
     # the metadata table is loaded using the organism column specified before
     samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
@@ -341,15 +293,14 @@ if Run_line_x_line == True:
     len_species = len(species)
 
     print("%s unique species have been selected from the metadata table." % len_species )
-    # %%
 
     species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
 
-    with open(str(path_to_folder +'/species.json'), 'w') as out:
+    with open(str(path_to_results_folders +'/species.json'), 'w') as out:
         sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
         out.write('{}\n'.format(sf))
 
-    with open(str(path_to_folder +'/species.json')) as tmpfile:
+    with open(str(path_to_results_folders +'/species.json')) as tmpfile:
             jsondic = json.loads(tmpfile.read())
 
     json_normalize(jsondic)
@@ -382,20 +333,18 @@ if Run_line_x_line == True:
     taxon_info = []
 
     for i in ott_list:
-    query = OT.taxon_info(i, include_lineage=True)
-    taxon_info.append(query)
+        query = OT.taxon_info(i, include_lineage=True)
+        taxon_info.append(query)
 
     tl = []
 
     for i in taxon_info:
-    with open(str(path_to_folder +'/taxon_info.json'), 'w') as out:
-        tl.append(i.response_dict)
-        yo = json.dumps(tl)
-        out.write('{}\n'.format(yo))
+        with open(str(path_to_results_folders +'/taxon_info.json'), 'w') as out:
+            tl.append(i.response_dict)
+            yo = json.dumps(tl)
+            out.write('{}\n'.format(yo))
 
-    # %%
-
-    with open(str(path_to_folder +'/taxon_info.json')) as tmpfile:
+    with open(str(path_to_results_folders +'/taxon_info.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
     df = json_normalize(jsondic)
