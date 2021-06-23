@@ -21,7 +21,7 @@ spectral_match_params:
 repond_params:
   - Run_line_x_line: True # Set to True if multiple biosource in your dataset
   - organism: 'Ambystoma mexicanum' # If Run_line_x_line is set to False, this species will be used for the reweighting
-  - Top_N_Sample: 3 # Max number of contributors to take into account for taxo reponderation (Run_line_x_line parameter), set to 0 for all
+  - Top_N_Sample: 0 # Max number of contributors to take into account for taxo reponderation (Run_line_x_line parameter), set to 0 for all
   - top_to_output: 1 # Top X for final ouput
   - ppm_tol: 2 # ppm tol to be used for ms1 match
   - polarity: 'pos' # ion mode you are working with (pos or neg)
@@ -29,5 +29,6 @@ repond_params:
   - sampletype_header: 'SAMPLE_info' # Optional (Run_line_x_line parameter)
   - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
   - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
-  - file_extension: '.mzXML' # MS filename extension (a common pattern in all your filenames) Check the header of your feature table if you dont know (Run_line_x_line parameter)
-  - msfile_suffix: ' Peak area' # MS filename additional chracters (a common pattern in all your filenames) Check the header of your feature table if you dont know (Run_line_x_line parameter)
+  - file_extension: '.mzXML' # MS filename extension (or any common pattern in all your MS filenames) (Run_line_x_line parameter)
+  - msfile_suffix: ' Peak area' # MS filename suffix (for example ' Peak area') to remove to match with metadata
+  - min_score_ms1: 4 # Minimum taxonomical score (4 = order, 5 = family, 6 = genus, 7 = species)

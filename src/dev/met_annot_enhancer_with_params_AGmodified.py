@@ -60,9 +60,13 @@ use_post_taxo = params_list['repond_params'][8]['use_post_taxo']
 top_N_chemical_consistency = params_list['repond_params'][9]['top_N_chemical_consistency']
 file_extension = params_list['repond_params'][10]['file_extension']
 msfile_suffix = params_list['repond_params'][11]['msfile_suffix']
+min_score_ms1 = params_list['repond_params'][12]['min_score_ms1']
 
-path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id))
-path_to_results_folders = 'data_out/'+ project_name
+path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id +'/'))
+quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
+
+path_to_results_folders =  os.path.expanduser(os.path.join('data_out/'+ project_name +'/'))
+os.makedirs(path_to_results_folders)
 
 # Adding expanduser option to expand home path if encoded in the params file
 
@@ -128,8 +132,13 @@ dt_isdb_results = pd.read_csv(isdb_results_path,
 ## we add a fixed libname (to be changed later on) 
 
 dt_isdb_results['libname'] = 'ISDB'
-dt_isdb_results.rename(columns={'componentindex': 'component_id',
-                                'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
+
+dt_isdb_results.rename(columns={
+    'row ID': 'feature_id',
+    'componentindex': 'component_id',
+    'parent mass': 'mz',
+    'inchikey': 'short_inchikey',
+    'msms_score': 'score_input'}, inplace=True)
 
 ## In fact we can directly start here
 ## we get the networks info (cluster id, component index and parent mass form the downloaded folder)
@@ -144,6 +153,11 @@ clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clus
 clusterinfo_summary.rename(columns={'cluster index': 'feature_id', 'componentindex': 'component_id',
                                 'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
 
+cluster_count = clusterinfo_summary.drop_duplicates(
+    subset=['feature_id', 'component_id']).groupby("component_id").count()
+cluster_count = cluster_count[['feature_id']].rename(
+    columns={'feature_id': 'ci_count'}).reset_index()
+
 # ## we now merge this back with the isdb matched results 
 dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id')
 
@@ -155,20 +169,15 @@ dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id'
 # dt_isdb_results['short_inchikey'] = dt_isdb_results['inchikey'].str.split("-", n=1, expand=True)[0]
 
 db_metadata = pd.read_csv(metadata_path,
-                        sep=',', error_bad_lines=False, low_memory=True)
+                        sep=',', error_bad_lines=False, low_memory=False)
 
 db_metadata['short_inchikey'] = db_metadata.structure_inchikey.str.split(
     "-", expand=True)[0]
 db_metadata.reset_index(inplace=True)
 
-cluster_count = dt_isdb_results.drop_duplicates(
-    subset=['feature_id', 'component_id']).groupby("component_id").count()
-cluster_count = cluster_count[['feature_id']].rename(
-    columns={'feature_id': 'ci_count'}).reset_index()
-
 print('Number of features: ' + str(len(dt_isdb_results)))
 print('Number of features with MS2 annotation: ' +
-    str(dt_isdb_results['inchikey'].count()))
+    str(dt_isdb_results['short_inchikey'].count()))
 
 # Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
 
@@ -198,18 +207,18 @@ print('''
 MS1 annotation done !
 ''')
 
-df_meta_2 = db_metadata[['structure_inchikey', 'structure_exact_mass']]
-df_meta_2.rename(columns={'structure_inchikey': 'inchikey'}, inplace=True)
+df_meta_2 = db_metadata[['short_inchikey', 'structure_exact_mass']]
+#df_meta_2.rename(columns={'short_inchikey': 'inchikey'}, inplace=True)
 df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
 df_meta_2 = df_meta_2.drop_duplicates(
-    subset=['inchikey', 'structure_exact_mass'])
+    subset=['short_inchikey', 'structure_exact_mass'])
 
 df_meta_2 = df_meta_2.round({'structure_exact_mass': 5})
 df_MS1 = df_MS1.round({'exact_mass': 5})
 
 df_MS1_merge = pd.merge(df_MS1, df_meta_2, left_on='exact_mass',
                         right_on='structure_exact_mass', how='left')
-df_MS1_merge = df_MS1_merge.dropna(subset=['inchikey'])
+df_MS1_merge = df_MS1_merge.dropna(subset=['short_inchikey'])
 
 df_MS1_merge['match_mzerror_MS1'] = df_MS1_merge['mz'] - \
     df_MS1_merge['adduct_mass']
@@ -229,17 +238,14 @@ df_MS1_merge['score_input'] = 0
 # Actually I even think no dropna is needed
 #df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id'], dropna=False).agg('|'.join)
 
-df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id']).agg('|'.join)
-df_MS1_merge_gb.reset_index(inplace=True)
+# df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id']).agg('|'.join)
+# df_MS1_merge_gb.reset_index(inplace=True)
 
 # Merge MS1 results with MS2 annotations
 dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
 
 print('Number of annotated features after MS1: ' +
       str(len(df_MS1_merge['feature_id'].unique())))
-
-
-len(clusterinfo_summary['feature_id'].unique())
 
 print('Total number of MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
 
@@ -250,12 +256,7 @@ dt_isdb_results["score_input"] = pd.to_numeric(
 dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'score_input']].groupby(
     'feature_id')['score_input'].rank(method='dense', ascending=False)
 
-# Joining the Occurences DB metadata
-# we start by outputing the SIK for the ISDB output
-
-dt_isdb_results['short_inchikey'] = dt_isdb_results.inchikey.str.split(
-    "-", expand=True)[0]
-dt_isdb_results.reset_index(inplace=True)
+dt_isdb_results.reset_index(inplace=True, drop=True)
 
 # now we merge with the Occurences DB metadata after selection of our columns of interest
 
@@ -267,7 +268,6 @@ cols_to_use = ['structure_inchikey', 'structure_inchi',
             'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
             'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas' ]
 
-dt_isdb_results.dropna(subset=['short_inchikey'], inplace=True)
 dt_isdb_results = pd.merge(
     left=dt_isdb_results, right=db_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
 dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
@@ -296,11 +296,11 @@ if Run_line_x_line == True:
 
     species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
 
-    with open(str(path_to_results_folders +'/species.json'), 'w') as out:
+    with open(str(path_to_results_folders +'species.json'), 'w') as out:
         sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
         out.write('{}\n'.format(sf))
 
-    with open(str(path_to_results_folders +'/species.json')) as tmpfile:
+    with open(str(path_to_results_folders +'species.json')) as tmpfile:
             jsondic = json.loads(tmpfile.read())
 
     json_normalize(jsondic)
@@ -339,12 +339,12 @@ if Run_line_x_line == True:
     tl = []
 
     for i in taxon_info:
-        with open(str(path_to_results_folders +'/taxon_info.json'), 'w') as out:
+        with open(str(path_to_results_folders +'taxon_info.json'), 'w') as out:
             tl.append(i.response_dict)
             yo = json.dumps(tl)
             out.write('{}\n'.format(yo))
 
-    with open(str(path_to_results_folders +'/taxon_info.json')) as tmpfile:
+    with open(str(path_to_results_folders +'taxon_info.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
     df = json_normalize(jsondic)
@@ -411,9 +411,9 @@ if Run_line_x_line == True:
     Fetching the biosource contribution per feature ...
     ''')
 
-    quantification_table_reformatted_path = os.path.join(path_to_folder,'quantification_table_reformatted','')
+    quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
 
-    metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
+    metadata_table_path = os.path.join(path_to_gnps_folder,'metadata_table','')
 
 
     feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
@@ -423,8 +423,12 @@ if Run_line_x_line == True:
     feature_intensity.set_index('row_ID', inplace=True)
     feature_intensity = feature_intensity.filter(
         regex=file_extension + '|row_ID')
-    feature_intensity = feature_intensity.where(feature_intensity.apply(
-        lambda x: x.isin(x.nlargest(Top_N_Sample)), axis=1), 0)  # top N here
+    if Top_N_Sample == 0:
+        feature_intensity = feature_intensity.where(feature_intensity.apply(
+            lambda x: x.isin(x.nlargest(len(feature_intensity.columns))), axis=1), 0)  # top N here
+    else:
+        feature_intensity = feature_intensity.where(feature_intensity.apply(
+            lambda x: x.isin(x.nlargest(Top_N_Sample)), axis=1), 0)  # top N here
     feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '')
     feature_intensity = feature_intensity.transpose()
     feature_intensity.index.name = 'MS_filename'
@@ -448,8 +452,6 @@ if Run_line_x_line == True:
     df_merged.reset_index(inplace=True)
 
 
-# %%
-
 # Here we will add three columns (even for the simple repond this way it will be close to the multiple species repond)
 # these line will need to be defined as function arguments
 
@@ -465,7 +467,7 @@ else:
        dt_isdb_results['query_otol_phylum'] = phylum_bio
        dt_isdb_results['query_otol_kingdom'] = kingdom_bio
        
-#%% Taxonomical Reweighting
+# Taxonomical Reweighting
 
 print('''
 Proceeding to taxonomically informed reponderation ...
@@ -507,19 +509,19 @@ else:
 
 dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
-
-# %%
 # Filter out MS1 annotations without a reweighting at the family level at least
 
-if polarity == 'Pos':
-    dt_isdb_results = dt_isdb_results[(dt_isdb_results['score_taxo'] >= 6) | (
+if polarity == 'pos':
+    dt_isdb_results = dt_isdb_results[
+        (dt_isdb_results['score_taxo'] >= min_score_ms1) | (
         dt_isdb_results['libname'] == 'ISDB')]
 else:
-    dt_isdb_results = dt_isdb_results[(dt_isdb_results['score_taxo'] >= 4) | (
+    dt_isdb_results = dt_isdb_results[
+        (dt_isdb_results['score_taxo'] >= min_score_ms1) | (
         dt_isdb_results['libname'] == 'ISDB')]
 
 
-print('Total number of annotations after filtering MS1 annotations not reweighted at order level: ' +
+print('Total number of annotations after filtering MS1 annotations not reweighted at taxonomical level min: ' +
     str(len(dt_isdb_results)))
 
 print('Number of annotations reweighted at the domain level: ' +
@@ -542,9 +544,6 @@ print('Number of annotations reweighted at the species level: ' +
     str(dt_isdb_results['matched_species'].count()))
 
 
-
-# %%
-
 # we set the spectral score column as float
 dt_isdb_results["score_input"] = pd.to_numeric(
     dt_isdb_results["score_input"], downcast="float")
@@ -552,7 +551,6 @@ dt_isdb_results["score_input"] = pd.to_numeric(
 dt_isdb_results['score_input_taxo'] = dt_isdb_results['score_taxo'] + \
     dt_isdb_results['score_input']
 
-# %%
 
 dt_isdb_results['rank_spec_taxo'] = dt_isdb_results.groupby(
     'feature_id')['score_input_taxo'].rank(method='dense', ascending=False)
@@ -560,7 +558,6 @@ dt_isdb_results['rank_spec_taxo'] = dt_isdb_results.groupby(
 dt_isdb_results = dt_isdb_results.groupby(["feature_id"]).apply(
     lambda x: x.sort_values(["rank_spec_taxo"], ascending=True)).reset_index(drop=True)
 
-# %%
 # Get cluster Chemical class
 for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class']:
 
@@ -599,7 +596,6 @@ for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npc
     dt_isdb_results = dt_isdb_results.merge(
         df[[(col + '_consensus'), ('freq_' + col), 'component_id']], on='component_id', how='left')
 
-# %% 
 # Chemical consistency reweighting
 
 print('''
@@ -628,18 +624,12 @@ dt_isdb_results['rank_final'] = dt_isdb_results.groupby(
 
 
 
-
-# %%
-
 print('Number of annotations reweighted at the NPClassifier pathway level: ' +
     str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_01pathway_score'] == 1)])))
 print('Number of annotations reweighted at the NPClassifier superclass level: ' +
     str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_02superclass_score'] == 2)])))
 print('Number of annotations reweighted at the NPClassifier class level: ' +
     str(len(dt_isdb_results[(dt_isdb_results['structure_taxonomy_npclassifier_03class_score'] == 3)])))
-
-
-# %%
 
 
 dt_isdb_results_chem_rew = dt_isdb_results.loc[(
@@ -650,7 +640,6 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.sort_values(
     ["feature_id", "rank_final"], ascending=(False, True))
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
 
-# %%
 # Here we would like to filter results when short IK are repeated for the same feature_id at the same final rank
 # see issue (https://gitlab.com/tima5/taxoscorer/-/issues/23)
 # used 
@@ -664,7 +653,7 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int6
 
 # %%
 
-annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
+annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi',
             'structure_smiles', 'structure_molecular_formula', 'adduct',
             'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
             'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
@@ -681,56 +670,25 @@ col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
 df4cyto_flat = dt_isdb_results_chem_rew[col_to_keep]
 
-# %%
-
 gb_spec = {c: '|'.join for c in annot_attr}
 for c in comp_attr:
     gb_spec[c] = 'first'
 
-# %%
-
 df4cyto = df4cyto_flat.groupby('feature_id').agg(gb_spec)
-
-# %%
 
 df4cyto_flat.to_csv(isdb_results_repond_flat_path, sep='\t')
 
 df4cyto.to_csv(isdb_results_repond_path, sep='\t')
 
 
-# %%
-
 print('Finished in %s seconds.' % (time.time() - start_time))
 print('You can check your results here %s' % isdb_results_repond_path)
-
-
-# %%
-
-# dt_isdb_results = dt_isdb_results.astype(str)
-# df4cyto = dt_isdb_results.groupby(['feature_id']).agg('|'.join)
-# df4cyto.reset_index(drop=True, inplace=True)
-
-
-# %%
-
-# Testing cytoscape ready formatting
-
-
-
-# df4cyto['rank_spec'] = df4cyto['rank_spec'].apply(lambda x: [x])
-
-
-# %%
-# using px express to plot some quick and dirty sunbursts (https://plotly.com/python/sunburst-charts/)
-# customize fonts in titles following https://stackoverflow.com/a/57926862
-# customize margins following https://stackoverflow.com/a/63162535
 
 print('''
 Generating plots ... check your web browser !
 ''')
 
 import plotly.express as px
-
 
 fig = px.sunburst(df4cyto_flat, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'],
                   )
@@ -762,7 +720,6 @@ fig.write_html(sunburst_chem_results_path,
                full_html=False,
                include_plotlyjs='cdn')
 
-# %%
 
 fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
             'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
