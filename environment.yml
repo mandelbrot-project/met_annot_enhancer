@@ -5,7 +5,7 @@ channels:
   - defaults
   - anaconda
 dependencies:
-  - python=3.8
+  - python==3.8
   - pandas
   - matchms
   - tqdm

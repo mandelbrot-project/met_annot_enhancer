@@ -27,18 +27,12 @@ pd.set_option('display.width', 100)
 # We deactivate the iloc warning see https://stackoverflow.com/a/20627316
 pd.options.mode.chained_assignment = None  # default='warn'
 
-print(os.getcwd())
-
 # Loading the parameters from yaml file
 
-with open (r'./configs/default.yaml') as file:    
+with open (r'../../configs/default.yaml') as file:    
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     params_list = yaml.load(file, Loader=yaml.FullLoader)
-
-from_gnps_job = params_list['job'][0]['from_gnps_job']
-job_id = params_list['job'][1]['job_id']
-gnps_job_path = params_list['paths'][0]['gnps_job_path']
 
 project_name = params_list['paths'][1]['project_name']
 metadata_path = params_list['paths'][2]['metadata_path']
@@ -51,27 +45,36 @@ msms_mz_tol = params_list['spectral_match_params'][1]['msms_mz_tol']
 min_cos = params_list['spectral_match_params'][2]['min_cos']
 min_peaks = params_list['spectral_match_params'][3]['min_peaks']
 
-
 Run_line_x_line = params_list['repond_params'][0]['Run_line_x_line']
-Top_N_Sample = params_list['repond_params'][1]['Top_N_Sample']
-top_to_output= params_list['repond_params'][2]['top_to_output']
-ppm_tol = params_list['repond_params'][3]['ppm_tol']
-polarity = params_list['repond_params'][4]['polarity']
-organism_header = params_list['repond_params'][5]['organism_header']
-sampletype_header = params_list['repond_params'][6]['sampletype_header']
-use_post_taxo = params_list['repond_params'][7]['use_post_taxo']
-top_N_chemical_consistency = params_list['repond_params'][8]['top_N_chemical_consistency']
-file_extension = params_list['repond_params'][9]['file_extension']
-msfile_suffix = params_list['repond_params'][10]['msfile_suffix']
+organism = params_list['repond_params'][1]['organism']
+Top_N_Sample = params_list['repond_params'][2]['Top_N_Sample']
+top_to_output= params_list['repond_params'][3]['top_to_output']
+ppm_tol = params_list['repond_params'][4]['ppm_tol']
+polarity = params_list['repond_params'][5]['polarity']
+organism_header = params_list['repond_params'][6]['organism_header']
+sampletype_header = params_list['repond_params'][7]['sampletype_header']
+use_post_taxo = params_list['repond_params'][8]['use_post_taxo']
+top_N_chemical_consistency = params_list['repond_params'][9]['top_N_chemical_consistency']
+file_extension = params_list['repond_params'][10]['file_extension']
+msfile_suffix = params_list['repond_params'][11]['msfile_suffix']
+
+# Load GNPS parameters
+with open (r'../../configs/gnps_param.yaml') as file:    
+    # The FullLoader parameter handles the conversion from YAML
+    # scalar values to Python the dictionary format
+    params_list = yaml.load(file, Loader=yaml.FullLoader)
+
+job_id = params_list['job'][0]['job_id']
+gnps_job_path = params_list['job'][1]['gnps_job_path']
+project_name = params_list['job'][2]['project_name']
 
 base_filename = 'GNPS_output_' + project_name
 filename_suffix = 'zip'
 
-# Adding expanduser option to expand home path if encoded in the params file
-
 path_to_folder = os.path.expanduser(os.path.join(gnps_job_path, base_filename))
-path_to_file = os.path.expanduser(os.path.join(gnps_job_path, base_filename + "." + filename_suffix))
+base_filename = 'GNPS_output_' + project_name
 
+# Adding expanduser option to expand home path if encoded in the params file
 
 query_file_path = os.path.join(path_to_folder,'spectra/specs_ms.mgf')
 
@@ -320,162 +323,110 @@ dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 print('Total number of annotations with unique Biosource/line: ' +
       str(len(dt_isdb_results)))
 
-# %% Resolving the taxon information from the GNPS metadata file
+# Resolving the taxon information from the GNPS metadata file
+if Run_line_x_line == True:
 
-# the metadata table path is generated from the base bath to the GNPS results folder
-metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
+    # the metadata table path is generated from the base bath to the GNPS results folder
+    metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
 
-# the metadata table is loaded using the organism column specified before
+    # the metadata table is loaded using the organism column specified before
+    samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
+                                    usecols=['filename', organism_header])
 
-samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
-                                   usecols=['filename', organism_header])
+    # Now we want to get the taxonomic information for each of the samples
+    # so we want to extract the species information from the metadata file
+    samples_metadata[organism_header].dropna(inplace = True)
+    samples_metadata[organism_header] = samples_metadata[organism_header].str.lower()
+    species = samples_metadata[organism_header].unique()
+    len_species = len(species)
 
-# Now we want to get the taxonomic information for each of the samples
-# so we want to extract the species information from the metadata file
-# %%
-samples_metadata[organism_header].dropna(inplace = True)
-samples_metadata[organism_header] = samples_metadata[organism_header].str.lower()
-species = samples_metadata[organism_header].unique()
-len_species = len(species)
+    print("%s unique species have been selected from the metadata table." % len_species )
+    # %%
 
-print("%s unique species have been selected from the metadata table." % len_species )
-# %%
+    species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
 
-species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
+    with open(str(path_to_folder +'/species.json'), 'w') as out:
+        sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
+        out.write('{}\n'.format(sf))
 
+    with open(str(path_to_folder +'/species.json')) as tmpfile:
+            jsondic = json.loads(tmpfile.read())
 
+    json_normalize(jsondic)
 
-# %%
+    df_species_tnrs_matched = json_normalize(jsondic,
+                record_path=['results', 'matches']
+                )
+    df_species_tnrs_unmatched = json_normalize(jsondic,
+                record_path=['unmatched_names']
+                )
 
-with open(str(path_to_folder +'/species.json'), 'w') as out:
-    sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
-    out.write('{}\n'.format(sf))
+    df_species_tnrs_matched.info()
 
-# %%
-with open(str(path_to_folder +'/species.json')) as tmpfile:
-        jsondic = json.loads(tmpfile.read())
+    # We then want to match with the accepted name instead of the synonym in case both are present. 
+    # We thus order by matched_name and then by is_synonym status prior to returning the first row.
 
-json_normalize(jsondic)
-# %%
+    df_species_tnrs_matched.sort_values(['search_string', 'is_synonym'], axis = 0, inplace = True)
+    df_species_tnrs_matched_unique = df_species_tnrs_matched.drop_duplicates('search_string', keep = 'first')
 
-df_species_tnrs_matched = json_normalize(jsondic,
-               record_path=['results', 'matches']
-               )
+    # both df are finally merged
+    merged_df = pd.merge(samples_metadata, df_species_tnrs_matched_unique, how='left', left_on=organism_header, right_on='search_string', indicator=True)
 
+    # converting 'ott_ids' from float to int (check the astype('Int64') whic will work while the astype('int') won't see https://stackoverflow.com/a/54194908)
+    merged_df['taxon.ott_id'] = merged_df['taxon.ott_id'].astype('Int64')
 
+    # However, we then need to put them back to 
+    merged_df['taxon.ott_id']
+    ott_list = list(merged_df['taxon.ott_id'].dropna().astype('int'))
 
-df_species_tnrs_unmatched = json_normalize(jsondic,
-               record_path=['unmatched_names']
-               )
-# %%
+    taxon_info = []
 
-df_species_tnrs_matched.info()
-
-
-# %%
-len(df_species_tnrs_matched['taxon.ott_id'].unique())
-# %%
-
-
-# We then want to match with the accepted name instead of the synonym in case both are present. 
-# We thus order by matched_name and then by is_synonym status prior to returning the first row.
-
-df_species_tnrs_matched.sort_values(['search_string', 'is_synonym'], axis = 0, inplace = True)
-df_species_tnrs_matched_unique = df_species_tnrs_matched.drop_duplicates('search_string', keep = 'first')
-
-# both df are finally merged
-merged_df = pd.merge(samples_metadata, df_species_tnrs_matched_unique, how='left', left_on=organism_header, right_on='search_string', indicator=True)
-
-
-# %%
-#Now we want to retrieve the upper taxa lineage for all the samples
-
-# Firsst we retrieve a list of unique ott_ids
-
-# Here when checking the columns datatype we observe that the ott_ids are as float.
-# We need to keep them as int
-# displaying the datatypes 
-#display(merged_df.dtypes) 
-
-# converting 'ott_ids' from float to int (check the astype('Int64') whic will work while the astype('int') won't see https://stackoverflow.com/a/54194908)
-merged_df['taxon.ott_id'] = merged_df['taxon.ott_id'].astype('Int64')
-  
-
-# However, we then need to put them back to 
-merged_df['taxon.ott_id']
-ott_list = list(merged_df['taxon.ott_id'].dropna().astype('int'))
-
-#ott_list = ott_list[0:10]
-
-# %%
-
-taxon_info = []
-
-for i in ott_list:
+    for i in ott_list:
     query = OT.taxon_info(i, include_lineage=True)
     taxon_info.append(query)
 
-# %%
+    tl = []
 
-
-tl = []
-
-for i in taxon_info:
+    for i in taxon_info:
     with open(str(path_to_folder +'/taxon_info.json'), 'w') as out:
         tl.append(i.response_dict)
         yo = json.dumps(tl)
         out.write('{}\n'.format(yo))
 
-# %%
+    # %%
 
-with open(str(path_to_folder +'/taxon_info.json')) as tmpfile:
+    with open(str(path_to_folder +'/taxon_info.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
-df = json_normalize(jsondic)
+    df = json_normalize(jsondic)
 
+    df_tax_lineage = json_normalize(jsondic,
+                record_path=['lineage'],
+                meta = ['ott_id', 'unique_name'],
+                record_prefix='sub_',
+                errors='ignore'
+                )
 
-# %%
+    # This keeps the last occurence of each ott_id / sub_rank grouping https://stackoverflow.com/a/41886945
+    df_tax_lineage_filtered = df_tax_lineage.groupby(['ott_id', 'sub_rank'], as_index=False).last()
 
-df_tax_lineage = json_normalize(jsondic,
-               record_path=['lineage'],
-               meta = ['ott_id', 'unique_name'],
-               record_prefix='sub_',
-               errors='ignore'
-               )
-# %%
-# This keeps the last occurence of each ott_id / sub_rank grouping https://stackoverflow.com/a/41886945
+    #Here we pivot long to wide to get the taxonomy
+    df_tax_lineage_filtered_flat = df_tax_lineage_filtered.pivot(index='ott_id', columns='sub_rank', values='sub_name')
 
-df_tax_lineage_filtered = df_tax_lineage.groupby(['ott_id', 'sub_rank'], as_index=False).last()
-# %%
-#Here we pivot long to wide to get the taxonomy
+    # Here we actually also want the lowertaxon (species usually) name
+    df_tax_lineage_filtered_flat = pd.merge(df_tax_lineage_filtered_flat, df_tax_lineage_filtered[['ott_id', 'unique_name']], how='left', on='ott_id', )
 
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered.pivot(index='ott_id', columns='sub_rank', values='sub_name')
+    #Despite the left join ott_id are duplicated 
+    df_tax_lineage_filtered_flat.drop_duplicates(subset = ['ott_id', 'unique_name'], inplace = True)
 
-# %%
-# Here we actually also want the lowertaxon (species usually) name
-
-df_tax_lineage_filtered_flat = pd.merge(df_tax_lineage_filtered_flat, df_tax_lineage_filtered[['ott_id', 'unique_name']], how='left', on='ott_id', )
-
-#Despite the left join ott_id are duplicated 
-
-df_tax_lineage_filtered_flat.drop_duplicates(subset = ['ott_id', 'unique_name'], inplace = True)
-
-# %%
-# we keep the fields of interest
-
-# here we want to have these columns whatevere happens
-col_list = ['ott_id', 'domain', 'kingdom', 'phylum',
+    # here we want to have these columns whatevere happens
+    col_list = ['ott_id', 'domain', 'kingdom', 'phylum',
                             'class', 'order', 'family', 'tribe', 'genus', 'unique_name']
 
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat.reindex(columns=col_list, fill_value = np.NaN)
+    df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat.reindex(columns=col_list, fill_value = np.NaN)
 
-# df_tax_lineage_filtered_flat[['ott_id', 'domain', 'kingdom', 'phylum',
-#                             'class', 'order', 'family', 'tribe', 'genus', 'unique_name']]
-
-
-# We now rename our columns of interest
-
-renaming_dict = {'domain': 'query_otol_domain',
+    # We now rename our columns of interest
+    renaming_dict = {'domain': 'query_otol_domain',
                 'kingdom': 'query_otol_kingdom',
                 'phylum': 'query_otol_phylum',
                 'class': 'query_otol_class',
@@ -485,12 +436,10 @@ renaming_dict = {'domain': 'query_otol_domain',
                 'genus': 'query_otol_genus',
                 'unique_name': 'query_otol_species'}
 
+    df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
 
-df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
-
-# We select columns of interest 
-
-cols_to_keep = ['ott_id',
+    # We select columns of interest 
+    cols_to_keep = ['ott_id',
                 'query_otol_domain',
                 'query_otol_kingdom',
                 'query_otol_phylum',
@@ -501,29 +450,26 @@ cols_to_keep = ['ott_id',
                 'query_otol_genus',
                 'query_otol_species']
 
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
+    df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
+
+    # We merge this back with the samplemetadata only if we have an ott.id in the merged df 
+    samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
 
 
-# We merge this back with the samplemetadata only if we have an ott.id in the merged df 
+    # %% Extracting biosource / feature for line by line
 
-samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
+    print('''
+    Fetching the biosource contribution per feature ...
+    ''')
 
+    quantification_table_reformatted_path = os.path.join(path_to_folder,'quantification_table_reformatted','')
 
-# %% Extracting biosource / feature for line by line
+    metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
 
-print('''
-Fetching the biosource contribution per feature ...
-''')
-
-quantification_table_reformatted_path = os.path.join(path_to_folder,'quantification_table_reformatted','')
-
-metadata_table_path = os.path.join(path_to_folder,'metadata_table','')
-
-
-if Run_line_x_line == True:
 
     feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
         os.listdir(quantification_table_reformatted_path)[0]), sep=',')
+
     feature_intensity.rename(columns={'row ID': 'row_ID'}, inplace=True)
     feature_intensity.set_index('row_ID', inplace=True)
     feature_intensity = feature_intensity.filter(

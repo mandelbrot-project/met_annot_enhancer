@@ -4,38 +4,34 @@ import os
 import sys
 import shlex
 import subprocess
-import yaml
+import argparse
+import textwrap
 
 # Loading the parameters from yaml file
-print('Loading parameters...')
 
-with open (r'./configs/gnps_param.yaml') as file:    
-    # The FullLoader parameter handles the conversion from YAML
-    # scalar values to Python the dictionary format
-    params_list = yaml.load(file, Loader=yaml.FullLoader)
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+     description=textwrap.dedent('''\
+         This script will download a GNPS job
+         --------------------------------
+            You should just enter the job id 
+            results will be stored in data_in/job_id
+        '''))
+parser.add_argument('--job_id', required=True,
+                    help='the identifier of the GNPS job to download')
+args = parser.parse_args()
 
-job_id = params_list['job'][0]['job_id']
-gnps_job_path = params_list['job'][1]['gnps_job_path']
-project_name = params_list['job'][2]['project_name']
-
-base_filename = 'GNPS_output_' + project_name
-filename_suffix = 'zip'
-
-path_to_folder = os.path.expanduser(os.path.join(gnps_job_path, base_filename))
-path_to_file = os.path.expanduser(os.path.join(gnps_job_path, base_filename + "." + filename_suffix))
-base_filename = 'GNPS_output_' + project_name
+path_to_folder = os.path.expanduser(os.path.join('data_in/' + args.job_id))
+path_to_file = os.path.expanduser(os.path.join('data_in/' + args.job_id +'.zip'))
 
 # Downloading GNPS files
-files = glob.glob(gnps_job_path)
-for f in files:
-    if f == path_to_file:
-        os.remove(f)
 
 print('''
-Fetching the GNPS job ...
-''')
+Fetching the GNPS job: '''
++ args.job_id
+)
 
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+args.job_id+"&view=download_cytoscape_data"
 print(job_url_zip)
 
 cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file+ ' --create-dirs'
@@ -47,6 +43,7 @@ with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
 # We finally remove the zip file
 os.remove(path_to_file)
 
-params_suffix = '.yaml'
-with open(os.path.join(path_to_folder, job_id + params_suffix), 'w') as file:  
-    documents = yaml.dump(params_list, file)
+print('''
+Job successfully downloaded: results are in: '''
++ path_to_folder
+)
