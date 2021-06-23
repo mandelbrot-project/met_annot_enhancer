@@ -17,9 +17,6 @@ from pandas import json_normalize
 import yaml
 import spectral_lib_matcher
 
-# Provisoire
-os.chdir('../../')
-
 # Defining display options
 
 pd.set_option('display.max_rows', 50)
@@ -631,8 +628,6 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'floa
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int64'})
 
 
-# %%
-
 annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi',
             'structure_smiles', 'structure_molecular_formula', 'adduct',
             'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
@@ -731,6 +726,3 @@ fig.show()
 fig.write_html(sunburst_organisms_results_path,
                full_html=False,
                include_plotlyjs='cdn')
-
-
-
