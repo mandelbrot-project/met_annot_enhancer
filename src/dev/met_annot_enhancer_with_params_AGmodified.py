@@ -64,6 +64,17 @@ path_to_results_folders =  os.path.expanduser(os.path.join('data_out/'+ project_
 if not os.path.exists(path_to_results_folders):
     os.makedirs(path_to_results_folders)
 
+# Writing used parameters 
+params_suffix = '.yaml'
+
+with open(os.path.join(path_to_results_folders, job_id + params_suffix), 'w') as file:  
+    documents = yaml.dump(params_list, file)
+
+print('''
+Parameters used are stored in'''
++ str(os.path.join(path_to_results_folders, job_id + params_suffix))
+)
+
 # Adding expanduser option to expand home path if encoded in the params file
 
 query_file_path = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')
@@ -203,7 +214,6 @@ MS1 annotation done !
 ''')
 
 df_meta_2 = db_metadata[['short_inchikey', 'structure_exact_mass']]
-#df_meta_2.rename(columns={'short_inchikey': 'inchikey'}, inplace=True)
 df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
 df_meta_2 = df_meta_2.drop_duplicates(
     subset=['short_inchikey', 'structure_exact_mass'])
@@ -223,18 +233,6 @@ df_MS1_merge = df_MS1_merge.round({'match_mzerror_MS1': 5}).astype({
 df_MS1_merge = df_MS1_merge.drop(
     ['structure_exact_mass', 'adduct_mass', 'exact_mass'], axis=1)
 df_MS1_merge['score_input'] = 0
-
-#df_MS1_merge = df_MS1_merge.astype({'score_input': 'str'})
-
-# the line below trhrow an error on my side 
-# TypeError: groupby() got an unexpected keyword argument 'dropna'
-# It should normally be fixed in pandas 1.2.0 As Arnaud which version he is using (probably an older one)
-# see https://github.com/pandas-dev/pandas/issues/37323 for a quick and dirty fix
-# Actually I even think no dropna is needed
-#df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id'], dropna=False).agg('|'.join)
-
-# df_MS1_merge_gb = df_MS1_merge.groupby(['feature_id']).agg('|'.join)
-# df_MS1_merge_gb.reset_index(inplace=True)
 
 # Merge MS1 results with MS2 annotations
 dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
@@ -427,17 +425,6 @@ feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix,
 feature_intensity = feature_intensity.transpose()
 feature_intensity.index.name = 'MS_filename'
 feature_intensity = feature_intensity.transpose()
-# Samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
-#                                # usecols=['filename','ATTRIBUTE_phylum_cof', 'ATTRIBUTE_kingdom_cof',  'ATTRIBUTE_class_cof', 'ATTRIBUTE_order_cof', 'ATTRIBUTE_family_cof', 'ATTRIBUTE_genus_cof', 'ATTRIBUTE_species_cof'])
-#                                #    usecols=['filename', 'ATTRIBUTE_Phylum', 'ATTRIBUTE_Kingdom',  'ATTRIBUTE_Class', 'ATTRIBUTE_Order', 'ATTRIBUTE_Family', 'ATTRIBUTE_Genus', 'ATTRIBUTE_Species'])
-#                                usecols=['filename',
-#                                         'query_otol_kingdom',
-#                                         'query_otol_phylum',
-#                                         'query_otol_class',
-#                                         'query_otol_order',
-#                                         'query_otol_family',
-#                                         'query_otol_genus',
-#                                         'query_otol_species'])
 res = feature_intensity[feature_intensity != 0].stack()
 df_res = res.to_frame().reset_index()
 df_merged = pd.merge(df_res, samples_metadata, left_on='MS_filename',
@@ -576,10 +563,10 @@ dt_isdb_results['score_max_consistency'] = dt_isdb_results[[
     "structure_taxonomy_npclassifier_03class_score"
 ]].max(axis=1)
 
-dt_isdb_results['Final_score'] = dt_isdb_results['score_input'] + dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
+dt_isdb_results['final_score'] = dt_isdb_results['score_input'] + dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
 
 dt_isdb_results['rank_final'] = dt_isdb_results.groupby(
-    'feature_id')['Final_score'].rank(method='dense', ascending=False)
+    'feature_id')['final_score'].rank(method='dense', ascending=False)
 
 
 
@@ -599,6 +586,7 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.sort_values(
     ["feature_id", "rank_final"], ascending=(False, True))
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
 
+
 # Here we would like to filter results when short IK are repeated for the same feature_id at the same final rank
 # see issue (https://gitlab.com/tima5/taxoscorer/-/issues/23)
 # used 
@@ -606,19 +594,14 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
 
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.drop_duplicates(subset=['feature_id', 'short_inchikey'], keep='first')
 
-dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'float'})
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int64'})
+dt_isdb_results_chem_rew['most_specific_matched_organism'] = dt_isdb_results_chem_rew['matched_species']
+dt_isdb_results_chem_rew['most_specific_matched_organism'].fillna(
+    dt_isdb_results_chem_rew['matched_genus']).fillna(dt_isdb_results_chem_rew['matched_family']).fillna(dt_isdb_results_chem_rew['matched_order']).fillna(dt_isdb_results_chem_rew['matched_class']).fillna(dt_isdb_results_chem_rew['matched_phylum']).fillna(dt_isdb_results_chem_rew['matched_kingdom']).fillna(dt_isdb_results_chem_rew['matched_domain'])
 
-
-annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi',
-            'structure_smiles', 'structure_molecular_formula', 'adduct',
-            'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
-            'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
-            'organism_name', 'organism_taxonomy_ottid',
-            'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
-            'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas',  
-            'matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
-            'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
+annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
+            'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+            'query_otol_species', 'most_specific_matched_organism', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
 
 comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensus', 'freq_structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass_consensus',
             'freq_structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class_consensus', 'freq_structure_taxonomy_npclassifier_03class']
@@ -641,70 +624,69 @@ df4cyto.to_csv(isdb_results_repond_path, sep='\t')
 print('Finished in %s seconds.' % (time.time() - start_time))
 print('You can check your results here %s' % isdb_results_repond_path)
 
-print('''
-Generating plots ... check your web browser !
-''')
+# print('''
+# Generating plots... check your web browser !
+# ''')
 
-import plotly.express as px
+# import plotly.express as px
 
-fig = px.sunburst(df4cyto_flat, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'],
-                  )
-fig.update_layout(
-    #font_family="Courier New",
-    title_font_family="Courier New",
-    title_font_color="black",
-    title_font_size=14,
-    legend_title_font_color="black",
-    title_text="<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
-    title_x=0.5
-)
+# fig = px.sunburst(df4cyto_flat, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'])
+# fig.update_layout(
+#     #font_family="Courier New",
+#     title_font_family="Courier New",
+#     title_font_color="black",
+#     title_font_size=14,
+#     legend_title_font_color="black",
+#     title_text="<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
+#     title_x=0.5
+# )
 
-fig.update_layout(
-    title={
-        'text': "<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-        'y':0.96,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top'})
+# fig.update_layout(
+#     title={
+#         'text': "<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+#         'y':0.96,
+#         'x':0.5,
+#         'xanchor': 'center',
+#         'yanchor': 'top'})
 
-fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-#,paper_bgcolor="Black"
-)
+# fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+# #,paper_bgcolor="Black"
+# )
 
-fig.show()
+# fig.show()
 
-fig.write_html(sunburst_chem_results_path,
-               full_html=False,
-               include_plotlyjs='cdn')
+# fig.write_html(sunburst_chem_results_path,
+#                full_html=False,
+#                include_plotlyjs='cdn')
 
 
-fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
-            'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
-                  )
-fig.update_layout(
-    #font_family="Courier New",
-    title_font_family="Courier New",
-    title_font_color="black",
-    title_font_size=14,
-    legend_title_font_color="black",
-    title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
-    title_x=0.5
-)
+# fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+#             'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
+#                   )
+# fig.update_layout(
+#     #font_family="Courier New",
+#     title_font_family="Courier New",
+#     title_font_color="black",
+#     title_font_size=14,
+#     legend_title_font_color="black",
+#     title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
+#     title_x=0.5
+# )
 
-fig.update_layout(
-    title={
-        'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-        'y':0.96,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top'})
+# fig.update_layout(
+#     title={
+#         'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+#         'y':0.96,
+#         'x':0.5,
+#         'xanchor': 'center',
+#         'yanchor': 'top'})
 
-fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-#,paper_bgcolor="Black"
-)
+# fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+# #,paper_bgcolor="Black"
+# )
 
-fig.show()
+# fig.show()
 
-fig.write_html(sunburst_organisms_results_path,
-               full_html=False,
-               include_plotlyjs='cdn')
+# fig.write_html(sunburst_organisms_results_path,
+#                full_html=False,
+#                include_plotlyjs='cdn')
