@@ -15,7 +15,7 @@ from opentree import OT
 import json
 from pandas import json_normalize
 import yaml
-import spectral_lib_matcher
+import spectral_lib_matcher_AG
 
 # Defining display options
 
@@ -61,7 +61,8 @@ path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id +'/'))
 quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
 
 path_to_results_folders =  os.path.expanduser(os.path.join('data_out/'+ project_name +'/'))
-os.makedirs(path_to_results_folders)
+if not os.path.exists(path_to_results_folders):
+    os.makedirs(path_to_results_folders)
 
 # Adding expanduser option to expand home path if encoded in the params file
 
@@ -105,7 +106,7 @@ print('''
 Proceeding to spectral matching ...
 ''')
 
-spectral_lib_matcher.main(query_file_path,
+spectral_lib_matcher_AG.main(query_file_path,
                           db_file_path,
                           parent_mz_tol,
                           msms_mz_tol,
@@ -170,9 +171,8 @@ db_metadata['short_inchikey'] = db_metadata.structure_inchikey.str.split(
     "-", expand=True)[0]
 db_metadata.reset_index(inplace=True)
 
-print('Number of features: ' + str(len(dt_isdb_results)))
-print('Number of features with MS2 annotation: ' +
-    str(dt_isdb_results['short_inchikey'].count()))
+print('Number of features: ' + str(len(clusterinfo_summary)))
+print('Number of MS2 annotation: ' + str(len(dt_isdb_results)))
 
 # Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
 
@@ -461,15 +461,10 @@ Proceeding to taxonomically informed reponderation ...
 
 cols_ref = ['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',  'organism_taxonomy_03phylum', 'organism_taxonomy_04class',
             'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species']
-cols_att = ['query_otol_domain',
-            'query_otol_kingdom',
-            'query_otol_phylum',
-            'query_otol_class',
-            'query_otol_order',
-            'query_otol_family',
-            'query_otol_tribe',
-            'query_otol_genus',
-            'query_otol_species']
+
+cols_att = ['query_otol_domain', 'query_otol_kingdom', 'query_otol_phylum', 'query_otol_class',
+            'query_otol_order', 'query_otol_family', 'query_otol_tribe', 'query_otol_genus', 'query_otol_species']
+
 cols_match = ['matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class',
               'matched_order', 'matched_family', 'matched_tribe', 'matched_genus', 'matched_species']
 
@@ -540,28 +535,16 @@ for col in ['structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npc
 
     df = dt_isdb_results.copy()
     df = df.drop_duplicates(subset=['feature_id', col])
-    if use_post_taxo == True:
-        df = df[df["component_id"] != -1]
-        df = df[df.rank_spec_taxo <= top_N_chemical_consistency]
-        df = df.groupby(
-            ["component_id", col]
-        ).agg({'feature_id': 'count',
-            'rank_spec_taxo': 'mean'}
-            ).reset_index(
-        ).rename(columns={'feature_id': (col + '_count'),
-                        'rank_spec_taxo': ('rank_' + col + '_mean')}
-                ).merge(cluster_count, on='component_id', how='left')
-    else:
-        df = df[df.component_id != -1]
-        df = df[df.rank_spec <= top_N_chemical_consistency]
-        df = df.groupby(
-            ["component_id", col]
-        ).agg({'feature_id': 'count',
-            'rank_spec': 'mean'}
-            ).reset_index(
-        ).rename(columns={'feature_id': (col + '_count'),
-                        'rank_spec': ('rank_' + col + '_mean')}
-                ).merge(cluster_count, on='component_id', how='left')
+    df = df[df["component_id"] != -1]
+    df = df[df.rank_spec_taxo <= top_N_chemical_consistency]
+    df = df.groupby(
+        ["component_id", col]
+    ).agg({'feature_id': 'count',
+        'rank_spec_taxo': 'mean'}
+        ).reset_index(
+    ).rename(columns={'feature_id': (col + '_count'),
+                    'rank_spec_taxo': ('rank_' + col + '_mean')}
+            ).merge(cluster_count, on='component_id', how='left')
 
     df[('freq_' + col)] = df[(col + '_count')] / df['ci_count']
     df[(col + '_score')] = df[('freq_' + col)] / \
@@ -593,8 +576,7 @@ dt_isdb_results['score_max_consistency'] = dt_isdb_results[[
     "structure_taxonomy_npclassifier_03class_score"
 ]].max(axis=1)
 
-dt_isdb_results['Final_score'] = dt_isdb_results['score_input'] + \
-    dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
+dt_isdb_results['Final_score'] = dt_isdb_results['score_input'] + dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
 
 dt_isdb_results['rank_final'] = dt_isdb_results.groupby(
     'feature_id')['Final_score'].rank(method='dense', ascending=False)
