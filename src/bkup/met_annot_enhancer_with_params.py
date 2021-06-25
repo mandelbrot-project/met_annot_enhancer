@@ -132,23 +132,23 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 # for f in files:
 #    os.remove(f)
 
-print('''
-Fetching the GNPS job ...
-''')
+# print('''
+# Fetching the GNPS job ...
+# ''')
 
 
-job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
+# job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+job_id+"&view=download_cytoscape_data"
 
-cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
-subprocess.call(shlex.split(cmd))
+# cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file
+# subprocess.call(shlex.split(cmd))
 
 
-with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-    zip_ref.extractall(path_to_folder)
+# with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+#     zip_ref.extractall(path_to_folder)
 
-# We finally remove the zip file
-cmd = 'rm '+ path_to_file
-subprocess.call(shlex.split(cmd))
+# # We finally remove the zip file
+# cmd = 'rm '+ path_to_file
+# subprocess.call(shlex.split(cmd))
 
 
 # Once this folder is created we directly save the yaml params inside
@@ -171,14 +171,14 @@ Proceeding to spectral matching ...
 
 
 
-spectral_lib_matcher.main(query_file_path,
-                          db_file_path,
-                          parent_mz_tol,
-                          msms_mz_tol,
-                          min_cos,
-                          min_peaks,
-                          isdb_results_path
-                          )
+# spectral_lib_matcher.main(query_file_path,
+#                           db_file_path,
+#                           parent_mz_tol,
+#                           msms_mz_tol,
+#                           min_cos,
+#                           min_peaks,
+#                           isdb_results_path
+#                           )
 
 
 

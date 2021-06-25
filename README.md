@@ -52,7 +52,7 @@ The metadata file, in the form of a .csv, should be placed in data_in/yourjobid/
   
 ## STEP C) Proceeding to spectral matching and followed by taxonomically and struturally informed scoring 
 
-### 1.  edit the parameters in default_AG.yaml
+### 1.  edit the parameters in default.yaml
 
 This file is located in the configs folder [here](https://github.com/mandelbrot-project/met_annot_enhancer/blob/194dcde9383f63549241694f2b2ac85635a6f15f/configs/default_AG.yaml)
 
@@ -87,7 +87,7 @@ repond_params:
   
 ### 2.  launch the job
 
-`python src/dev/met_annot_enhancer_with_params_AGmodified.py`
+`python src/dev/met_annot_enhancer.py`
 
 
 # R implementation
