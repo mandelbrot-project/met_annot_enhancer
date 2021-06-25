@@ -27,10 +27,10 @@ pd.set_option('display.width', 100)
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # Loading the parameters from yaml file
+if not os.path.exists('configs/user_defined/default.yaml'):
+    print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modifiy according to your needs')
 
-with open (r'configs/default/default.yaml') as file:    
-    # The FullLoader parameter handles the conversion from YAML
-    # scalar values to Python the dictionary format
+with open (r'configs/user_defined/default.yaml') as file:    
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
 download_gnps_job = params_list['options'][0]['download_gnps_job']
