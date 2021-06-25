@@ -1,3 +1,0 @@
-[submodule "src/dev/spectral_lib_matcher"]
-	path = src/dev/spectral_lib_matcher
-	url = https://github.com/mandelbrot-project/spectral_lib_matcher.git
