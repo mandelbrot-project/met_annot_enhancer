@@ -4,4 +4,5 @@ data_in/*
 data_out/*
 db_metadata/*
 db_spectra/*
+configs/user_defined/*
 
