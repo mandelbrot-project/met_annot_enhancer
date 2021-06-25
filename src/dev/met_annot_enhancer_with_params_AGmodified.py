@@ -465,7 +465,6 @@ for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
                 dt_isdb_results[col_match].where(dt_isdb_results[col_prev].notnull(), np.nan)
         col_prev = col_match
 
-
 dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 # Filter out MS1 annotations without a reweighting at the family level at least
@@ -589,15 +588,14 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
 
 # Here we would like to filter results when short IK are repeated for the same feature_id at the same final rank
 # see issue (https://gitlab.com/tima5/taxoscorer/-/issues/23)
-# used 
-# dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.drop_duplicates(subset=['feature_id', 'short_inchikey', 'rank_final'], keep='first')
 
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.drop_duplicates(subset=['feature_id', 'short_inchikey'], keep='first')
 
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int64'})
 dt_isdb_results_chem_rew['most_specific_matched_organism'] = dt_isdb_results_chem_rew['matched_species']
-dt_isdb_results_chem_rew['most_specific_matched_organism'].fillna(
-    dt_isdb_results_chem_rew['matched_genus']).fillna(dt_isdb_results_chem_rew['matched_family']).fillna(dt_isdb_results_chem_rew['matched_order']).fillna(dt_isdb_results_chem_rew['matched_class']).fillna(dt_isdb_results_chem_rew['matched_phylum']).fillna(dt_isdb_results_chem_rew['matched_kingdom']).fillna(dt_isdb_results_chem_rew['matched_domain'])
+col_matched = ['matched_genus', 'matched_tribe', 'matched_family', 'matched_order', 'matched_order', 'matched_phylum', 'matched_kingdom', 'matched_domain']
+for col in col_matched:
+    dt_isdb_results_chem_rew['most_specific_matched_organism'].fillna(dt_isdb_results_chem_rew[col], inplace=True)
 
 annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
             'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
