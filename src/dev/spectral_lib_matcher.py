@@ -77,6 +77,9 @@ def main(query_file_path,
     ):
         
     from matchms.filtering.require_minimum_number_of_peaks  import require_minimum_number_of_peaks 
+    
+    if os.path.exists(output_file_path):
+        os.remove(output_file_path)
 
     # timer is started
     start_time = time.time()

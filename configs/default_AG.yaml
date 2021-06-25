@@ -4,6 +4,10 @@
 ---
 # parameters
 
+options:
+  - download_gnps_job: False
+  - do_spectral_match: True
+  
 paths:
   - gnps_job_id: 250536f4cb3e4f159e5ef67a3d024fac # The path were you want your folder to be placed
   - project_name: ISDB_leonie_plantfungi_bis #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
