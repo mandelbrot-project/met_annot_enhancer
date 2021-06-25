@@ -35,7 +35,8 @@ with open (r'configs/default.yaml') as file:
 
 download_gnps_job = params_list['options'][0]['download_gnps_job']
 do_spectral_match = params_list['options'][1]['do_spectral_match']
-output_plots = params_list['options'][1]['output_plots']
+keep_lowest_taxon = params_list['options'][2]['keep_lowest_taxon']
+output_plots = params_list['options'][3]['output_plots']
 
 
 job_id = params_list['paths'][0]['gnps_job_id']
@@ -62,25 +63,17 @@ file_extension = params_list['repond_params'][8]['file_extension']
 msfile_suffix = params_list['repond_params'][9]['msfile_suffix']
 min_score_ms1 = params_list['repond_params'][10]['min_score_ms1']
 
+
+# Adding expanduser option to expand home path if encoded in the params file
+
 path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id +'/'))
 quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
+
 
 path_to_results_folders =  os.path.expanduser(os.path.join('data_out/'+ project_name +'/'))
 if not os.path.exists(path_to_results_folders):
     os.makedirs(path_to_results_folders)
 
-# Writing used parameters 
-params_suffix = '.yaml'
-
-with open(os.path.join(path_to_results_folders, job_id + params_suffix), 'w') as file:  
-    documents = yaml.dump(params_list, file)
-
-print('''
-Parameters used are stored in'''
-+ str(os.path.join(path_to_results_folders, job_id + params_suffix))
-)
-
-# Adding expanduser option to expand home path if encoded in the params file
 
 query_file_path = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')
 
@@ -97,6 +90,21 @@ sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
 sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
 sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
+
+
+
+
+# Writing used parameters 
+params_suffix = '.yaml'
+
+with open(os.path.join(path_to_results_folders, job_id + params_suffix), 'w') as file:  
+    documents = yaml.dump(params_list, file)
+
+print('''
+Parameters used are stored in'''
++ str(os.path.join(path_to_results_folders, job_id + params_suffix))
+)
+
 
 # timer is started
 start_time = time.time()
@@ -601,17 +609,33 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.drop_duplicates(subset=['feature_id', 'short_inchikey'], keep='first')
 
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype({'feature_id' : 'int64'})
-dt_isdb_results_chem_rew['lowest_matched_taxon'] = dt_isdb_results_chem_rew['matched_species']
-col_matched = ['matched_genus', 'matched_tribe', 'matched_family', 'matched_order', 'matched_order', 'matched_phylum', 'matched_kingdom', 'matched_domain']
-for col in col_matched:
-    dt_isdb_results_chem_rew['lowest_matched_taxon'].fillna(dt_isdb_results_chem_rew[col], inplace=True)
 
-annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
-            'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
-            'query_otol_species', 'lowest_matched_taxon', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
+if keep_lowest_taxon == True :
+    
+    dt_isdb_results_chem_rew['lowest_matched_taxon'] = dt_isdb_results_chem_rew['matched_species']
+    col_matched = ['matched_genus', 'matched_tribe', 'matched_family', 'matched_order', 'matched_order', 'matched_phylum', 'matched_kingdom', 'matched_domain']
+    for col in col_matched:
+        dt_isdb_results_chem_rew['lowest_matched_taxon'].fillna(dt_isdb_results_chem_rew[col], inplace=True)
+
+    annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
+                'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+                'query_otol_species', 'lowest_matched_taxon', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
+
+else :
+    annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
+                'structure_smiles', 'structure_molecular_formula', 'adduct',
+                'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
+                'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+                'organism_name', 'organism_taxonomy_ottid',
+                'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+                'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas',  
+                'matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
+                'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
+
 
 comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensus', 'freq_structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass_consensus',
             'freq_structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class_consensus', 'freq_structure_taxonomy_npclassifier_03class']
+
 
 col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
@@ -668,34 +692,36 @@ if output_plots == True:
                 full_html=False,
                 include_plotlyjs='cdn')
 
+    if keep_lowest_taxon == True :
 
-    fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
-                'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
-                    )
-    fig.update_layout(
-        #font_family="Courier New",
-        title_font_family="Courier New",
-        title_font_color="black",
-        title_font_size=14,
-        legend_title_font_color="black",
-        title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
-        title_x=0.5
-    )
 
-    fig.update_layout(
-        title={
-            'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-            'y':0.96,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'})
+        fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+                    'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
+                        )
+        fig.update_layout(
+            #font_family="Courier New",
+            title_font_family="Courier New",
+            title_font_color="black",
+            title_font_size=14,
+            legend_title_font_color="black",
+            title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
+            title_x=0.5
+        )
 
-    fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-    #,paper_bgcolor="Black"
-    )
+        fig.update_layout(
+            title={
+                'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+                'y':0.96,
+                'x':0.5,
+                'xanchor': 'center',
+                'yanchor': 'top'})
 
-    fig.show()
+        fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+        #,paper_bgcolor="Black"
+        )
 
-    fig.write_html(sunburst_organisms_results_path,
-                full_html=False,
-                include_plotlyjs='cdn')
+        fig.show()
+
+        fig.write_html(sunburst_organisms_results_path,
+                    full_html=False,
+                    include_plotlyjs='cdn')

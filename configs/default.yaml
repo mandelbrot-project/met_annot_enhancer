@@ -7,6 +7,7 @@
 options:
   - download_gnps_job: False
   - do_spectral_match: True
+  - keep_lowest_taxon: False
   - output_plots: True
 paths:
   - gnps_job_id: fbbf3bf61b2a4c54af603cb79ca4fb62 # The path were you want your folder to be placed
