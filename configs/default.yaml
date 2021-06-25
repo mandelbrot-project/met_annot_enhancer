@@ -7,6 +7,7 @@
 options:
   - download_gnps_job: False
   - do_spectral_match: True
+  - output_plots: True
 paths:
   - gnps_job_id: fbbf3bf61b2a4c54af603cb79ca4fb62 # The path were you want your folder to be placed
   - project_name: Bg_pos #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
