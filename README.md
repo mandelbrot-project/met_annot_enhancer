@@ -59,9 +59,10 @@ Copy the default.yaml file from [here](https://github.com/mandelbrot-project/met
 
 ### 2.  edit the parameters in configs/user_defined/default.yaml
 
-Parameters are: 
+#### Parameters are: 
 
 options:
+
   - **download_gnps_job: False**
     - set to False it you already downloaded a GNPS FBMN in step A
   - **do_spectral_match: True**
@@ -69,9 +70,10 @@ options:
   - **keep_lowest_taxon: False**
     - for clarity un outputs, just keep the lowest taxon matched
   - **output_plots: True**
-    - False
+    - False if keep_lowest_taxon = True (to change)
  
 paths:
+
   - **gnps_job_id: 250536f4cb3e4f159e5ef67a3d024fac**
     - The GNPS job id you want to annotate
   - **project_name: your name**
@@ -86,6 +88,7 @@ paths:
     - Path to the adducts file in neg mode
 
 spectral_match_params:
+
   - **parent_mz_tol: 0.01**
     - the parent mass tolerance to use for spectral matching (in Da)
   - **msms_mz_tol: 0.01**
@@ -96,6 +99,7 @@ spectral_match_params:
     - the minimal matching peaks number to use for spectral matching
 
 repond_params:
+
   - **Top_N_Sample: 0**
     - Max number of contributors to take into account for taxo reponderation, set to 0 for all biosources where the feature is detected
   - **top_to_output: 1**
