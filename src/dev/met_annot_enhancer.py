@@ -622,7 +622,7 @@ if keep_lowest_taxon == True :
                 'query_otol_species', 'lowest_matched_taxon', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
 
 else :
-    annot_attr = ['rank_spec', 'score_input', 'inchikey', 'libname', 'structure_inchikey', 'structure_inchi',
+    annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi',
                 'structure_smiles', 'structure_molecular_formula', 'adduct',
                 'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
                 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
@@ -630,7 +630,7 @@ else :
                 'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
                 'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas',  
                 'matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class', 'matched_order',
-                'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'Final_score', 'rank_final']
+                'matched_family', 'matched_tribe', 'matched_genus', 'matched_species', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
 
 
 comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensus', 'freq_structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass_consensus',
