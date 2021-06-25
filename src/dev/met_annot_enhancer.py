@@ -692,7 +692,7 @@ if output_plots == True:
                 full_html=False,
                 include_plotlyjs='cdn')
 
-    if keep_lowest_taxon == True :
+    if keep_lowest_taxon == False :
 
 
         fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
