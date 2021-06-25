@@ -15,7 +15,7 @@ from opentree import OT
 import json
 from pandas import json_normalize
 import yaml
-import spectral_lib_matcher_AG
+import spectral_lib_matcher
 
 # Defining display options
 
@@ -28,7 +28,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # Loading the parameters from yaml file
 
-with open (r'configs/default_PF_ecometabo.yaml') as file:    
+with open (r'configs/default.yaml') as file:    
     # The FullLoader parameter handles the conversion from YAML
     # scalar values to Python the dictionary format
     params_list = yaml.load(file, Loader=yaml.FullLoader)
@@ -124,7 +124,7 @@ if do_spectral_match == True:
     Proceeding to spectral matching ...
     ''')
 
-    spectral_lib_matcher_AG.main(query_file_path,
+    spectral_lib_matcher.main(query_file_path,
                             db_file_path,
                             parent_mz_tol,
                             msms_mz_tol,

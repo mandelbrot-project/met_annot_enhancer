@@ -100,6 +100,7 @@ def main(query_file_path,
     from matchms.filtering import normalize_intensities
     from matchms.filtering import select_by_intensity
     from matchms.filtering import select_by_mz
+    
     def peak_processing(spectrum):
         spectrum = default_filters(spectrum)
         spectrum = normalize_intensities(spectrum)
@@ -132,7 +133,7 @@ def main(query_file_path,
 
     similarity_score = PrecursorMzMatch(tolerance=float(parent_mz_tol), tolerance_type="Dalton")
     chunks_query = [spectrums_query[x:x+1000] for x in range(0, len(spectrums_query), 1000)]
-    df_tot = pd.DataFrame()
+
     for chunk in chunks_query:
         scores = calculate_scores(chunk, spectrums_db_cleaned, similarity_score)
         indices = np.where(np.asarray(scores.scores))
@@ -144,7 +145,7 @@ def main(query_file_path,
             i += 1
         cosinegreedy = CosineGreedy(tolerance=float(msms_mz_tol))
         data = []
-        for (x,y) in zip(idx_row,idx_col):
+        for (x,y) in tzip(idx_row,idx_col):
             if x<y:
                 msms_score, n_matches = cosinegreedy.pair(chunk[x], spectrums_db_cleaned[y])[()]
                 if (msms_score>float(min_cos)) & (n_matches>int(min_peaks)):
