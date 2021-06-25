@@ -1,0 +1,3 @@
+[submodule "spectral_lib_matcher"]
+	path = spectral_lib_matcher
+	url = https://github.com/mandelbrot-project/spectral_lib_matcher.git
