@@ -615,7 +615,8 @@ if keep_lowest_taxon == True :
     dt_isdb_results_chem_rew['lowest_matched_taxon'] = dt_isdb_results_chem_rew['matched_species']
     dt_isdb_results_chem_rew['lowest_matched_taxon'] = dt_isdb_results_chem_rew['lowest_matched_taxon'].replace('nan', np.NaN)
     col_matched = ['matched_genus', 'matched_tribe', 'matched_family', 'matched_order', 'matched_order', 'matched_phylum', 'matched_kingdom', 'matched_domain']
-    for col in col_matched:                
+    for col in col_matched:
+        dt_isdb_results_chem_rew[col] = dt_isdb_results_chem_rew[col].replace('nan', np.NaN)  
         dt_isdb_results_chem_rew['lowest_matched_taxon'].fillna(dt_isdb_results_chem_rew[col], inplace=True)
 
     annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
@@ -641,6 +642,9 @@ comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensu
 col_to_keep = ['feature_id'] + comp_attr + annot_attr
 
 df4cyto_flat = dt_isdb_results_chem_rew[col_to_keep]
+
+all_columns = list(df4cyto_flat) # Creates list of all column headers
+df4cyto_flat[all_columns] = df4cyto_flat[all_columns].astype(str)
 
 gb_spec = {c: '|'.join for c in annot_attr}
 for c in comp_attr:
