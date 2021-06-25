@@ -1,0 +1,37 @@
+
+# default.yaml
+
+---
+# parameters
+
+options:
+  - download_gnps_job: False
+  - do_spectral_match: True
+  - keep_lowest_taxon: False
+  - output_plots: True
+paths:
+  - gnps_job_id: fbbf3bf61b2a4c54af603cb79ca4fb62 # The path were you want your folder to be placed
+  - project_name: Bg_pos #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
+  - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv  # Path to your spectral library file
+  - db_file_path: /Users/pma/MultiSources_ISDB_pos.mgf # Path to the metadata of the spectral file
+  - adducts_pos_path: data_loc/db_prepared_pos.tsv.gz # Path to the adducts file in pos mode
+  - adducts_neg_path: data_loc/db_prepared_neg.tsv.gz # Path to the adducts file in neg mode
+
+spectral_match_params:
+  - parent_mz_tol: 0.01 # the parent mass tolerance to use for spectral matching (in Da)
+  - msms_mz_tol: 0.01 # the msms mass tolerance to use for spectral matching (in Da)
+  - min_cos: 0.3 # the minimal cosine to use for spectral matching
+  - min_peaks: 6 # the minimal matching peaks number to use for spectral matching
+
+repond_params:
+  - Top_N_Sample: 3 # Max number of contributors to take into account for taxo reponderation, set to 0 for all
+  - top_to_output: 1 # Top X for final ouput
+  - ppm_tol: 2 # ppm tol to be used for ms1 match
+  - polarity: 'pos' # ion mode you are working with (pos or neg)
+  - organism_header: 'ATTRIBUTE_Species' # Mandatory: header of your samples' organism in metadata file
+  - sampletype_header: 'SAMPLE_info' # Optional (Run_line_x_line parameter)
+  - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
+  - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
+  - file_extension: '.mzML' # MS filename extension (or any common pattern in all your MS filenames)
+  - msfile_suffix: ' Peak Area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
+  - min_score_ms1: 5 # Minimum taxonomical score (4 = order, 5 = family, 6 = genus, 7 = species)
