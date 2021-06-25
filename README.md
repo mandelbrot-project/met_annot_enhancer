@@ -50,7 +50,7 @@ for help, use:
 Add metadata to your GNPS results if you didn't upload it on GNPS when you ran the job, or if the one you uploaded dosens't contain the information needed.
 The metadata file, in the form of a .csv, should be placed in data_in/yourjobid/metadata_table/*metadata_file*. The name of the file doen't matter but it should be the only file in the folder.
   
-## STEP C) Proceeding to spectral matching and followed by taxonomically and struturally informed scoring 
+## STEP C) Proceed to spectral matching followed by taxonomically and structurally informed scoring 
 
 ### 1.  edit the parameters in default.yaml
 
