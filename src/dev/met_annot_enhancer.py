@@ -101,7 +101,7 @@ with open(os.path.join(path_to_results_folders, job_id + params_suffix), 'w') as
     documents = yaml.dump(params_list, file)
 
 print('''
-Parameters used are stored in'''
+Parameters used are stored in '''
 + str(os.path.join(path_to_results_folders, job_id + params_suffix))
 )
 
@@ -438,7 +438,7 @@ if Top_N_Sample == 0:
 else:
     feature_intensity = feature_intensity.where(feature_intensity.apply(
         lambda x: x.isin(x.nlargest(Top_N_Sample)), axis=1), 0)  # top N here
-feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '')
+feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '') # this is not safe, we should find an alternative. Maybe raising an issue if the suffix is not found 
 feature_intensity = feature_intensity.transpose()
 feature_intensity.index.name = 'MS_filename'
 feature_intensity = feature_intensity.transpose()
