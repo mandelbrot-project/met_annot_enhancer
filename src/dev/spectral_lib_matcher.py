@@ -6,6 +6,11 @@ import time
 import numpy as np
 import pandas as pd
 
+
+import tqdm
+from tqdm.contrib import tzip
+
+
 # loading the files
 
 from matchms.importing import load_from_mgf
