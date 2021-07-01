@@ -5,4 +5,6 @@ data_out/*
 db_metadata/*
 db_spectra/*
 configs/user_defined/*
+src/dev/__pycache__/
+src/__pycache__/
 
