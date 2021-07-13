@@ -61,7 +61,8 @@ use_post_taxo = params_list['repond_params'][6]['use_post_taxo']
 top_N_chemical_consistency = params_list['repond_params'][7]['top_N_chemical_consistency']
 file_extension = params_list['repond_params'][8]['file_extension']
 msfile_suffix = params_list['repond_params'][9]['msfile_suffix']
-min_score_ms1 = params_list['repond_params'][10]['min_score_ms1']
+min_score_taxo_ms1 = params_list['repond_params'][10]['min_score_taxo_ms1']
+min_score_chemo_ms1 = params_list['repond_params'][11]['min_score_chemo_ms1']
 
 
 # Adding expanduser option to expand home path if encoded in the params file
@@ -486,14 +487,11 @@ dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 # Filter out MS1 annotations without a reweighting at the family level at least
 
-if polarity == 'pos':
-    dt_isdb_results = dt_isdb_results[
-        (dt_isdb_results['score_taxo'] >= min_score_ms1) | (
-        dt_isdb_results['libname'] == 'ISDB')]
-else:
-    dt_isdb_results = dt_isdb_results[
-        (dt_isdb_results['score_taxo'] >= min_score_ms1) | (
-        dt_isdb_results['libname'] == 'ISDB')]
+
+dt_isdb_results = dt_isdb_results[
+    (dt_isdb_results['score_taxo'] >= min_score_taxo_ms1) | (dt_isdb_results['score_max_consistency'] >= min_score_chemo_ms1) | (
+    dt_isdb_results['libname'] == 'ISDB')]
+
 
 
 print('Total number of annotations after filtering MS1 annotations not reweighted at taxonomical level min: ' +

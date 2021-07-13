@@ -35,5 +35,5 @@ repond_params:
   - file_extension: '.mzML' # MS filename extension (or any common pattern in all your MS filenames)
   - msfile_suffix: ' Peak Area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
   - min_score_taxo_ms1: 6 # Minimum taxonomical score (5 = order, 6 = family, 7 = genus, 8 = species)
-  - min_score_chemo_ms1: 1 # Minimum chemical consistency score 
+  - min_score_chemo_ms1: 2 # Minimum chemical consistency score (1 = NPClassifier pathway level consistency, 2 = NPClassifier superclass level consistency, 3 = NPClassifier class level consistency )
 
