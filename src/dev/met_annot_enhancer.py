@@ -485,11 +485,14 @@ for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
 
 dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
-# Filter out MS1 annotations without a reweighting at the family level at least
+# Filter out MS1 annotations without a reweighting at a given taxo level prior to chemo repond
+
+dt_isdb_results.info()
+
 
 
 dt_isdb_results = dt_isdb_results[
-    (dt_isdb_results['score_taxo'] >= min_score_taxo_ms1) | (dt_isdb_results['score_max_consistency'] >= min_score_chemo_ms1) | (
+    (dt_isdb_results['score_taxo'] >= min_score_taxo_ms1) | (
     dt_isdb_results['libname'] == 'ISDB')]
 
 
@@ -598,7 +601,7 @@ dt_isdb_results_chem_rew[["feature_id", "rank_final", "component_id"]] = dt_isdb
     "feature_id", "rank_final", "component_id"]].apply(pd.to_numeric, downcast='signed', axis=1)
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.sort_values(
     ["feature_id", "rank_final"], ascending=(False, True))
-dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str)
+# dt_isdb_results_chem_rew = dt_isdb_results_chem_rew.astype(str) (Check if this one is necessary because it messes up quite a bit of things later on)
 
 
 # Here we would like to filter results when short IK are repeated for the same feature_id at the same final rank
@@ -638,6 +641,21 @@ comp_attr = ['component_id', 'structure_taxonomy_npclassifier_01pathway_consensu
 
 
 col_to_keep = ['feature_id'] + comp_attr + annot_attr
+
+# We add the min chemo score at this step 
+
+dt_isdb_results_chem_rew.info()
+
+print(type(dt_isdb_results_chem_rew['score_taxo']))
+print(type(min_score_taxo_ms1))
+print(type(dt_isdb_results_chem_rew['score_max_consistency']))
+print(type(min_score_chemo_ms1))
+
+
+dt_isdb_results_chem_rew = dt_isdb_results_chem_rew[
+    (dt_isdb_results_chem_rew['score_taxo'] >= min_score_taxo_ms1) | (dt_isdb_results_chem_rew['score_max_consistency'] >= min_score_chemo_ms1) | (
+    dt_isdb_results_chem_rew['libname'] == 'ISDB')]
+
 
 df4cyto_flat = dt_isdb_results_chem_rew[col_to_keep]
 
