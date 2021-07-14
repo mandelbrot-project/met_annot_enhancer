@@ -57,7 +57,7 @@ ppm_tol = params_list['repond_params'][2]['ppm_tol']
 polarity = params_list['repond_params'][3]['polarity']
 organism_header = params_list['repond_params'][4]['organism_header']
 sampletype_header = params_list['repond_params'][5]['sampletype_header']
-use_post_taxo = params_list['repond_params'][6]['use_post_taxo']
+use_post_taxo = params_list['repond_params'][6]['use_post_taxo'] # Note we dont use this variable see why !
 top_N_chemical_consistency = params_list['repond_params'][7]['top_N_chemical_consistency']
 file_extension = params_list['repond_params'][8]['file_extension']
 msfile_suffix = params_list['repond_params'][9]['msfile_suffix']
@@ -653,7 +653,7 @@ print(type(min_score_chemo_ms1))
 
 
 dt_isdb_results_chem_rew = dt_isdb_results_chem_rew[
-    (dt_isdb_results_chem_rew['score_taxo'] >= min_score_taxo_ms1) | (dt_isdb_results_chem_rew['score_max_consistency'] >= min_score_chemo_ms1) | (
+    ((dt_isdb_results_chem_rew['score_taxo'] >= min_score_taxo_ms1) & (dt_isdb_results_chem_rew['score_max_consistency'] >= min_score_chemo_ms1)) | (
     dt_isdb_results_chem_rew['libname'] == 'ISDB')]
 
 
