@@ -39,12 +39,14 @@ keep_lowest_taxon = params_list['options'][2]['keep_lowest_taxon']
 output_plots = params_list['options'][3]['output_plots']
 
 
-job_id = params_list['paths'][0]['gnps_job_id']
-project_name = params_list['paths'][1]['project_name']
-metadata_path = params_list['paths'][2]['metadata_path']
-db_file_path = params_list['paths'][3]['db_file_path']
-adducts_pos_path = params_list['paths'][4]['adducts_pos_path']
-adducts_neg_path = params_list['paths'][5]['adducts_neg_path']
+gnps_job_id = params_list['paths'][0]['gnps_job_id']
+input_folder = params_list['paths'][1]['input_folder']
+project_name = params_list['paths'][2]['project_name']
+output_folder = params_list['paths'][3]['output_folder']
+metadata_path = params_list['paths'][4]['metadata_path']
+db_file_path = params_list['paths'][5]['db_file_path']
+adducts_pos_path = params_list['paths'][6]['adducts_pos_path']
+adducts_neg_path = params_list['paths'][7]['adducts_neg_path']
 
 parent_mz_tol = params_list['spectral_match_params'][0]['parent_mz_tol']
 msms_mz_tol = params_list['spectral_match_params'][1]['msms_mz_tol']
@@ -65,13 +67,52 @@ min_score_taxo_ms1 = params_list['repond_params'][10]['min_score_taxo_ms1']
 min_score_chemo_ms1 = params_list['repond_params'][11]['min_score_chemo_ms1']
 
 
-# Adding expanduser option to expand home path if encoded in the params file
 
-path_to_gnps_folder = os.path.expanduser(os.path.join('data_in/' + job_id +'/'))
+path_to_folder = os.path.expanduser(os.path.join(input_folder , gnps_job_id))
+print(path_to_folder)
+path_to_file = os.path.expanduser(os.path.join(input_folder , gnps_job_id + '.zip'))
+print(path_to_file)
+
+# Downloading GNPS files
+if download_gnps_job == True:
+
+    print('''
+    Fetching the GNPS job: '''
+    + gnps_job_id
+    )
+
+    job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+gnps_job_id+"&view=download_cytoscape_data"
+    print(job_url_zip)
+
+    cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file+ ' --create-dirs'
+    subprocess.call(shlex.split(cmd))
+
+    with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+        zip_ref.extractall(path_to_folder)
+
+    # We finally remove the zip file
+    os.remove(path_to_file)
+
+    print('''
+    Job successfully downloaded: results are in: '''
+    + path_to_folder
+    )
+
+
+# Adding expanduser option to expand home path if encoded in the params file
+# Fetching the GNPS folder
+
+path_to_gnps_folder = os.path.expanduser(os.path.join(input_folder , gnps_job_id))
+
+
+if not os.path.exists(path_to_gnps_folder):
+    print('No GNPS input folder found : please check the config.yaml and make sure the paths are set correctly')
+
+
 quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
 
 
-path_to_results_folders =  os.path.expanduser(os.path.join('data_out/'+ project_name +'/'))
+path_to_results_folders =  os.path.expanduser(os.path.join(output_folder, project_name +'/'))
 if not os.path.exists(path_to_results_folders):
     os.makedirs(path_to_results_folders)
 
@@ -98,12 +139,12 @@ sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_
 # Writing used parameters 
 params_suffix = '.yaml'
 
-with open(os.path.join(path_to_results_folders, job_id + params_suffix), 'w') as file:  
+with open(os.path.join(path_to_results_folders, gnps_job_id + params_suffix), 'w') as file:  
     documents = yaml.dump(params_list, file)
 
 print('''
 Parameters used are stored in '''
-+ str(os.path.join(path_to_results_folders, job_id + params_suffix))
++ str(os.path.join(path_to_results_folders, gnps_job_id + params_suffix))
 )
 
 
@@ -126,7 +167,6 @@ adducts_df['max'] = adducts_df['adduct_mass'] + \
 
 
 # Spectral matching stage
-# Make this optionnal
 
 if do_spectral_match == True:
 
