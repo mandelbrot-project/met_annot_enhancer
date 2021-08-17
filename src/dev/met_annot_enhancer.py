@@ -69,9 +69,7 @@ min_score_chemo_ms1 = params_list['repond_params'][11]['min_score_chemo_ms1']
 
 
 path_to_folder = os.path.expanduser(os.path.join(input_folder , gnps_job_id))
-print(path_to_folder)
 path_to_file = os.path.expanduser(os.path.join(input_folder , gnps_job_id + '.zip'))
-print(path_to_file)
 
 # Downloading GNPS files
 if download_gnps_job == True:
