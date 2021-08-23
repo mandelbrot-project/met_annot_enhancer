@@ -1,4 +1,3 @@
-
 # default.yaml
 
 ---
@@ -6,13 +5,15 @@
 
 options:
   - download_gnps_job: False
-  - do_spectral_match: True
+  - do_spectral_match: False
   - keep_lowest_taxon: False
   - output_plots: True
 paths:
-  - gnps_job_id: fbbf3bf61b2a4c54af603cb79ca4fb62 # The path were you want your folder to be placed
-  - project_name: Bg_pos #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
-  - metadata_path: /Users/pma/210523_lotus_dnp_metadata.csv  # Path to your spectral library file
+  - gnps_job_id: 60b9945aa3fd4810b178e79870cca905 # The path were you want your folder to be placed
+  - input_folder: /Users/pma/tmp # The path were you want your GNPS job folder to be placed
+  - project_name: Erythroxylum_fresh #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
+  - output_folder: /Users/pma/tmp # the path for your output to be stored in
+  - metadata_path: /Users/pma/210715_inhouse_metadata.csv  # Path to your spectral library file
   - db_file_path: /Users/pma/MultiSources_ISDB_pos.mgf # Path to the metadata of the spectral file
   - adducts_pos_path: data_loc/db_prepared_pos.tsv.gz # Path to the adducts file in pos mode
   - adducts_neg_path: data_loc/db_prepared_neg.tsv.gz # Path to the adducts file in neg mode
@@ -28,12 +29,12 @@ repond_params:
   - top_to_output: 1 # Top X for final ouput
   - ppm_tol: 2 # ppm tol to be used for ms1 match
   - polarity: 'pos' # ion mode you are working with (pos or neg)
-  - organism_header: 'ATTRIBUTE_Species' # Mandatory: header of your samples' organism in metadata file
-  - sampletype_header: 'SAMPLE_info' # Optional (Run_line_x_line parameter)
+  - organism_header: 'species' # Mandatory: header of your samples' organism in metadata file
+  - sampletype_header: 'sample_type' # Optional (Run_line_x_line parameter)
   - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
   - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
-  - file_extension: '.mzML' # MS filename extension (or any common pattern in all your MS filenames)
-  - msfile_suffix: ' Peak Area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
+  - file_extension: '.mzXML' # MS filename extension (or any common pattern in all your MS filenames)
+  - msfile_suffix: ' Peak area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
   - min_score_taxo_ms1: 6 # Minimum taxonomical score (5 = order, 6 = family, 7 = genus, 8 = species)
   - min_score_chemo_ms1: 2 # Minimum chemical consistency score (1 = NPClassifier pathway level consistency, 2 = NPClassifier superclass level consistency, 3 = NPClassifier class level consistency )
 
