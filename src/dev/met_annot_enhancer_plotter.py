@@ -134,11 +134,13 @@ isdb_results_repond_flat_path = os.path.join(path_to_results_folders, spectral_m
 
 sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
-treemap_chemo_filename = project_name + '_chemo_treemap.html'
+treemap_chemo_counted_filename = project_name + '_chemo_treemap_counted.html'
+treemap_chemo_intensity_filename = project_name + '_chemo_treemap_intensity.html'
 
 sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
 sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
-treemap_chem_results_path = os.path.join(path_to_results_folders,treemap_chemo_filename)
+treemap_chemo_counted_results_path = os.path.join(path_to_results_folders,treemap_chemo_counted_filename)
+treemap_chemo_intensity_results_path = os.path.join(path_to_results_folders,treemap_chemo_intensity_filename)
 
 
 
@@ -805,7 +807,7 @@ samples_metadata_full = pd.read_csv(metadata_table_path + str(os.listdir(metadat
 feature_intensity_meta = pd.merge(left=samples_metadata_full, right=feature_intensity_table_t, left_on='filename', right_on='MS_filename',how='inner')
 
 
-feature_intensity_meta_gp_species = feature_intensity_meta.groupby(['species_name']).mean()
+feature_intensity_meta_gp_species = feature_intensity_meta.groupby(organism_header).mean()
 feature_intensity_meta_gp_species = feature_intensity_meta_gp_species.transpose()
 feature_intensity_meta_gp_species.index.name = 'row_ID'
 
@@ -868,8 +870,8 @@ rep_pattern = list(itertools.chain.from_iterable(itertools.repeat(x, len(unique_
 fig = make_subplots(1, len(unique_group_labels),
 subplot_titles = (unique_group_labels),
 specs=[rep_pattern])
-i=1
 
+i=1
 for n in unique_group_labels:
     print(n)
 
@@ -883,7 +885,26 @@ fig.update_traces(root_color="lightgrey")
 fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
 fig.update_annotations(font_size=12)
 fig.show()
-fig.write_html(treemap_chem_results_path,
+fig.write_html(treemap_chemo_counted_results_path,
+            full_html=False,
+            include_plotlyjs='cdn')
+
+
+i=1
+for n in unique_group_labels:
+    print(n)
+
+    dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
+    fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
+    values=n).data[0], 
+    row=1,col=i)
+    i+=1
+
+fig.update_traces(root_color="lightgrey")
+fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+fig.update_annotations(font_size=12)
+fig.show()
+fig.write_html(treemap_chemo_intensity_results_path,
             full_html=False,
             include_plotlyjs='cdn')
 
