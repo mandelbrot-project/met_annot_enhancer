@@ -134,8 +134,11 @@ isdb_results_repond_flat_path = os.path.join(path_to_results_folders, spectral_m
 
 sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
+treemap_chemo_filename = project_name + '_chemo_treemap.html'
+
 sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
 sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
+treemap_chem_results_path = os.path.join(path_to_results_folders,treemap_chemo_filename)
 
 
 
@@ -794,52 +797,6 @@ if output_plots == True:
 
 
 # here we want to have an puput per sample so we merge back the annotation frame with the feature table 
-feature_intensity.reset_index(inplace=True)
-
-feature_intensity
-
-
-# we get ValueError: You are trying to merge on object and int64 columns. If you wish to proceed you should use pd.concat
-df4cyto_flat.info()
-
-
-df4cyto_flat['feature_id'] = df4cyto_flat['feature_id'].astype('int')
-
-dt_isdb_results_int = pd.merge(
-    df4cyto_flat, feature_intensity, left_on='feature_id', right_on='row_ID', how='left')
-
-# now we want to filter the dt for all value in a given column > a given treshold
-
-dt_isdb_results_int_sub_bk = dt_isdb_results_int[dt_isdb_results_int['210813_PMA_MAPP_1_4_3_20210813104004.mzXML'] > 0]
-dt_isdb_results_int_sub_bal = dt_isdb_results_int[dt_isdb_results_int['210813_PMA_MAPP_1_4_2_20210813105949.mzXML'] > 0]
-
-
-    fig = px.sunburst(dt_isdb_results_int_sub_bal, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'])
-    fig.update_layout(
-        #font_family="Courier New",
-        title_font_family="Courier New",
-        title_font_color="black",
-        title_font_size=14,
-        legend_title_font_color="black",
-        title_text="<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
-        title_x=0.5
-    )
-
-    fig.update_layout(
-        title={
-            'text': "<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-            'y':0.96,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'})
-
-    fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-    #,paper_bgcolor="Black"
-    )
-
-    fig.show()
-
-
 #actually we might want to have the metadat joined to the feature table since the beginning
 
 feature_intensity_table_t
@@ -873,28 +830,26 @@ dt_isdb_results_int['counter'] = 1
 
 
 
+# for n in samples_metadata_full['species_name'].unique():
+#     print(n)
+
+#     dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
+
+#     fig = px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], values=n)
+#     fig.update_traces(root_color="lightgrey")
+#     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+#     fig.show()
 
 
-for n in samples_metadata_full['species_name'].unique():
-    print(n)
+# for n in samples_metadata_full['species_name'].unique():
+#     print(n)
 
-    dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
+#     dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
 
-    fig = px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], values=n)
-    fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
-    fig.show()
-
-
-for n in samples_metadata_full['species_name'].unique():
-    print(n)
-
-    dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
-
-    fig = px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], values='counter')
-    fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
-    fig.show()
+#     fig = px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], values='counter')
+#     fig.update_traces(root_color="lightgrey")
+#     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+#     fig.show()
 
 
 
@@ -902,7 +857,7 @@ for n in samples_metadata_full['species_name'].unique():
 # in fact we do this with itertools
 
 import itertools
-unique_group_labels = samples_metadata_full['filename'].unique()
+unique_group_labels = samples_metadata_full[organism_header].unique()
 
 pattern=[{"type": "domain"}]
 
@@ -928,4 +883,7 @@ fig.update_traces(root_color="lightgrey")
 fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
 fig.update_annotations(font_size=12)
 fig.show()
+fig.write_html(treemap_chem_results_path,
+            full_html=False,
+            include_plotlyjs='cdn')
 
