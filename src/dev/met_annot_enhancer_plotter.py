@@ -35,7 +35,6 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # Loading the parameters from yaml file
 if not os.path.exists('configs/user_defined/default.yaml'):
     print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modifiy according to your needs')
-
 with open (r'configs/user_defined/default.yaml') as file:    
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -73,6 +72,7 @@ min_score_taxo_ms1 = params_list['repond_params'][10]['min_score_taxo_ms1']
 min_score_chemo_ms1 = params_list['repond_params'][11]['min_score_chemo_ms1']
 
 drop_blanks = params_list['plotting_params'][0]['drop_blanks']
+multi_plot = params_list['plotting_params'][1]['multi_plot']
 
 
 
@@ -834,20 +834,24 @@ if output_plots == True:
     feature_intensity_meta_gp_species = feature_intensity_meta_gp_species.transpose()
     feature_intensity_meta_gp_species.index.name = 'row_ID'
 
-    feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,sampletype_header]).mean()
-    feature_intensity_meta_gp_multi = feature_intensity_meta_gp_multi.transpose()
-    feature_intensity_meta_gp_multi.columns = feature_intensity_meta_gp_multi.columns.map('_'.join)
-    feature_intensity_meta_gp_multi.index.name = 'row_ID'
+
 
     feature_intensity_table = feature_intensity_table_t.transpose()
 
     feature_intensity_table.reset_index(inplace=True)
     feature_intensity_meta_gp_species.reset_index(inplace=True)
-    feature_intensity_meta_gp_multi.reset_index(inplace=True)
+
     
 
     ft_merged = pd.merge(feature_intensity_table, feature_intensity_meta_gp_species, on='row_ID', how='left')
-    ft_merged = pd.merge(ft_merged, feature_intensity_meta_gp_multi, on='row_ID', how='left')
+
+    if multi_plot == True:
+        feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,sampletype_header]).mean()
+        feature_intensity_meta_gp_multi = feature_intensity_meta_gp_multi.transpose()
+        feature_intensity_meta_gp_multi.columns = feature_intensity_meta_gp_multi.columns.map('_'.join)
+        feature_intensity_meta_gp_multi.index.name = 'row_ID'
+        feature_intensity_meta_gp_multi.reset_index(inplace=True)
+        ft_merged = pd.merge(ft_merged, feature_intensity_meta_gp_multi, on='row_ID', how='left')
 
     df4cyto_flat['feature_id'] = df4cyto_flat['feature_id'].astype('int')
 
@@ -884,7 +888,6 @@ if output_plots == True:
 
     # here we also need to incresae the spec list of list of dic according to the lenght of unique_group_labels this can be done following https://stackoverflow.com/a/3459131 
     # in fact we do this with itertools
-    drop_blanks = True
     if drop_blanks == True:
         samples_metadata_full = samples_metadata_full[~samples_metadata_full[organism_header].str.contains("none|BK|blanck")]
 
@@ -944,62 +947,65 @@ if output_plots == True:
                 include_plotlyjs='cdn')
 
 #### working on the multilabelled subset
-    samples_metadata_full['combined'] = samples_metadata_full[organism_header] + '_' + samples_metadata_full[sampletype_header]
-    unique_group_labels = samples_metadata_full['combined'].unique()
-    type(unique_group_labels)
 
-    pattern=[{"type": "domain"}]
+    if multi_plot == True:
+        
+        samples_metadata_full['combined'] = samples_metadata_full[organism_header] + '_' + samples_metadata_full[sampletype_header]
+        unique_group_labels = samples_metadata_full['combined'].unique()
+        type(unique_group_labels)
 
-
-    rep_pattern = list(itertools.chain.from_iterable(itertools.repeat(x, len(unique_group_labels)) for x in pattern))
-
-    fig = make_subplots(1, len(unique_group_labels),
-    subplot_titles = (unique_group_labels),
-    specs=[rep_pattern])
-
-    i=1
-    for n in unique_group_labels:
-        print(n)
-
-        dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
-        fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
-        values=n).data[0], 
-        row=1,col=i)
-        i+=1
-
-    fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
-    title_text="Metabolite annotation overview (size proportional to individual count)")
-    fig.update_annotations(font_size=12)
-    fig.show()
-    fig.write_html(treemap_chemo_multi_counted_results_path,
-                full_html=False,
-                include_plotlyjs='cdn')
+        pattern=[{"type": "domain"}]
 
 
+        rep_pattern = list(itertools.chain.from_iterable(itertools.repeat(x, len(unique_group_labels)) for x in pattern))
 
-    fig = make_subplots(1, len(unique_group_labels),
-    subplot_titles = (unique_group_labels),
-    specs=[rep_pattern])
+        fig = make_subplots(1, len(unique_group_labels),
+        subplot_titles = (unique_group_labels),
+        specs=[rep_pattern])
 
-    i=1
-    for n in unique_group_labels:
-        print(n)
+        i=1
+        for n in unique_group_labels:
+            print(n)
 
-        dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
-        fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
-        values=n).data[0], 
-        row=1,col=i)
-        i+=1
+            dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
+            fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
+            values=n).data[0], 
+            row=1,col=i)
+            i+=1
 
-    fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
-    title_text="Metabolite annotation overview (size proportional to mean intensity)")
-    fig.update_annotations(font_size=12)
-    fig.show()
-    fig.write_html(treemap_chemo_multi_intensity_results_path,
-                full_html=False,
-                include_plotlyjs='cdn')
+        fig.update_traces(root_color="lightgrey")
+        fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
+        title_text="Metabolite annotation overview (size proportional to individual count)")
+        fig.update_annotations(font_size=12)
+        fig.show()
+        fig.write_html(treemap_chemo_multi_counted_results_path,
+                    full_html=False,
+                    include_plotlyjs='cdn')
+
+
+
+        fig = make_subplots(1, len(unique_group_labels),
+        subplot_titles = (unique_group_labels),
+        specs=[rep_pattern])
+
+        i=1
+        for n in unique_group_labels:
+            print(n)
+
+            dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
+            fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
+            values=n).data[0], 
+            row=1,col=i)
+            i+=1
+
+        fig.update_traces(root_color="lightgrey")
+        fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
+        title_text="Metabolite annotation overview (size proportional to mean intensity)")
+        fig.update_annotations(font_size=12)
+        fig.show()
+        fig.write_html(treemap_chemo_multi_intensity_results_path,
+                    full_html=False,
+                    include_plotlyjs='cdn')
 
 
 df4cyto_flat['final_score'] = df4cyto_flat['final_score'].astype('float')
@@ -1026,4 +1032,218 @@ df4cyto_flat_sel.to_csv(isdb_results_repond_flat_sel_path, sep='\t', index=None)
 
 from pivottablejs import pivot_ui
 
-pivot_ui(df4cyto_flat_sel, outfile_path=pivot_table_results_path)
+pivot_ui(dt_isdb_results_int, outfile_path=pivot_table_results_path)
+
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+
+
+
+
+inchi_keys = df4cyto_flat['structure_inchikey']
+bad_keys = []
+
+pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
+descriptor_all = {}
+molecule = new_client.molecule
+for i, inchi_key in pbar:
+  try:
+    smiles_i = molecule.get(inchi_key)['molecule_structures']['canonical_smiles']
+  except:
+    # Inchi key was not found in ChEMBL
+    bad_keys.append(inchi_key)
+
+  try:
+    molecule_ctab_i = utils.smiles2ctab(smiles_i)
+    log_p = json.loads(utils.logP(molecule_ctab_i))[0]
+    descriptors = json.loads(utils.descriptors(molecule_ctab_i))[0]
+    descriptors["log_p"] = log_p
+    descriptor_all[inchi_key] = descriptors
+  except:
+    # smiles2ctab, logP or something else failed
+    pass
+
+
+records = molecule.get(['AGILGFCOHSGLIT-UHFFFAOYSA-N'])get(InchiKey)['molecule_structures']['canonical_smiles']
+
+
+molecule.get(inchi_key).only(['molecule_hierarchy'])
+
+
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+
+
+inchi_keys = df4cyto_flat['structure_inchikey'].unique()
+
+rec = []
+
+inchi_keys = list(inchi_keys[0:10])
+rec =  molecule.get(inchi_keys)
+
+len(rec)
+
+
+pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
+descriptor_all = {}
+bad_keys = []
+molecule = new_client.molecule
+for i, inchi_key in pbar:
+  try:
+    smiles_i = molecule.get(inchi_key)['molecule_structures']['canonical_smiles']
+  except:
+    # Inchi key was not found in ChEMBL
+    bad_keys.append(inchi_key)
+
+
+chunks_query = [inchi_keys[x:x+30] for x in range(0, len(inchi_keys), 30)]
+
+smiles = []
+bad_keys = []
+
+for chunk in tqdm(chunks_query):
+    try:
+        smiles_i = molecule.get(list(chunk))
+        smiles.append(smiles_i)
+    except:
+        # Inchi key was not found in ChEMBL
+        bad_keys.append(chunk)
+
+flat_list = [item for sublist in smiles for item in sublist]
+
+len(flat_list)
+
+for item in flat_list:
+    print(item['molecule_chembl_id'], )
+
+# inchi_keys = df4cyto_flat['structure_inchikey']
+bad_keys = []
+records = []
+pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
+descriptor_all = {}
+molecule = new_client.molecule
+for i, inchi_key in pbar:
+  try:
+    rec = molecule.get(inchi_key)
+    records.append(rec)# ['molecule_structures']['canonical_smiles']
+  except:
+    # Inchi key was not found in ChEMBL
+    bad_keys.append(inchi_key)
+
+#   try:
+#     molecule_ctab_i = utils.smiles2ctab(smiles_i)
+#     log_p = json.loads(utils.logP(molecule_ctab_i))[0]
+#     descriptors = json.loads(utils.descriptors(molecule_ctab_i))[0]
+#     descriptors["log_p"] = log_p
+#     descriptor_all[inchi_key] = descriptors
+#   except:
+#     # smiles2ctab, logP or something else failed
+#     pass
+
+
+from chembl_webresource_client.settings import Settings
+
+
+Settings.Instance().TIMEOUT
+Settings.Instance().FAST_SAVE
+Settings.Instance().CONCURRENT_SIZE
+Settings.Instance().CACHE_NAME
+Settings.Instance().CACHE_EXPIRE
+Settings.Instance().CACHING = False
+
+records = molecule.get(inchi_keys)
+
+
+
+
+
+
+
+inchi_keys = df4cyto_flat['structure_inchikey'].unique()
+
+
+inchi_keys = list(inchi_keys)
+
+
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+
+
+records = molecule.get(list(inchi_keys))
+
+len(records)
+
+
+inchi_keys = df4cyto_flat['structure_inchikey'].unique()
+
+
+inchi_keys = list(inchi_keys[0:20])
+bad_keys = []
+
+molecule = new_client.molecule
+for inchi_key in inchi_keys:
+  try:
+    rec = molecule.get(inchi_key)
+    # ['molecule_structures']['canonical_smiles']
+  except:
+    # Inchi key was not found in ChEMBL
+    bad_keys.append(inchi_key)
+
+
+from chembl_webresource_client.unichem import unichem_client as unichem
+
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+similarity = new_client.similarity
+aspirin_chembl_id = molecule.search('aspirin')[0]['molecule_chembl_id']
+res = similarity.filter(chembl_id="CHEMBL25", similarity=70)
+
+
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+records = molecule.get(['CC(=O)Oc1ccccc1C(=O)[O-].CC(=O)Oc1ccccc1C(=O)[O-].NC(N)=O.[Ca+2]',
+      'Cc1cc2SC(C)(C)CC(C)(C)c2cc1\\N=C(/S)\\Nc3ccc(cc3)S(=O)(=O)N',
+      'CC(C)C[C@H](NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)[C@H]3CCCN3C(=O)C(CCCCN)CCCCN)C(C)(C)C)C(=O)O'])
+
+
+
+smiles = df4cyto_flat['structure_smiles'].unique()
+
+
+smiles =list(smiles[0:100])
+
+records = []
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+records = molecule.get(smiles)
+
+len(records)
+
+
+from chembl_webresource_client.new_client import new_client
+drug_indication = new_client.drug_indication
+molecules = new_client.molecule
+lung_cancer_ind = drug_indication.filter(efo_term__icontains="LUNG CARCINOMA")
+lung_cancer_mols = molecules.filter(
+    molecule_chembl_id__in=[x['molecule_chembl_id'] for x in lung_cancer_ind])
+
+len(lung_cancer_mols)
+
+
+from chembl_webresource_client.new_client import new_client
+document = new_client.document
+docs = document.filter(journal="J. Nat. Prod.").only('document_chembl_id')
+compound_record = new_client.compound_record
+records = compound_record.filter(
+    document_chembl_id__in=[doc['document_chembl_id'] for doc in docs]).only(
+    ['document_chembl_id', 'molecule_chembl_id'])
+molecule = new_client.molecule
+natural_products = molecule.filter(
+    molecule_chembl_id__in=[rec['molecule_chembl_id'] for rec in records]).only(
+    'molecule_structures')
