@@ -730,6 +730,39 @@ dt_isdb_results_chem_rew = dt_isdb_results_chem_rew[
 
 df4cyto_flat = dt_isdb_results_chem_rew[col_to_keep]
 
+#### fetching CHEMBL infos
+
+from chembl_webresource_client.new_client import new_client
+molecule = new_client.molecule
+
+inchi_keys = df4cyto_flat['structure_inchikey'].unique()
+chunks_query = [inchi_keys[x:x+35] for x in range(0, len(inchi_keys), 35)]
+
+results = []
+bad_keys = []
+
+
+for chunk in tqdm(chunks_query):
+    try:
+        res = molecule.get(list(chunk))
+        results.append(res)
+    except:
+        # Inchi key was not found in ChEMBL
+        bad_keys.append(chunk)
+
+flat_list = [item for sublist in results for item in sublist]
+
+chembl_df = json_normalize(flat_list)
+
+chembl_df = chembl_df[['molecule_chembl_id', 'molecule_structures.standard_inchi_key']]
+
+
+df4cyto_flat = pd.merge(left=df4cyto_flat, right=chembl_df, left_on='structure_inchikey', right_on='molecule_structures.standard_inchi_key', how = 'left')
+
+df4cyto_flat.rename(columns={'molecule_chembl_id': 'structure_chembl_id'}, inplace=True)
+df4cyto_flat.drop(['molecule_structures.standard_inchi_key'], axis=1, inplace=True)
+
+
 all_columns = list(df4cyto_flat) # Creates list of all column headers
 df4cyto_flat[all_columns] = df4cyto_flat[all_columns].astype(str)
 
@@ -1035,215 +1068,3 @@ from pivottablejs import pivot_ui
 pivot_ui(dt_isdb_results_int, outfile_path=pivot_table_results_path)
 
 
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-
-
-
-
-inchi_keys = df4cyto_flat['structure_inchikey']
-bad_keys = []
-
-pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
-descriptor_all = {}
-molecule = new_client.molecule
-for i, inchi_key in pbar:
-  try:
-    smiles_i = molecule.get(inchi_key)['molecule_structures']['canonical_smiles']
-  except:
-    # Inchi key was not found in ChEMBL
-    bad_keys.append(inchi_key)
-
-  try:
-    molecule_ctab_i = utils.smiles2ctab(smiles_i)
-    log_p = json.loads(utils.logP(molecule_ctab_i))[0]
-    descriptors = json.loads(utils.descriptors(molecule_ctab_i))[0]
-    descriptors["log_p"] = log_p
-    descriptor_all[inchi_key] = descriptors
-  except:
-    # smiles2ctab, logP or something else failed
-    pass
-
-
-records = molecule.get(['AGILGFCOHSGLIT-UHFFFAOYSA-N'])get(InchiKey)['molecule_structures']['canonical_smiles']
-
-
-molecule.get(inchi_key).only(['molecule_hierarchy'])
-
-
-
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-
-
-inchi_keys = df4cyto_flat['structure_inchikey'].unique()
-
-rec = []
-
-inchi_keys = list(inchi_keys[0:10])
-rec =  molecule.get(inchi_keys)
-
-len(rec)
-
-
-pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
-descriptor_all = {}
-bad_keys = []
-molecule = new_client.molecule
-for i, inchi_key in pbar:
-  try:
-    smiles_i = molecule.get(inchi_key)['molecule_structures']['canonical_smiles']
-  except:
-    # Inchi key was not found in ChEMBL
-    bad_keys.append(inchi_key)
-
-
-chunks_query = [inchi_keys[x:x+30] for x in range(0, len(inchi_keys), 30)]
-
-smiles = []
-bad_keys = []
-
-for chunk in tqdm(chunks_query):
-    try:
-        smiles_i = molecule.get(list(chunk))
-        smiles.append(smiles_i)
-    except:
-        # Inchi key was not found in ChEMBL
-        bad_keys.append(chunk)
-
-flat_list = [item for sublist in smiles for item in sublist]
-
-len(flat_list)
-
-for item in flat_list:
-    print(item['molecule_chembl_id'], )
-
-# inchi_keys = df4cyto_flat['structure_inchikey']
-bad_keys = []
-records = []
-pbar = tqdm(enumerate(inchi_keys,1), total = len(inchi_keys))
-descriptor_all = {}
-molecule = new_client.molecule
-for i, inchi_key in pbar:
-  try:
-    rec = molecule.get(inchi_key)
-    records.append(rec)# ['molecule_structures']['canonical_smiles']
-  except:
-    # Inchi key was not found in ChEMBL
-    bad_keys.append(inchi_key)
-
-#   try:
-#     molecule_ctab_i = utils.smiles2ctab(smiles_i)
-#     log_p = json.loads(utils.logP(molecule_ctab_i))[0]
-#     descriptors = json.loads(utils.descriptors(molecule_ctab_i))[0]
-#     descriptors["log_p"] = log_p
-#     descriptor_all[inchi_key] = descriptors
-#   except:
-#     # smiles2ctab, logP or something else failed
-#     pass
-
-
-from chembl_webresource_client.settings import Settings
-
-
-Settings.Instance().TIMEOUT
-Settings.Instance().FAST_SAVE
-Settings.Instance().CONCURRENT_SIZE
-Settings.Instance().CACHE_NAME
-Settings.Instance().CACHE_EXPIRE
-Settings.Instance().CACHING = False
-
-records = molecule.get(inchi_keys)
-
-
-
-
-
-
-
-inchi_keys = df4cyto_flat['structure_inchikey'].unique()
-
-
-inchi_keys = list(inchi_keys)
-
-
-
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-
-
-records = molecule.get(list(inchi_keys))
-
-len(records)
-
-
-inchi_keys = df4cyto_flat['structure_inchikey'].unique()
-
-
-inchi_keys = list(inchi_keys[0:20])
-bad_keys = []
-
-molecule = new_client.molecule
-for inchi_key in inchi_keys:
-  try:
-    rec = molecule.get(inchi_key)
-    # ['molecule_structures']['canonical_smiles']
-  except:
-    # Inchi key was not found in ChEMBL
-    bad_keys.append(inchi_key)
-
-
-from chembl_webresource_client.unichem import unichem_client as unichem
-
-
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-similarity = new_client.similarity
-aspirin_chembl_id = molecule.search('aspirin')[0]['molecule_chembl_id']
-res = similarity.filter(chembl_id="CHEMBL25", similarity=70)
-
-
-
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-records = molecule.get(['CC(=O)Oc1ccccc1C(=O)[O-].CC(=O)Oc1ccccc1C(=O)[O-].NC(N)=O.[Ca+2]',
-      'Cc1cc2SC(C)(C)CC(C)(C)c2cc1\\N=C(/S)\\Nc3ccc(cc3)S(=O)(=O)N',
-      'CC(C)C[C@H](NC(=O)[C@@H](NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)[C@H]3CCCN3C(=O)C(CCCCN)CCCCN)C(C)(C)C)C(=O)O'])
-
-
-
-smiles = df4cyto_flat['structure_smiles'].unique()
-
-
-smiles =list(smiles[0:100])
-
-records = []
-
-from chembl_webresource_client.new_client import new_client
-molecule = new_client.molecule
-records = molecule.get(smiles)
-
-len(records)
-
-
-from chembl_webresource_client.new_client import new_client
-drug_indication = new_client.drug_indication
-molecules = new_client.molecule
-lung_cancer_ind = drug_indication.filter(efo_term__icontains="LUNG CARCINOMA")
-lung_cancer_mols = molecules.filter(
-    molecule_chembl_id__in=[x['molecule_chembl_id'] for x in lung_cancer_ind])
-
-len(lung_cancer_mols)
-
-
-from chembl_webresource_client.new_client import new_client
-document = new_client.document
-docs = document.filter(journal="J. Nat. Prod.").only('document_chembl_id')
-compound_record = new_client.compound_record
-records = compound_record.filter(
-    document_chembl_id__in=[doc['document_chembl_id'] for doc in docs]).only(
-    ['document_chembl_id', 'molecule_chembl_id'])
-molecule = new_client.molecule
-natural_products = molecule.filter(
-    molecule_chembl_id__in=[rec['molecule_chembl_id'] for rec in records]).only(
-    'molecule_structures')
