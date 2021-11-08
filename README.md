@@ -130,7 +130,7 @@ repond_params:
 
 # R implementation
 
-An R based implementation of the metabolite annotation enhancing process is available here https://gitlab.com/tima5/tima-r
+An R based implementation of the metabolite annotation enhancing process is available here https://github.com/taxonomicallyinformedannotation/tima-r
 
 # References
 
