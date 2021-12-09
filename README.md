@@ -48,7 +48,7 @@ for help, use:
   - an *organism* column (organism the sample was collected from). Example: *Ambystoma mexicanum*
  
 Add metadata to your GNPS results if you didn't upload it on GNPS when you ran the job, or if the one you uploaded dosens't contain the information needed.
-The metadata file, in the form of a .csv, should be placed in data_in/yourjobid/metadata_table/*metadata_file*. The name of the file doen't matter but it should be the only file in the folder.
+The metadata file, in the form of a *.tsv*, should be placed in data_in/yourjobid/metadata_table/*metadata_file*. The name of the file doen't matter but it should be the only file in the folder.
   
 ## STEP C) Proceed to spectral matching followed by taxonomically and structurally informed scoring 
 
@@ -130,7 +130,7 @@ repond_params:
 
 # R implementation
 
-An R based implementation of the metabolite annotation enhancing process is available here https://gitlab.com/tima5/tima-r
+An R based implementation of the metabolite annotation enhancing process is available here https://github.com/taxonomicallyinformedannotation/tima-r
 
 # References
 
