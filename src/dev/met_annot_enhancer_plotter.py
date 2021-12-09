@@ -1002,7 +1002,7 @@ if output_plots == True:
 
             dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
             fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
-            values=n).data[0], 
+            values='counter').data[0], 
             row=1,col=i)
             i+=1
 
