@@ -376,11 +376,11 @@ print("%s unique species have been selected from the metadata table." % len_spec
 
 species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
 
-with open(str(path_to_results_folders +'species.json'), 'w') as out:
+with open(str(path_to_results_folders + project_name + '_' + 'species.json'), 'w') as out:
     sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
     out.write('{}\n'.format(sf))
 
-with open(str(path_to_results_folders +'species.json')) as tmpfile:
+with open(str(path_to_results_folders + project_name + '_' + 'species.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
 
 json_normalize(jsondic)
@@ -419,12 +419,12 @@ for i in ott_list:
 tl = []
 
 for i in taxon_info:
-    with open(str(path_to_results_folders +'taxon_info.json'), 'w') as out:
+    with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json'), 'w') as out:
         tl.append(i.response_dict)
         yo = json.dumps(tl)
         out.write('{}\n'.format(yo))
 
-with open(str(path_to_results_folders +'taxon_info.json')) as tmpfile:
+with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json')) as tmpfile:
     jsondic = json.loads(tmpfile.read())
 
 df = json_normalize(jsondic)
@@ -922,7 +922,7 @@ if output_plots == True:
     # here we also need to incresae the spec list of list of dic according to the lenght of unique_group_labels this can be done following https://stackoverflow.com/a/3459131 
     # in fact we do this with itertools
     if drop_blanks == True:
-        samples_metadata_full = samples_metadata_full[~samples_metadata_full[organism_header].str.contains("none|BK|blanck")]
+        samples_metadata_full = samples_metadata_full[~samples_metadata_full[sampletype_header].str.contains("none|BK|blanck|bk|mock")]
 
     import itertools
     unique_group_labels = samples_metadata_full[organism_header].unique()
