@@ -87,7 +87,7 @@ if download_gnps_job == True:
     + gnps_job_id
     )
 
-    job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+gnps_job_id+"&view=download_cytoscape_data"
+    job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+gnps_job_id+"&view=download_clustered_spectra"
     print(job_url_zip)
 
     cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file+ ' --create-dirs'
