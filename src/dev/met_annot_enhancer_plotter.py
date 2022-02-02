@@ -40,8 +40,9 @@ with open (r'configs/user_defined/default.yaml') as file:
 
 download_gnps_job = params_list['options'][0]['download_gnps_job']
 do_spectral_match = params_list['options'][1]['do_spectral_match']
-keep_lowest_taxon = params_list['options'][2]['keep_lowest_taxon']
-output_plots = params_list['options'][3]['output_plots']
+do_taxo_resolving = params_list['options'][2]['do_taxo_resolving']
+keep_lowest_taxon = params_list['options'][3]['keep_lowest_taxon']
+output_plots = params_list['options'][4]['output_plots']
 
 
 gnps_job_id = params_list['paths'][0]['gnps_job_id']
@@ -374,11 +375,13 @@ len_species = len(species)
 
 print("%s unique species have been selected from the metadata table." % len_species )
 
-species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
+if do_taxo_resolving == True:
 
-with open(str(path_to_results_folders + project_name + '_' + 'species.json'), 'w') as out:
-    sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
-    out.write('{}\n'.format(sf))
+    species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
+
+    with open(str(path_to_results_folders + project_name + '_' + 'species.json'), 'w') as out:
+        sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
+        out.write('{}\n'.format(sf))
 
 with open(str(path_to_results_folders + project_name + '_' + 'species.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
@@ -410,19 +413,21 @@ merged_df['taxon.ott_id'] = merged_df['taxon.ott_id'].astype('Int64')
 merged_df['taxon.ott_id']
 ott_list = list(merged_df['taxon.ott_id'].dropna().astype('int'))
 
-taxon_info = []
+if do_taxo_resolving == True:
 
-for i in ott_list:
-    query = OT.taxon_info(i, include_lineage=True)
-    taxon_info.append(query)
+    taxon_info = []
 
-tl = []
+    for i in ott_list:
+        query = OT.taxon_info(i, include_lineage=True)
+        taxon_info.append(query)
 
-for i in taxon_info:
-    with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json'), 'w') as out:
-        tl.append(i.response_dict)
-        yo = json.dumps(tl)
-        out.write('{}\n'.format(yo))
+    tl = []
+
+    for i in taxon_info:
+        with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json'), 'w') as out:
+            tl.append(i.response_dict)
+            yo = json.dumps(tl)
+            out.write('{}\n'.format(yo))
 
 with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json')) as tmpfile:
     jsondic = json.loads(tmpfile.read())
