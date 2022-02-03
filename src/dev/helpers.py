@@ -8,7 +8,6 @@ import os
 import sys
 import shlex
 import subprocess
-from opentree import OT
 import json
 from pandas import json_normalize
 
@@ -84,6 +83,7 @@ def paths_generator(params_list):
         os.makedirs(paths_dic['path_to_results_folders'])
     
     paths_dic['clusterinfo_summary_path'] = os.path.join(path_to_gnps_folder,'clusterinfo_summary','')
+    paths_dic['samples_metadata_table_path'] = os.path.join(path_to_gnps_folder,'metadata_table','')
 
 
     paths_dic['query_file_path'] = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')

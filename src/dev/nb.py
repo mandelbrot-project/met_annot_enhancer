@@ -20,7 +20,7 @@ from loaders import *
 
 import spectral_lib_matcher
 from ms1_matcher import ms1_matcher
-
+from taxo_resolver import *
 
 # for debug ony should be commented later 
 from pathlib import Path
@@ -96,57 +96,88 @@ if params_list['options']['do_spectral_match'] == True:
 ######################################################################################################
 
 
-# We want to complement the ISDB results file with the component index and the parent mass of the ion (for this last one this could be done earlier)
+######################################################################################################
+######################################################################################################
+# Loading of external tables
+######################################################################################################
+# here we will load all required tables
+
+isdb_results = isdb_results_loader(
+    isdb_results_path=paths_dic['isdb_results_path'])
+
+clusterinfo_summary = clusterinfo_summary_loader(
+    clusterinfo_summary_path=paths_dic['clusterinfo_summary_path'])
+
+dt_isdb_metadata = isdb_metadata_loader(
+    isdb_metadata_path=params_list['paths']['metadata_path'])
+
+dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
+                                           organism_header=params_list['repond_params']['organism_header'])
 
 
-# We load two files at this step. 
-# The ISDB results file and the clusterinfo_summary file. 
+######################################################################################################
+######################################################################################################
+# Merging
+######################################################################################################
+# We want to complement the ISDB results file with the component index and 
+# the parent mass of the ion (for this last one this could be done earlier)
 
-isdb_results = isdb_results_loader(paths_dic['isdb_results_path']) 
-
-clusterinfo_summary = clusterinfo_summary_loader(paths_dic['clusterinfo_summary_path'])
-
-## we now merge them using the feature_id
 
 dt_isdb_results = pd.merge(isdb_results, clusterinfo_summary, on='feature_id')
-
 
 
 print('Number of features: ' + str(len(clusterinfo_summary)))
 print('Number of MS2 annotation: ' + str(len(dt_isdb_results)))
 
-# Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
 
-# We first load the ISDB metadata table
-
-dt_isdb_metadata = isdb_metadata_loader(isdb_metadata_path = params_list['paths']['metadata_path'])
-
-
-df_MS1_matched = ms1_matcher(input_df=clusterinfo_summary,
-                             adducts_file_path=params_list['paths']['adducts_pos_path'],
-                             ppm_tol=params_list['repond_params']['ppm_tol'],
-                             df_metadata=dt_isdb_metadata)
+######################################################################################################
+######################################################################################################
+# MS1 matching stage
+######################################################################################################
+# Now we directly do the MS1 matching stage on the cluster_summary. 
+# No need to have MS2 annotations
 
 
-# Merge MS1 results with MS2 annotations
-dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_matched])
-
-
-print('Number of annotated features at the MS1 level : ' +
-      str(len(df_MS1_matched['feature_id'].unique())))
-
-print('Total number of unique MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
+# df_MS1_matched = ms1_matcher(input_df=clusterinfo_summary,
+#                              adducts_file_path=params_list['paths']['adducts_pos_path'],
+#                              ppm_tol=params_list['repond_params']['ppm_tol'],
+#                              df_metadata=dt_isdb_metadata)
 
 
 
-# Rank annotations based on the spectral score
+# ######################################################################################################
+# ######################################################################################################
+# # Merging
+# ######################################################################################################
+# # We can now merge MS1 and MS2 annotations
 
-dt_isdb_results["msms_score"] = pd.to_numeric(
-    dt_isdb_results["msms_score"], downcast="float")
-dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'msms_score']].groupby(
-    'feature_id')['msms_score'].rank(method='dense', ascending=False)
 
-dt_isdb_results.reset_index(inplace=True, drop=True)
+# dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_matched])
+
+
+# print('Number of annotated features at the MS1 level : ' +
+#       str(len(df_MS1_matched['feature_id'].unique())))
+
+# print('Total number of unique MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
+
+
+
+
+######################################################################################################
+######################################################################################################
+# Merging
+######################################################################################################
+# We now complement the previous list of annotation with selected fields of the metadata table
+
+
+# # Rank annotations based on the spectral score
+
+# dt_isdb_results["msms_score"] = pd.to_numeric(
+#     dt_isdb_results["msms_score"], downcast="float")
+# dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'msms_score']].groupby(
+#     'feature_id')['msms_score'].rank(method='dense', ascending=False)
+
+# dt_isdb_results.reset_index(inplace=True, drop=True)
 
 # now we merge with the Occurences DB metadata after selection of our columns of interest
 
@@ -159,144 +190,27 @@ cols_to_use = ['structure_inchikey', 'structure_inchi',
             'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas' ]
 
 dt_isdb_results = pd.merge(
-    left=dt_isdb_results, right=db_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
+    left=dt_isdb_results, right=dt_isdb_metadata[cols_to_use], left_on='short_inchikey', right_on='short_inchikey', how='outer')
 dt_isdb_results.dropna(subset=['feature_id'], inplace=True)
 
-print('Total number of annotations with unique Biosource/line: ' +
+print('Total number of annotations with unique biosource per line: ' +
       str(len(dt_isdb_results)))
+
+params_list['options']['do_taxo_resolving']
+
+
 
 # Resolving the taxon information from the GNPS metadata file
 
-# the metadata table path is generated from the base bath to the GNPS results folder
-metadata_table_path = os.path.join(path_to_gnps_folder,'metadata_table','')
 
-# the metadata table is loaded using the organism column specified before
-samples_metadata = pd.read_csv(metadata_table_path + str(os.listdir(metadata_table_path)[0]), sep='\t',
-                                usecols=['filename', organism_header])
-
-# Now we want to get the taxonomic information for each of the samples
-# so we want to extract the species information from the metadata file
-samples_metadata[organism_header].dropna(inplace = True)
-samples_metadata[organism_header] = samples_metadata[organism_header].str.lower()
-species = samples_metadata[organism_header].unique()
-len_species = len(species)
-
-print("%s unique species have been selected from the metadata table." % len_species )
-
-if do_taxo_resolving == True:
-
-    species_tnrs_matched = OT.tnrs_match(species, context_name=None, do_approximate_matching=True, include_suppressed=False)
-
-    with open(str(path_to_results_folders + project_name + '_' + 'species.json'), 'w') as out:
-        sf = json.dumps(species_tnrs_matched.response_dict, indent=2, sort_keys=True)
-        out.write('{}\n'.format(sf))
-
-with open(str(path_to_results_folders + project_name + '_' + 'species.json')) as tmpfile:
-        jsondic = json.loads(tmpfile.read())
+taxa_lineage_appender(samples_metadata=dt_samples_metadata,
+                      organism_header=params_list['repond_params']['organism_header'],
+                      do_taxo_resolving=params_list['options']['do_taxo_resolving'],
+                      path_to_results_folders=paths_dic['path_to_results_folders'],
+                      project_name=params_list['paths']['project_name'])
 
 
-json_normalize(jsondic)
 
-df_species_tnrs_matched = json_normalize(jsondic,
-            record_path=['results', 'matches']
-            )
-df_species_tnrs_unmatched = json_normalize(jsondic,
-            record_path=['unmatched_names']
-            )
-
-df_species_tnrs_matched.info()
-
-# We then want to match with the accepted name instead of the synonym in case both are present. 
-# We thus order by matched_name and then by is_synonym status prior to returning the first row.
-
-df_species_tnrs_matched.sort_values(['search_string', 'is_synonym'], axis = 0, inplace = True)
-df_species_tnrs_matched_unique = df_species_tnrs_matched.drop_duplicates('search_string', keep = 'first')
-
-# both df are finally merged
-merged_df = pd.merge(samples_metadata, df_species_tnrs_matched_unique, how='left', left_on=organism_header, right_on='search_string', indicator=True)
-
-# converting 'ott_ids' from float to int (check the astype('Int64') whic will work while the astype('int') won't see https://stackoverflow.com/a/54194908)
-merged_df['taxon.ott_id'] = merged_df['taxon.ott_id'].astype('Int64')
-
-# However, we then need to put them back to 
-merged_df['taxon.ott_id']
-ott_list = list(merged_df['taxon.ott_id'].dropna().astype('int'))
-
-if do_taxo_resolving == True:
-
-    taxon_info = []
-
-    for i in ott_list:
-        query = OT.taxon_info(i, include_lineage=True)
-        taxon_info.append(query)
-
-    tl = []
-
-    for i in taxon_info:
-        with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json'), 'w') as out:
-            tl.append(i.response_dict)
-            yo = json.dumps(tl)
-            out.write('{}\n'.format(yo))
-
-with open(str(path_to_results_folders + project_name + '_' + 'taxon_info.json')) as tmpfile:
-    jsondic = json.loads(tmpfile.read())
-
-df = json_normalize(jsondic)
-
-df_tax_lineage = json_normalize(jsondic,
-            record_path=['lineage'],
-            meta = ['ott_id', 'unique_name'],
-            record_prefix='sub_',
-            errors='ignore'
-            )
-
-# This keeps the last occurence of each ott_id / sub_rank grouping https://stackoverflow.com/a/41886945
-df_tax_lineage_filtered = df_tax_lineage.groupby(['ott_id', 'sub_rank'], as_index=False).last()
-
-#Here we pivot long to wide to get the taxonomy
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered.pivot(index='ott_id', columns='sub_rank', values='sub_name')
-
-# Here we actually also want the lowertaxon (species usually) name
-df_tax_lineage_filtered_flat = pd.merge(df_tax_lineage_filtered_flat, df_tax_lineage_filtered[['ott_id', 'unique_name']], how='left', on='ott_id', )
-
-#Despite the left join ott_id are duplicated 
-df_tax_lineage_filtered_flat.drop_duplicates(subset = ['ott_id', 'unique_name'], inplace = True)
-
-# here we want to have these columns whatevere happens
-col_list = ['ott_id', 'domain', 'kingdom', 'phylum',
-                        'class', 'order', 'family', 'tribe', 'genus', 'unique_name']
-
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat.reindex(columns=col_list, fill_value = np.NaN)
-
-# We now rename our columns of interest
-renaming_dict = {'domain': 'query_otol_domain',
-            'kingdom': 'query_otol_kingdom',
-            'phylum': 'query_otol_phylum',
-            'class': 'query_otol_class',
-            'order': 'query_otol_order',
-            'family': 'query_otol_family',
-            'tribe': 'query_otol_tribe',
-            'genus': 'query_otol_genus',
-            'unique_name': 'query_otol_species'}
-
-df_tax_lineage_filtered_flat.rename(columns=renaming_dict, inplace=True)
-
-# We select columns of interest 
-cols_to_keep = ['ott_id',
-            'query_otol_domain',
-            'query_otol_kingdom',
-            'query_otol_phylum',
-            'query_otol_class',
-            'query_otol_order',
-            'query_otol_family',
-            'query_otol_tribe',
-            'query_otol_genus',
-            'query_otol_species']
-
-df_tax_lineage_filtered_flat = df_tax_lineage_filtered_flat[cols_to_keep]
-
-# We merge this back with the samplemetadata only if we have an ott.id in the merged df 
-samples_metadata = pd.merge(merged_df[pd.notnull(merged_df['taxon.ott_id'])], df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id' )
 
 
 # Extracting biosource / feature for line by line

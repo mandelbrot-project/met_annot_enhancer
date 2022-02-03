@@ -1,6 +1,7 @@
 # A set of loading functions
-import pandas as pd 
+import pandas as pd
 import os
+
 
 def isdb_results_loader(isdb_results_path):
 
@@ -41,7 +42,7 @@ def clusterinfo_summary_loader(clusterinfo_summary_path):
 def isdb_metadata_loader(isdb_metadata_path):
 
     df_metadata = pd.read_csv(isdb_metadata_path,
-                            sep=',', error_bad_lines=False, low_memory=False)
+                              sep=',', error_bad_lines=False, low_memory=False)
 
     df_metadata['short_inchikey'] = df_metadata.structure_inchikey.str.split(
         "-", expand=True)[0]
@@ -49,6 +50,14 @@ def isdb_metadata_loader(isdb_metadata_path):
 
     # at this step we can only keep unique short_ik - organisms pairs
 
-    df_metadata.drop_duplicates(subset=['short_inchikey', 'organism_wikidata'], keep='first', inplace=True, ignore_index=True)
+    df_metadata.drop_duplicates(subset=[
+                                'short_inchikey', 'organism_wikidata'], keep='first', inplace=True, ignore_index=True)
 
     return df_metadata
+
+
+def samples_metadata_loader(samples_metadata_table_path, organism_header):
+    # the metadata table is loaded using the organism column specified before
+    samples_metadata = pd.read_csv(samples_metadata_table_path + str(os.listdir(samples_metadata_table_path)[0]), sep='\t',
+                                   usecols=['filename', organism_header])
+    return samples_metadata
