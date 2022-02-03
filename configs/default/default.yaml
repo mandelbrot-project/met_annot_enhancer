@@ -16,8 +16,8 @@ paths:
   - input_folder: /Users/pma/Dropbox/UniFr/Teachings/Master/BEFRI/bioinfo/material/PA_dataset # The path were you want your GNPS job folder to be placed
   - project_name: PA_dataset_annotations # The name you want to give to your project, output results in data_out/project_name
   - output_folder: /Users/pma/Dropbox/UniFr/Teachings/Master/BEFRI/bioinfo/material/PA_dataset # the path for your output to be stored in
-  - metadata_path: /Users/pma/01_large_files/tabular/211220_frozen_metadata.csv  # Path to the metadata of the spectral file
-  - db_file_path: /Users/pma/01_large_files/mgf/MultiSources_ISDB_pos.mgf  # Path to your spectral library file
+  - metadata_path: /Users/pma/01_large_files/tabular/211220_frozen_metadata.csv  # Path to the metadata of the spectral file. The LOTUS metadata can be obtained here https://doi.org/10.5281/zenodo.5794107
+  - db_file_path: /Users/pma/01_large_files/mgf/MultiSources_ISDB_pos.mgf  # Path to your spectral library file. A large NP based spectral library can be obtained from https://doi.org/10.5281/zenodo.5607264
   - adducts_pos_path: data_loc/db_prepared_pos.tsv.gz # Path to the adducts file in pos mode
   - adducts_neg_path: data_loc/db_prepared_neg.tsv.gz # Path to the adducts file in neg mode
 
