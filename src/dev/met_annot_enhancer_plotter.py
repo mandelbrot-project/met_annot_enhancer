@@ -271,6 +271,12 @@ db_metadata['short_inchikey'] = db_metadata.structure_inchikey.str.split(
     "-", expand=True)[0]
 db_metadata.reset_index(inplace=True)
 
+# at this step we can only keep unique short_ik - organisms pairs
+
+db_metadata.drop_duplicates(subset=['short_inchikey', 'organism_wikidata'], keep='first', inplace=True, ignore_index=True)
+
+
+
 print('Number of features: ' + str(len(clusterinfo_summary)))
 print('Number of MS2 annotation: ' + str(len(dt_isdb_results)))
 
@@ -806,13 +812,13 @@ if output_plots == True:
         title_font_color="black",
         title_font_size=14,
         legend_title_font_color="black",
-        title_text="<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
+        title_text="<b> Overview of the chemical annotations <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
         title_x=0.5
     )
 
     fig.update_layout(
         title={
-            'text': "<b> Overview of the consensus chemical annotions <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+            'text': "<b> Overview of the chemical annotations <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
             'y':0.96,
             'x':0.5,
             'xanchor': 'center',
