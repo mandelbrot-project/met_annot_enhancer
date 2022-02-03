@@ -162,7 +162,7 @@ def main(query_file_path,
                                 'matched_peaks':n_matches,
                                 'feature_id': feature_id,
                                 'reference_id':y + 1,
-                                'inchikey': spectrums_db_cleaned[y].get("name")})
+                                'short_inchikey': spectrums_db_cleaned[y].get("name")})
         df = pd.DataFrame(data)
         df.to_csv(output_file_path, mode='a', header=not os.path.exists(output_file_path), sep = '\t')
 

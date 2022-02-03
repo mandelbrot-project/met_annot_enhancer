@@ -230,8 +230,6 @@ dt_isdb_results = pd.read_csv(isdb_results_path,
 dt_isdb_results['libname'] = 'ISDB'
 
 dt_isdb_results.rename(columns={
-    'row ID': 'feature_id',
-    'componentindex': 'component_id',
     'parent mass': 'mz',
     'inchikey': 'short_inchikey',
     'msms_score': 'score_input'}, inplace=True)

@@ -3,13 +3,23 @@ import pandas as pd
 import yaml
 import json
 from pandas import json_normalize
-
+import time
 
 
 # Loading helpers functions
 
 from helpers import gnps_job_fetcher
 from helpers import paths_generator
+
+
+# Loading loaders (ahuum) functions
+
+from loaders import *
+
+# Loading other functions
+
+import spectral_lib_matcher
+from ms1_matcher import ms1_matcher
 
 
 # for debug ony should be commented later 
@@ -44,109 +54,61 @@ paths_dic = paths_generator(params_list = params_list)
 # Writing used parameters 
 params_suffix = '.yaml'
 
-with open(os.path.join(path_to_results_folders, gnps_job_id + params_suffix), 'w') as file:  
+with open(os.path.join(paths_dic['path_to_results_folders'], params_list['paths']['gnps_job_id'] + params_suffix), 'w') as file:  
     documents = yaml.dump(params_list, file)
 
 print('''
 Parameters used are stored in '''
-+ str(os.path.join(path_to_results_folders, gnps_job_id + params_suffix))
++ str(os.path.join(paths_dic['path_to_results_folders'], params_list['paths']['gnps_job_id'] + params_suffix))
 )
 
 
 # timer is started
 start_time = time.time()
 
-# Import MS1 list
 
-if polarity == 'pos':
-    adducts_df = pd.read_csv(
-        adducts_pos_path, compression='gzip', sep='\t')
-else:
-    adducts_df = pd.read_csv(
-        adducts_neg_path, compression='gzip', sep='\t')
-
-adducts_df['min'] = adducts_df['adduct_mass'] - \
-    int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
-adducts_df['max'] = adducts_df['adduct_mass'] + \
-    int(ppm_tol) * (adducts_df['adduct_mass'] / 1000000)
-
-
+######################################################################################################
+######################################################################################################
 # Spectral matching stage
+# If required the msms spectral matching is done 
+######################################################################################################
 
-if do_spectral_match == True:
+
+if params_list['options']['do_spectral_match'] == True:
 
     print('''
     Proceeding to spectral matching ...
     ''')
 
-    spectral_lib_matcher.main(query_file_path,
-                            db_file_path,
-                            parent_mz_tol,
-                            msms_mz_tol,
-                            min_cos,
-                            min_peaks,
-                            isdb_results_path
-                            )
+    spectral_lib_matcher.main(query_file_path=paths_dic['query_file_path'],
+                              db_file_path=params_list['paths']['db_file_path'],
+                              parent_mz_tol=params_list['spectral_match_params']['parent_mz_tol'],
+                              msms_mz_tol=params_list['spectral_match_params']['msms_mz_tol'],
+                              min_cos=params_list['spectral_match_params']['min_cos'],
+                              min_peaks=params_list['spectral_match_params']['min_peaks'],
+                              output_file_path=paths_dic['isdb_results_path']
+                              )
+
     print('''
     Spectral matching done !
     ''')
 
-
-# Loading the files
-
-dt_isdb_results = pd.read_csv(isdb_results_path,
-                              sep='\t',
-                              usecols=['msms_score', 'feature_id', 'reference_id', 'inchikey'],
-                              error_bad_lines=False, low_memory=True)
-
-## we add a fixed libname (to be changed later on) 
-
-dt_isdb_results['libname'] = 'ISDB'
-
-dt_isdb_results.rename(columns={
-    'row ID': 'feature_id',
-    'componentindex': 'component_id',
-    'parent mass': 'mz',
-    'inchikey': 'short_inchikey',
-    'msms_score': 'score_input'}, inplace=True)
-
-## In fact we can directly start here
-## we get the networks info (cluster id, component index and parent mass form the downloaded folder)
+######################################################################################################
 
 
-clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clusterinfo_summary_path)[0]),
-                                  sep='\t',
-                                  usecols=['cluster index', 'componentindex', 'parent mass'],
-                                  error_bad_lines=False, low_memory=True)
+# We want to complement the ISDB results file with the component index and the parent mass of the ion (for this last one this could be done earlier)
 
-clusterinfo_summary.rename(columns={'cluster index': 'feature_id', 'componentindex': 'component_id',
-                                'parent mass': 'mz', 'msms_score': 'score_input'}, inplace=True)
 
-cluster_count = clusterinfo_summary.drop_duplicates(
-    subset=['feature_id', 'component_id']).groupby("component_id").count()
-cluster_count = cluster_count[['feature_id']].rename(
-    columns={'feature_id': 'ci_count'}).reset_index()
+# We load two files at this step. 
+# The ISDB results file and the clusterinfo_summary file. 
 
-# ## we now merge this back with the isdb matched results 
-dt_isdb_results = pd.merge(dt_isdb_results, clusterinfo_summary, on='feature_id')
+isdb_results = isdb_results_loader(paths_dic['isdb_results_path']) 
 
-# ## we drop the duplicated ['cluster index'] column
-#dt_isdb_results.drop(columns=['cluster index'], inplace=True)
+clusterinfo_summary = clusterinfo_summary_loader(paths_dic['clusterinfo_summary_path'])
 
-# ## we return a short_inchikey column
+## we now merge them using the feature_id
 
-# dt_isdb_results['short_inchikey'] = dt_isdb_results['inchikey'].str.split("-", n=1, expand=True)[0]
-
-db_metadata = pd.read_csv(metadata_path,
-                        sep=',', error_bad_lines=False, low_memory=False)
-
-db_metadata['short_inchikey'] = db_metadata.structure_inchikey.str.split(
-    "-", expand=True)[0]
-db_metadata.reset_index(inplace=True)
-
-# at this step we can only keep unique short_ik - organisms pairs
-
-db_metadata.drop_duplicates(subset=['short_inchikey', 'organism_wikidata'], keep='first', inplace=True, ignore_index=True)
+dt_isdb_results = pd.merge(isdb_results, clusterinfo_summary, on='feature_id')
 
 
 
@@ -155,67 +117,34 @@ print('Number of MS2 annotation: ' + str(len(dt_isdb_results)))
 
 # Now we directly do the MS1 matching stage on the cluster_summary. No need to have MS2 annotations
 
-print('''
-Proceeding to MS1 annotation ...
-''')
-super_df = []
+# We first load the ISDB metadata table
 
-for i, row in tqdm(clusterinfo_summary.iterrows(), total=clusterinfo_summary.shape[0]):
-    par_mass = clusterinfo_summary.loc[i, 'mz']
-    df_0 = clusterinfo_summary.loc[[i], ['feature_id', 'mz', 'component_id']]
-    df_1 = adducts_df[(adducts_df['min'] <= par_mass) & (adducts_df['max'] >= par_mass)]
-    df_1['key'] = i
-    df_1.drop(['min', 'max'], axis=1, inplace=True)
-    df_tot = pd.merge(df_0, df_1, left_index=True, right_on='key', how='left')
-    super_df.append(df_tot)
+dt_isdb_metadata = isdb_metadata_loader(isdb_metadata_path = params_list['paths']['metadata_path'])
 
-df_MS1 = pd.concat(super_df, axis=0)
-del super_df
 
-df_MS1 = df_MS1.drop(['key'], axis=1).drop_duplicates(
-    subset=['feature_id', 'adduct'])
+df_MS1_matched = ms1_matcher(input_df=clusterinfo_summary,
+                             adducts_file_path=params_list['paths']['adducts_pos_path'],
+                             ppm_tol=params_list['repond_params']['ppm_tol'],
+                             df_metadata=dt_isdb_metadata)
 
-df_MS1['libname'] = 'MS1_match'
-
-print('''
-MS1 annotation done !
-''')
-
-df_meta_2 = db_metadata[['short_inchikey', 'structure_exact_mass']]
-df_meta_2 = df_meta_2.dropna(subset=['structure_exact_mass'])
-df_meta_2 = df_meta_2.drop_duplicates(
-    subset=['short_inchikey', 'structure_exact_mass'])
-
-df_meta_2 = df_meta_2.round({'structure_exact_mass': 5})
-df_MS1 = df_MS1.round({'exact_mass': 5})
-
-df_MS1_merge = pd.merge(df_MS1, df_meta_2, left_on='exact_mass',
-                        right_on='structure_exact_mass', how='left')
-df_MS1_merge = df_MS1_merge.dropna(subset=['short_inchikey'])
-
-df_MS1_merge['match_mzerror_MS1'] = df_MS1_merge['mz'] - \
-    df_MS1_merge['adduct_mass']
-df_MS1_merge = df_MS1_merge.round({'match_mzerror_MS1': 5}).astype({
-    'match_mzerror_MS1': 'str'})
-
-df_MS1_merge = df_MS1_merge.drop(
-    ['structure_exact_mass', 'adduct_mass', 'exact_mass'], axis=1)
-df_MS1_merge['score_input'] = 0
 
 # Merge MS1 results with MS2 annotations
-dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_merge])
+dt_isdb_results = pd.concat([dt_isdb_results, df_MS1_matched])
 
-print('Number of annotated features after MS1: ' +
-      str(len(df_MS1_merge['feature_id'].unique())))
 
-print('Total number of MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
+print('Number of annotated features at the MS1 level : ' +
+      str(len(df_MS1_matched['feature_id'].unique())))
+
+print('Total number of unique MS1 and MSMS annotations: ' + str(len(dt_isdb_results)))
+
+
 
 # Rank annotations based on the spectral score
 
-dt_isdb_results["score_input"] = pd.to_numeric(
-    dt_isdb_results["score_input"], downcast="float")
-dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'score_input']].groupby(
-    'feature_id')['score_input'].rank(method='dense', ascending=False)
+dt_isdb_results["msms_score"] = pd.to_numeric(
+    dt_isdb_results["msms_score"], downcast="float")
+dt_isdb_results['rank_spec'] = dt_isdb_results[['feature_id', 'msms_score']].groupby(
+    'feature_id')['msms_score'].rank(method='dense', ascending=False)
 
 dt_isdb_results.reset_index(inplace=True, drop=True)
 
@@ -481,15 +410,15 @@ print('Number of annotations reweighted at the species level: ' +
 
 
 # we set the spectral score column as float
-dt_isdb_results["score_input"] = pd.to_numeric(
-    dt_isdb_results["score_input"], downcast="float")
+dt_isdb_results["msms_score"] = pd.to_numeric(
+    dt_isdb_results["msms_score"], downcast="float")
 # and we add it to the max txo score :
-dt_isdb_results['score_input_taxo'] = dt_isdb_results['score_taxo'] + \
-    dt_isdb_results['score_input']
+dt_isdb_results['msms_score_taxo'] = dt_isdb_results['score_taxo'] + \
+    dt_isdb_results['msms_score']
 
 
 dt_isdb_results['rank_spec_taxo'] = dt_isdb_results.groupby(
-    'feature_id')['score_input_taxo'].rank(method='dense', ascending=False)
+    'feature_id')['msms_score_taxo'].rank(method='dense', ascending=False)
 
 dt_isdb_results = dt_isdb_results.groupby(["feature_id"]).apply(
     lambda x: x.sort_values(["rank_spec_taxo"], ascending=True)).reset_index(drop=True)
@@ -540,7 +469,7 @@ dt_isdb_results['score_max_consistency'] = dt_isdb_results[[
     "structure_taxonomy_npclassifier_03class_score"
 ]].max(axis=1)
 
-dt_isdb_results['final_score'] = dt_isdb_results['score_input'] + dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
+dt_isdb_results['final_score'] = dt_isdb_results['msms_score'] + dt_isdb_results['score_taxo'] + dt_isdb_results['score_max_consistency']
 
 dt_isdb_results['rank_final'] = dt_isdb_results.groupby(
     'feature_id')['final_score'].rank(method='dense', ascending=False)
@@ -580,12 +509,12 @@ if keep_lowest_taxon == True :
         dt_isdb_results_chem_rew[col] = dt_isdb_results_chem_rew[col].replace('nan', np.NaN)  
         dt_isdb_results_chem_rew['lowest_matched_taxon'].fillna(dt_isdb_results_chem_rew[col], inplace=True)
 
-    annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
+    annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
                 'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
                 'query_otol_species', 'lowest_matched_taxon', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
 
 else :
-    annot_attr = ['rank_spec', 'score_input', 'libname', 'structure_inchikey', 'structure_inchi',
+    annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_inchikey', 'structure_inchi',
                 'structure_smiles', 'structure_molecular_formula', 'adduct',
                 'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway', 
                 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
@@ -939,7 +868,7 @@ df4cyto_flat.columns
 
 
 df4cyto_flat_sel = df4cyto_flat[['feature_id', 'component_id', 'structure_taxonomy_npclassifier_01pathway_consensus','structure_taxonomy_npclassifier_02superclass_consensus',
-'structure_taxonomy_npclassifier_03class_consensus', 'score_input', 'libname',
+'structure_taxonomy_npclassifier_03class_consensus', 'msms_score', 'libname',
 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula',
 'adduct', 'structure_exact_mass', 'short_inchikey',
 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',

@@ -6,15 +6,11 @@ import zipfile
 import glob
 import os
 import sys
-import time
 import shlex
 import subprocess
-from tqdm import tqdm
-from tqdm import tqdm_notebook
 from opentree import OT
 import json
 from pandas import json_normalize
-import spectral_lib_matcher
 
 
 def gnps_job_fetcher(gnps_job_id, input_folder):
