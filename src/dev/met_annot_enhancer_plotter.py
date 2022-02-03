@@ -559,6 +559,10 @@ for col_ref, col_att, col_match in zip(cols_ref, cols_att, cols_match):
                 dt_isdb_results[col_match].where(dt_isdb_results[col_prev].notnull(), np.nan)
         col_prev = col_match
 
+# Note for future self. If you get a TypeError: unhashable type: 'list' error. before messing around with the previous line make sure that the taxonomy has been appended at the dt_isdb_results = pd.merge(
+#  ' dt_isdb_results, df_merged, left_on='feature_id', right_on='row_ID', how='left')' step before. Usuall this comes from a bad definition of the regex (ex .mzXMl insted of .mzML) in the params file. Should find a safer way to deal with these extensions in the header.
+
+
 dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 # Filter out MS1 annotations without a reweighting at a given taxo level prior to chemo repond
