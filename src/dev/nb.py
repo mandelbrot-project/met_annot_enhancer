@@ -26,15 +26,10 @@ with open (r'configs/user_defined/default.yaml') as file:
 
 
 
-params_list['options']['download_gnps_job']
-
-yaml_params_loader(params_list = params_list)
-
-keep_lowest_taxon
 
 
 # Downloading GNPS files
-if download_gnps_job == True:
+if params_list['options']['download_gnps_job'] == True:
 
     gnps_job_fetcher(gnps_job_id = gnps_job_id, input_folder = input_folder)
 
