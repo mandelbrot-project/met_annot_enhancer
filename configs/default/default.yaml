@@ -1,20 +1,23 @@
+
 # default.yaml
 
 ---
 # parameters
 
 options:
-  - download_gnps_job: False
-  - do_spectral_match: False
+  - download_gnps_job: True
+  - do_spectral_match: True
+  - do_taxo_resolving: True
   - keep_lowest_taxon: False
   - output_plots: True
+  
 paths:
-  - gnps_job_id: 60b9945aa3fd4810b178e79870cca905 # The path were you want your folder to be placed
-  - input_folder: /Users/pma/tmp # The path were you want your GNPS job folder to be placed
-  - project_name: Erythroxylum_fresh #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
-  - output_folder: /Users/pma/tmp # the path for your output to be stored in
-  - metadata_path: /Users/pma/210715_inhouse_metadata.csv  # Path to your spectral library file
-  - db_file_path: /Users/pma/MultiSources_ISDB_pos.mgf # Path to the metadata of the spectral file
+  - gnps_job_id: ca561f9fd2a949608507b779438d5d5c # The path were you want your folder to be placed
+  - input_folder: /Users/pma/Dropbox/UniFr/Teachings/Master/BEFRI/bioinfo/material/PA_dataset # The path were you want your GNPS job folder to be placed
+  - project_name: PA_dataset_annotations # The name you want to give to your project, output results in data_out/project_name
+  - output_folder: /Users/pma/Dropbox/UniFr/Teachings/Master/BEFRI/bioinfo/material/PA_dataset # the path for your output to be stored in
+  - metadata_path: /Users/pma/01_large_files/tabular/211220_frozen_metadata.csv  # Path to the metadata of the spectral file
+  - db_file_path: /Users/pma/01_large_files/mgf/MultiSources_ISDB_pos.mgf  # Path to your spectral library file
   - adducts_pos_path: data_loc/db_prepared_pos.tsv.gz # Path to the adducts file in pos mode
   - adducts_neg_path: data_loc/db_prepared_neg.tsv.gz # Path to the adducts file in neg mode
 
@@ -25,16 +28,19 @@ spectral_match_params:
   - min_peaks: 6 # the minimal matching peaks number to use for spectral matching
 
 repond_params:
-  - Top_N_Sample: 3 # Max number of contributors to take into account for taxo reponderation, set to 0 for all
+  - Top_N_Sample: 4 # Max number of contributors to take into account for taxo reponderation, set to 0 for all
   - top_to_output: 1 # Top X for final ouput
   - ppm_tol: 2 # ppm tol to be used for ms1 match
   - polarity: 'pos' # ion mode you are working with (pos or neg)
-  - organism_header: 'species' # Mandatory: header of your samples' organism in metadata file
-  - sampletype_header: 'sample_type' # Optional (Run_line_x_line parameter)
+  - organism_header: 'Sp_filtered' # Mandatory: header of your samples' organism in metadata file
+  - sampletype_header: 'broad_organ' # Optional (Run_line_x_line parameter)
   - use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
   - top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
   - file_extension: '.mzXML' # MS filename extension (or any common pattern in all your MS filenames)
   - msfile_suffix: ' Peak area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
   - min_score_taxo_ms1: 6 # Minimum taxonomical score (5 = order, 6 = family, 7 = genus, 8 = species)
-  - min_score_chemo_ms1: 2 # Minimum chemical consistency score (1 = NPClassifier pathway level consistency, 2 = NPClassifier superclass level consistency, 3 = NPClassifier class level consistency )
+  - min_score_chemo_ms1: 1 # Minimum chemical consistency score (1 = NPClassifier pathway level consistency, 2 = NPClassifier superclass level consistency, 3 = NPClassifier class level consistency )
 
+plotting_params:
+  - drop_blanks: True #Wether to consider blanks or not in the outputs
+  - multi_plot: True #Wether to consider a single or a combined header in the sample selection
