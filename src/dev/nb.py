@@ -1,21 +1,15 @@
-# Load packages
-
+# Required libraries
 import pandas as pd
-import numpy as np
-import zipfile
-import glob
-import os
-import sys
-import time
-import shlex
-import subprocess
-from tqdm import tqdm
-from tqdm import tqdm_notebook
-from opentree import OT
+import yaml
 import json
 from pandas import json_normalize
-import yaml
-import spectral_lib_matcher
+
+
+
+# Loading helpers functions
+
+from helpers import yaml_params_loader
+from helpers import gnps_job_fetcher
 
 # for debug ony shuld be commented later 
 from pathlib import Path
@@ -23,87 +17,26 @@ p = Path(__file__).parents[2]
 print(p)
 os.chdir(p)
 
-# Defining display options
-
-pd.set_option('display.max_rows', 50)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 100)
-
-# We deactivate the iloc warning see https://stackoverflow.com/a/20627316
-pd.options.mode.chained_assignment = None  # default='warn'
 
 # Loading the parameters from yaml file
 if not os.path.exists('configs/user_defined/default.yaml'):
-    print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modifiy according to your needs')
+    print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modify according to your needs')
 with open (r'configs/user_defined/default.yaml') as file:    
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
-download_gnps_job = params_list['options'][0]['download_gnps_job']
-do_spectral_match = params_list['options'][1]['do_spectral_match']
-do_taxo_resolving = params_list['options'][2]['do_taxo_resolving']
-keep_lowest_taxon = params_list['options'][3]['keep_lowest_taxon']
-output_plots = params_list['options'][4]['output_plots']
 
 
-gnps_job_id = params_list['paths'][0]['gnps_job_id']
-input_folder = params_list['paths'][1]['input_folder']
-project_name = params_list['paths'][2]['project_name']
-output_folder = params_list['paths'][3]['output_folder']
-metadata_path = params_list['paths'][4]['metadata_path']
-db_file_path = params_list['paths'][5]['db_file_path']
-adducts_pos_path = params_list['paths'][6]['adducts_pos_path']
-adducts_neg_path = params_list['paths'][7]['adducts_neg_path']
+params_list['options']['download_gnps_job']
 
-parent_mz_tol = params_list['spectral_match_params'][0]['parent_mz_tol']
-msms_mz_tol = params_list['spectral_match_params'][1]['msms_mz_tol']
-min_cos = params_list['spectral_match_params'][2]['min_cos']
-min_peaks = params_list['spectral_match_params'][3]['min_peaks']
+yaml_params_loader(params_list = params_list)
 
-Top_N_Sample = params_list['repond_params'][0]['Top_N_Sample']
-top_to_output= params_list['repond_params'][1]['top_to_output']
-ppm_tol = params_list['repond_params'][2]['ppm_tol']
-polarity = params_list['repond_params'][3]['polarity']
-organism_header = params_list['repond_params'][4]['organism_header']
-sampletype_header = params_list['repond_params'][5]['sampletype_header']
-use_post_taxo = params_list['repond_params'][6]['use_post_taxo'] # Note we dont use this variable see why !
-top_N_chemical_consistency = params_list['repond_params'][7]['top_N_chemical_consistency']
-file_extension = params_list['repond_params'][8]['file_extension']
-msfile_suffix = params_list['repond_params'][9]['msfile_suffix']
-min_score_taxo_ms1 = params_list['repond_params'][10]['min_score_taxo_ms1']
-min_score_chemo_ms1 = params_list['repond_params'][11]['min_score_chemo_ms1']
+keep_lowest_taxon
 
-drop_blanks = params_list['plotting_params'][0]['drop_blanks']
-multi_plot = params_list['plotting_params'][1]['multi_plot']
-
-
-
-path_to_folder = os.path.expanduser(os.path.join(input_folder , gnps_job_id))
-path_to_file = os.path.expanduser(os.path.join(input_folder , gnps_job_id + '.zip'))
 
 # Downloading GNPS files
 if download_gnps_job == True:
 
-    print('''
-    Fetching the GNPS job: '''
-    + gnps_job_id
-    )
-    # or &view=download_clustered_spectra or download_cytoscape_data (check when to use which and optionalize)
-    job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task="+gnps_job_id+"&view=download_cytoscape_data"
-    print(job_url_zip)
-
-    cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file+ ' --create-dirs'
-    subprocess.call(shlex.split(cmd))
-
-    with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
-        zip_ref.extractall(path_to_folder)
-
-    # We finally remove the zip file
-    os.remove(path_to_file)
-
-    print('''
-    Job successfully downloaded: results are in: '''
-    + path_to_folder
-    )
+    gnps_job_fetcher(gnps_job_id = gnps_job_id, input_folder = input_folder)
 
 
 # Adding expanduser option to expand home path if encoded in the params file
@@ -140,9 +73,6 @@ spectral_match_results_repond_flat_sel_filename = project_name + '_spectral_matc
 isdb_results_repond_flat_sel_path = os.path.join(path_to_results_folders, spectral_match_results_repond_flat_sel_filename)
 
 
-
-
-
 sunburst_chem_filename = project_name + '_chemo_sunburst.html'
 sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
 
@@ -153,7 +83,6 @@ treemap_chemo_multi_counted_filename = project_name + '_chemo_treemap_multi_coun
 treemap_chemo_multi_intensity_filename = project_name + '_chemo_treemap_multi_intensity.html'
 
 pivot_table_filename = project_name + '_pivot_table.html'
-
 
 sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
 sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
