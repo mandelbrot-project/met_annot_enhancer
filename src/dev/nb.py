@@ -8,10 +8,11 @@ from pandas import json_normalize
 
 # Loading helpers functions
 
-from helpers import yaml_params_loader
 from helpers import gnps_job_fetcher
+from helpers import paths_generator
 
-# for debug ony shuld be commented later 
+
+# for debug ony should be commented later 
 from pathlib import Path
 p = Path(__file__).parents[2]
 print(p)
@@ -19,76 +20,25 @@ os.chdir(p)
 
 
 # Loading the parameters from yaml file
+
+
 if not os.path.exists('configs/user_defined/default.yaml'):
     print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modify according to your needs')
 with open (r'configs/user_defined/default.yaml') as file:    
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
-
-
-
+# Parameters can now be accessed using params_list['level1']['level2'] e. g. arams_list['options']['download_gnps_job']
 
 # Downloading GNPS files
 if params_list['options']['download_gnps_job'] == True:
 
-    gnps_job_fetcher(gnps_job_id = gnps_job_id, input_folder = input_folder)
+    gnps_job_fetcher(gnps_job_id = params_list['paths']['gnps_job_id'], input_folder = params_list['paths']['input_folder'])
 
+# Generating pathes
+# The pathes are stored in a dictionary and can then be accesed by paths_dic['value']
 
-# Adding expanduser option to expand home path if encoded in the params file
-# Fetching the GNPS folder
+paths_dic = paths_generator(params_list = params_list)
 
-path_to_gnps_folder = os.path.expanduser(os.path.join(input_folder , gnps_job_id))
-
-
-if not os.path.exists(path_to_gnps_folder):
-    print('No GNPS input folder found : please check the config.yaml and make sure the paths are set correctly')
-
-
-quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
-
-
-path_to_results_folders =  os.path.expanduser(os.path.join(output_folder, project_name +'/'))
-if not os.path.exists(path_to_results_folders):
-    os.makedirs(path_to_results_folders)
-
-
-query_file_path = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')
-
-spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
-isdb_results_path = os.path.join(path_to_results_folders, spectral_match_results_filename)
-
-spectral_match_results_repond_filename = project_name + '_spectral_match_results_repond.tsv'
-isdb_results_repond_path = os.path.join(path_to_results_folders, spectral_match_results_repond_filename)
-
-spectral_match_results_repond_flat_filename = project_name + '_spectral_match_results_repond_flat.tsv'
-isdb_results_repond_flat_path = os.path.join(path_to_results_folders, spectral_match_results_repond_flat_filename)
-
-
-spectral_match_results_repond_flat_sel_filename = project_name + '_spectral_match_results_repond_flat_selected.tsv'
-isdb_results_repond_flat_sel_path = os.path.join(path_to_results_folders, spectral_match_results_repond_flat_sel_filename)
-
-
-sunburst_chem_filename = project_name + '_chemo_sunburst.html'
-sunburst_organisms_filename = project_name + '_organisms_sunburst.html'
-
-treemap_chemo_counted_filename = project_name + '_chemo_treemap_counted.html'
-treemap_chemo_intensity_filename = project_name + '_chemo_treemap_intensity.html'
-
-treemap_chemo_multi_counted_filename = project_name + '_chemo_treemap_multi_counted.html'
-treemap_chemo_multi_intensity_filename = project_name + '_chemo_treemap_multi_intensity.html'
-
-pivot_table_filename = project_name + '_pivot_table.html'
-
-sunburst_chem_results_path = os.path.join(path_to_results_folders,sunburst_chem_filename)
-sunburst_organisms_results_path = os.path.join(path_to_results_folders,sunburst_organisms_filename)
-
-treemap_chemo_counted_results_path = os.path.join(path_to_results_folders,treemap_chemo_counted_filename)
-treemap_chemo_intensity_results_path = os.path.join(path_to_results_folders,treemap_chemo_intensity_filename)
-
-treemap_chemo_multi_counted_results_path = os.path.join(path_to_results_folders,treemap_chemo_multi_counted_filename)
-treemap_chemo_multi_intensity_results_path = os.path.join(path_to_results_folders,treemap_chemo_multi_intensity_filename)
-
-pivot_table_results_path = os.path.join(path_to_results_folders,pivot_table_filename)
 
 
 # Writing used parameters 
@@ -163,7 +113,6 @@ dt_isdb_results.rename(columns={
 ## In fact we can directly start here
 ## we get the networks info (cluster id, component index and parent mass form the downloaded folder)
 
-clusterinfo_summary_path = os.path.join(path_to_gnps_folder,'clusterinfo_summary','')
 
 clusterinfo_summary = pd.read_csv(clusterinfo_summary_path + str(os.listdir(clusterinfo_summary_path)[0]),
                                   sep='\t',
@@ -315,6 +264,7 @@ if do_taxo_resolving == True:
 
 with open(str(path_to_results_folders + project_name + '_' + 'species.json')) as tmpfile:
         jsondic = json.loads(tmpfile.read())
+
 
 json_normalize(jsondic)
 
