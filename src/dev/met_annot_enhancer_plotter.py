@@ -805,68 +805,70 @@ if output_plots == True:
     from plotly.subplots import make_subplots
     import plotly.graph_objects as go
 
-    fig = px.sunburst(df4cyto_flat, path=['structure_taxonomy_npclassifier_01pathway_consensus', 'structure_taxonomy_npclassifier_02superclass_consensus', 'structure_taxonomy_npclassifier_03class_consensus'])
-    fig.update_layout(
-        #font_family="Courier New",
-        title_font_family="Courier New",
-        title_font_color="black",
-        title_font_size=14,
-        legend_title_font_color="black",
-        title_text="<b> Overview of the chemical annotations <br> at the NP Classifier pathway, superclass and class level for <br>" + project_name + "</b>",
-        title_x=0.5
-    )
 
-    fig.update_layout(
-        title={
-            'text': "<b> Overview of the chemical annotations <br> at the NP Classifier pathway, superclass and class level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-            'y':0.96,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'})
-
-    fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-    #,paper_bgcolor="Black"
-    )
-
-    fig.show()
-
-    fig.write_html(sunburst_chem_results_path,
-                full_html=False,
-                include_plotlyjs='cdn')
-
-    if keep_lowest_taxon == False :
+    # if keep_lowest_taxon == False :
 
 
-        fig = px.sunburst(df4cyto_flat, path=['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
-                    'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas'],
-                        )
-        fig.update_layout(
-            #font_family="Courier New",
-            title_font_family="Courier New",
-            title_font_color="black",
-            title_font_size=14,
-            legend_title_font_color="black",
-            title_text="<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + project_name + "</b>",
-            title_x=0.5
-        )
+    #     # we have a problem because the organism_taxonomy_ are lists and not strings.
+    #     # We subset specifically these columns
 
-        fig.update_layout(
-            title={
-                'text': "<b> Overview of the source organisms of the chemical annotation <br> at the domain, kingdom, phylum, class, order, family, tribe, genus, species and varietas level for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
-                'y':0.96,
-                'x':0.5,
-                'xanchor': 'center',
-                'yanchor': 'top'})
+    #     dt_isdb_results_tax = dt_isdb_results.loc[:, dt_isdb_results.columns.str.startswith('organism_taxonomy_')]
 
-        fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
-        #,paper_bgcolor="Black"
-        )
+    #     # and then use the explode function to yield the datframe with the values extractes from the lists
 
-        fig.show()
+    #     dt_isdb_results_tax = dt_isdb_results_tax.set_index(['organism_taxonomy_ottid']).apply(pd.Series.explode).reset_index()
 
-        fig.write_html(sunburst_organisms_results_path,
-                    full_html=False,
-                    include_plotlyjs='cdn')
+    #     # we now drop the previous columns with the list format 
+
+    #     colsToDrop = [ 'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',
+    #         'organism_taxonomy_03phylum', 'organism_taxonomy_04class', 'organism_taxonomy_05order',
+    #         'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus',
+    #         'organism_taxonomy_09species', 'organism_taxonomy_10varietas']
+
+    #     dt_isdb_results = dt_isdb_results.drop(colsToDrop, axis=1)
+
+    #     # and we merge back using the organism_taxonomy_ottid. Here we use concat and merge on indexes
+
+    #     dt_isdb_results = pd.concat([dt_isdb_results, dt_isdb_results_tax], axis=1)
+
+
+
+    #     dt_isdb_results['counter'] = 1
+
+    #     dt_isdb_results = dt_isdb_results.replace({np.nan:'None'})
+
+    #     fig = px.treemap(dt_isdb_results, path=[px.Constant("all"), 'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+    #                 'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species'],  values='counter')
+
+
+    #     fig.show()
+
+    #     fig.update_layout(
+    #         title_font_family="Courier New",
+    #         title_font_color="black",
+    #         title_font_size=14,
+    #         legend_title_font_color="black",
+    #         title_text="<b> Overview of the source organisms taxonomical repartition of the chemical annotations <br> before taxonomical reponderation <br>" + project_name + "</b>",
+    #         title_x=0.5
+    #     )
+
+    #     fig.update_layout(
+    #         title={
+    #             'text': "<b> Overview of the source organisms taxonomical repartition of the chemical annotations <br> before taxonomical reponderation for <br>" + '<span style="font-size: 20px;">' + project_name + '</span>' + "</b>",
+    #             'y':0.96,
+    #             'x':0.5,
+    #             'xanchor': 'center',
+    #             'yanchor': 'top'})
+
+    #     fig.update_layout(margin=dict(l=50, r=50, t=100, b=50)
+    #     #,paper_bgcolor="Black"
+    #     )
+
+    #     fig.show()
+
+        # fig.write_html(sunburst_organisms_results_path,
+        #             full_html=False,
+        #             include_plotlyjs='cdn')
 
 
     # here we want to have an puput per sample so we merge back the annotation frame with the feature table 
