@@ -504,11 +504,11 @@ Fetching the biosource contribution per feature ...
 feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
     os.listdir(quantification_table_reformatted_path)[0]), sep=',')
 
+
 feature_intensity.rename(columns={'row ID': 'row_ID'}, inplace=True)
 feature_intensity.set_index('row_ID', inplace=True)
 feature_intensity = feature_intensity.filter(regex=file_extension)
 feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '') # this is not safe, we should find an alternative. Maybe raising an issue if the suffix is not found 
-
 feature_intensity.rename_axis("MS_filename", axis="columns", inplace = True)
 
 

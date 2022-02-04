@@ -62,8 +62,6 @@ def taxa_lineage_appender(samples_metadata, organism_header, do_taxo_resolving, 
                                                record_path=['unmatched_names']
                                                )
 
-    df_species_tnrs_matched.info()
-
     # We then want to match with the accepted name instead of the synonym in case both are present.
     # We thus order by matched_name and then by is_synonym status prior to returning the first row.
 
