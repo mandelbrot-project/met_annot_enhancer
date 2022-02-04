@@ -222,7 +222,7 @@ if do_spectral_match == True:
 
 dt_isdb_results = pd.read_csv(isdb_results_path,
                               sep='\t',
-                              usecols=['msms_score', 'feature_id', 'reference_id', 'inchikey'],
+                              usecols=['msms_score', 'feature_id', 'reference_id', 'short_inchikey'],
                               error_bad_lines=False, low_memory=True)
 
 ## we add a fixed libname (to be changed later on) 
@@ -500,33 +500,38 @@ print('''
 Fetching the biosource contribution per feature ...
 ''')
 
-quantification_table_reformatted_path = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
-
-metadata_table_path = os.path.join(path_to_gnps_folder,'metadata_table','')
-
 
 feature_intensity = pd.read_csv(quantification_table_reformatted_path + str(
     os.listdir(quantification_table_reformatted_path)[0]), sep=',')
 
 feature_intensity.rename(columns={'row ID': 'row_ID'}, inplace=True)
 feature_intensity.set_index('row_ID', inplace=True)
-feature_intensity = feature_intensity.filter(
-    regex=file_extension + '|row_ID')
+feature_intensity = feature_intensity.filter(regex=file_extension)
+feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '') # this is not safe, we should find an alternative. Maybe raising an issue if the suffix is not found 
+
+feature_intensity.rename_axis("MS_filename", axis="columns", inplace = True)
+
+
+
+
+
 if Top_N_Sample == 0:
     feature_intensity = feature_intensity.where(feature_intensity.apply(
         lambda x: x.isin(x.nlargest(len(feature_intensity.columns))), axis=1), 0)  # top N here
 else:
     feature_intensity = feature_intensity.where(feature_intensity.apply(
         lambda x: x.isin(x.nlargest(Top_N_Sample)), axis=1), 0)  # top N here
-feature_intensity.columns = feature_intensity.columns.str.replace(msfile_suffix, '') # this is not safe, we should find an alternative. Maybe raising an issue if the suffix is not found 
-feature_intensity = feature_intensity.transpose()
-feature_intensity.index.name = 'MS_filename'
-feature_intensity_table_t = feature_intensity
-feature_intensity = feature_intensity.transpose()
 res = feature_intensity[feature_intensity != 0].stack()
 df_res = res.to_frame().reset_index()
+
+
+
 df_merged = pd.merge(df_res, samples_metadata, left_on='MS_filename',
                         right_on='filename', how='left').drop([0, 'MS_filename', 'filename'], axis=1)
+
+df_merged = df_merged[['query_otol_domain', 'query_otol_kingdom', 'query_otol_phylum', 'query_otol_class',
+          'query_otol_order', 'query_otol_family', 'query_otol_tribe', 'query_otol_genus', 'query_otol_species']]
+
 df_merged = df_merged.groupby('row_ID').agg(lambda x: list(x))
 df_merged.reset_index(inplace=True)
 
