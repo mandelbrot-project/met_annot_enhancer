@@ -62,6 +62,12 @@ def samples_metadata_loader(samples_metadata_table_path, organism_header):
                                    usecols=['filename', organism_header])
     return samples_metadata
 
+def samples_metadata_full_loader(samples_metadata_table_path):
+    # the metadata table is loaded using the organism column specified before
+    samples_metadata = pd.read_csv(samples_metadata_table_path + str(os.listdir(samples_metadata_table_path)[0]), sep='\t')
+    
+    return samples_metadata
+
 
 def feature_intensity_table_loader(feature_intensity_table_path):
     feature_intensity = pd.read_csv(feature_intensity_table_path + str(

@@ -230,9 +230,23 @@ def annotation_table_formatter(dt_input, keep_lowest_taxon, min_score_taxo_ms1, 
         ((dt_input['score_taxo'] >= min_score_taxo_ms1) & (dt_input['score_max_consistency'] >= min_score_chemo_ms1)) | (
             dt_input['libname'] == 'ISDB')]
 
-    dt_output = dt_input[col_to_keep]
+    dt_output_flat = dt_input[col_to_keep]
 
-    return dt_output
+    # Cytoscape formatting 
+
+    all_columns = list(dt_input) # Creates list of all column headers
+    
+    dt_input[all_columns] = dt_input[all_columns].astype(str)
+
+    gb_spec = {c: '|'.join for c in annot_attr}
+
+    for c in comp_attr:
+        gb_spec[c] = 'first'
+
+    dt_output_cyto = dt_input.groupby('feature_id').agg(gb_spec)
+    dt_output_cyto.reset_index(inplace=True)
+
+    return dt_output_flat, dt_output_cyto
 
 
 def chembl_id_fetcher(df_input):
@@ -246,8 +260,7 @@ def chembl_id_fetcher(df_input):
         dt_isdb_results_chem_rew (dataframe): a dataframe with the top N annotation ordered by final rank
     """
 
-
-#### fetching CHEMBL infos
+    # fetching CHEMBL infos
 
     molecule = new_client.molecule
 
@@ -281,3 +294,28 @@ def chembl_id_fetcher(df_input):
     return df_output
 
 
+# def s
+
+# df4cyto_flat['final_score'] = df4cyto_flat['final_score'].astype('float')
+# df4cyto_flat[df4cyto_flat['final_score'] >= 8]
+
+
+# df4cyto_flat_sel = df4cyto_flat[['feature_id', 'component_id', 'structure_taxonomy_npclassifier_01pathway_consensus','structure_taxonomy_npclassifier_02superclass_consensus',
+# 'structure_taxonomy_npclassifier_03class_consensus', 'msms_score', 'libname',
+# 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula',
+# 'adduct', 'structure_exact_mass', 'short_inchikey',
+# 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',
+# 'structure_taxonomy_npclassifier_03class', 'organism_name', 'organism_taxonomy_ottid',
+# 'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+# 'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family',
+# 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species',
+# 'score_taxo', 'score_max_consistency', 'final_score']]
+
+
+
+# df4cyto_flat_sel.to_csv(isdb_results_repond_flat_sel_path, sep='\t', index=None)
+
+
+# from pivottablejs import pivot_ui
+
+# pivot_ui(dt_isdb_results_int, outfile_path=pivot_table_results_path)

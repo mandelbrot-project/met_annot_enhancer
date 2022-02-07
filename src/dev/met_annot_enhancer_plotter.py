@@ -529,7 +529,7 @@ df_res = res.to_frame().reset_index()
 df_merged = pd.merge(df_res, samples_metadata, left_on='MS_filename',
                         right_on='filename', how='left').drop([0, 'MS_filename', 'filename'], axis=1)
 
-df_merged = df_merged[['query_otol_domain', 'query_otol_kingdom', 'query_otol_phylum', 'query_otol_class',
+df_merged = df_merged[['row_ID', 'query_otol_domain', 'query_otol_kingdom', 'query_otol_phylum', 'query_otol_class',
           'query_otol_order', 'query_otol_family', 'query_otol_tribe', 'query_otol_genus', 'query_otol_species']]
 
 df_merged = df_merged.groupby('row_ID').agg(lambda x: list(x))
@@ -899,6 +899,7 @@ if output_plots == True:
     ft_merged = pd.merge(feature_intensity_table, feature_intensity_meta_gp_species, on='row_ID', how='left')
 
     if multi_plot == True:
+
         feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,sampletype_header]).mean()
         feature_intensity_meta_gp_multi = feature_intensity_meta_gp_multi.transpose()
         feature_intensity_meta_gp_multi.columns = feature_intensity_meta_gp_multi.columns.map('_'.join)
@@ -943,6 +944,7 @@ if output_plots == True:
     # in fact we do this with itertools
     if drop_blanks == True:
         samples_metadata_full = samples_metadata_full[~samples_metadata_full[sampletype_header].str.contains("none|BK|blanck|bk|mock")]
+
 
     import itertools
     unique_group_labels = samples_metadata_full[organism_header].unique()
@@ -1059,6 +1061,9 @@ if output_plots == True:
         fig.write_html(treemap_chemo_multi_intensity_results_path,
                     full_html=False,
                     include_plotlyjs='cdn')
+
+
+
 
 
 df4cyto_flat['final_score'] = df4cyto_flat['final_score'].astype('float')
