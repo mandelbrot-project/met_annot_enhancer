@@ -42,7 +42,7 @@ If you didn't add it you can do this afterward. For this, the metadata file, in 
   
 # Usage
 
-## 1. Edits the .yaml file containing the job parameters
+## 1. Edit the .yaml file containing the job parameters
 
 For this you can first copy the default.yaml file from [here](https://github.com/mandelbrot-project/met_annot_enhancer/tree/main/configs/default) to 
 [there](https://github.com/mandelbrot-project/met_annot_enhancer/tree/main/configs/user_defined). Don't rename the file.
@@ -116,7 +116,7 @@ repond_params:
 
 From the home folder of this repository. In the activated conda environment.
 
-`python src/dev/met_annot_enhancer.py`
+`python src/dev/nb.py`
 
 
 # References
