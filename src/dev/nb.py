@@ -34,9 +34,9 @@ os.chdir(p)
 # Loading the parameters from yaml file
 
 
-if not os.path.exists('configs/user_defined/default_nb.yaml'):
+if not os.path.exists('configs/user_defined/default.yaml'):
     print('No configs/user_defined/default.yaml: copy from configs/default/default.yaml and modify according to your needs')
-with open(r'configs/user_defined/default_nb.yaml') as file:
+with open(r'configs/user_defined/default.yaml') as file:
     params_list = yaml.load(file, Loader=yaml.FullLoader)
 
 # Parameters can now be accessed using params_list['level1']['level2'] e. g. arams_list['options']['download_gnps_job']
