@@ -12,6 +12,8 @@ import json
 from pandas import json_normalize
 from chembl_webresource_client.new_client import new_client
 from tqdm import tqdm
+from pivottablejs import pivot_ui
+
 
 
 def gnps_job_fetcher(gnps_job_id, input_folder):
@@ -294,28 +296,29 @@ def chembl_id_fetcher(df_input):
     return df_output
 
 
-# def s
 
-# df4cyto_flat['final_score'] = df4cyto_flat['final_score'].astype('float')
-# df4cyto_flat[df4cyto_flat['final_score'] >= 8]
+def pivot_tabler(df_input, lib_to_keep, minimal_taxo_score, minimal_chemo_score, minimal_total_score, isdb_results_repond_flat_sel_path, pivot_table_results_path):
 
+    if len(lib_to_keep) != 0:
+            df_input = df_input[df_input['libname'].str.contains(lib_to_keep)]
 
-# df4cyto_flat_sel = df4cyto_flat[['feature_id', 'component_id', 'structure_taxonomy_npclassifier_01pathway_consensus','structure_taxonomy_npclassifier_02superclass_consensus',
-# 'structure_taxonomy_npclassifier_03class_consensus', 'msms_score', 'libname',
-# 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula',
-# 'adduct', 'structure_exact_mass', 'short_inchikey',
-# 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',
-# 'structure_taxonomy_npclassifier_03class', 'organism_name', 'organism_taxonomy_ottid',
-# 'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
-# 'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family',
-# 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species',
-# 'score_taxo', 'score_max_consistency', 'final_score']]
+    df_input[df_input['score_taxo'] >= minimal_taxo_score]
+    df_input[df_input['score_max_consistency'] >= minimal_chemo_score]
+    df_input[df_input['final_score'] >= minimal_total_score]
 
 
+    df_input_sel = df_input[['feature_id', 'component_id', 'structure_taxonomy_npclassifier_01pathway_consensus','structure_taxonomy_npclassifier_02superclass_consensus',
+    'structure_taxonomy_npclassifier_03class_consensus', 'msms_score', 'libname',
+    'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula',
+    'adduct', 'structure_exact_mass', 'short_inchikey',
+    'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',
+    'structure_taxonomy_npclassifier_03class', 'organism_name', 'organism_taxonomy_ottid',
+    'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
+    'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family',
+    'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species',
+    'score_taxo', 'score_max_consistency', 'final_score']]
 
-# df4cyto_flat_sel.to_csv(isdb_results_repond_flat_sel_path, sep='\t', index=None)
+    df_input_sel.to_csv(isdb_results_repond_flat_sel_path, sep='\t', index=None)
 
+    pivot_ui(df_input_sel, outfile_path=pivot_table_results_path)
 
-# from pivottablejs import pivot_ui
-
-# pivot_ui(dt_isdb_results_int, outfile_path=pivot_table_results_path)

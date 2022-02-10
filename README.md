@@ -1,20 +1,17 @@
 # met_annot_enhancer
-A set of script to proceed to metabolite annotation results enhancement using taxonomically and structurally informed processes
 
-# Usage
+A set of script to proceed to metabolite annotation results enhancement using taxonomically and structurally informed processes.
 
-## Requirements 
-
-
-### 1.  clone this repo
+# Installation
+## 1. Clone this repo
 
 `git clone https://github.com/mandelbrot-project/met_annot_enhancer.git`
 
 
-### 2.  set the correct environmenet
+## 2. Set the correct environment
 
 
-The requested package can be installed by creating the conda environment and activating it.
+The requested package can be installed by creating a conda environment and activating it.
 
 Use the following line for environment creation 
 
@@ -24,47 +21,39 @@ And this one to activate it
 
 `conda activate met_annot_enhancer_env`
 
-If you need to update the environment run 
+# Requirements 
+## A FBMN job on GNPS
 
-`conda env update --file environment.yml`
+For now the scripts work by taking output of Feature Based Molecular Networking jobs.
+You can read more about FBMN here (https://ccms-ucsd.github.io/GNPSDocumentation/featurebasedmolecularnetworking/)
 
-## STEP A) Download FBMN from GNPS 
+## A metadata file containing taxonomical information 
 
-You need first to perform a FBMN in orderto get the component index (ie cluster) of the features, that will be used for the reweighting.
-You can download a pre-computed GNPS job using the following commmand line; you just need your job id. Results will be stored in the data_in/yourjobid folder
-DO NOT CHANGE THE NAME OF THE FOLDER
-
-`python src/dev/download_from_gnps.py --job_id yourjobidgoeshere`
-
-for help, use:
-
-`python src/dev/download_from_gnps.py -h`
-
-## STEP B) Metadata file required 
+A specific requirement to proceed to taxonomical reweighting of your annotation results is that a metadata file with the taxonomical information of your samples is provided. See below for details.
 
 2 columns of metadata are required for taxonomical reweighting:
   - a *filename* column (with 1 row / MS-file). Example: 2013901_AG_07098.mzML.
         ! The header for this column has to be *filename*.
   - an *organism* column (organism the sample was collected from). Example: *Ambystoma mexicanum*
+
+This file is ideally uploaded when you relize your FBMN job. See here for details on the metadata file format (https://ccms-ucsd.github.io/GNPSDocumentation/metadata/)
  
-Add metadata to your GNPS results if you didn't upload it on GNPS when you ran the job, or if the one you uploaded dosens't contain the information needed.
-The metadata file, in the form of a *.tsv*, should be placed in data_in/yourjobid/metadata_table/*metadata_file*. The name of the file doen't matter but it should be the only file in the folder.
+If you didn't add it you can do this afterward. For this, the metadata file, in the form of a *.tsv* file, should be placed in data_in/yourjobid/metadata_table/*metadata_file*. The name of the file doesn't matter but it should be the only file in the folder.
   
-## STEP C) Proceed to spectral matching followed by taxonomically and structurally informed scoring 
+# Usage
 
-### 1.  Copy the default.yaml and edit yccording to your needs
+## 1. Edits the .yaml file containing the job parameters
 
-Copy the default.yaml file from [here](https://github.com/mandelbrot-project/met_annot_enhancer/tree/main/configs/default) to 
+For this you can first copy the default.yaml file from [here](https://github.com/mandelbrot-project/met_annot_enhancer/tree/main/configs/default) to 
 [there](https://github.com/mandelbrot-project/met_annot_enhancer/tree/main/configs/user_defined). Don't rename the file.
 
-### 2.  edit the parameters in configs/user_defined/default.yaml
-
-#### Parameters are: 
+Now you can safely edit the file in configs/user_defined/default.yaml according to your needs. See below for a brief descrpition of each parameters
+### Parameters description: 
 
 options:
 
-  - **download_gnps_job: False**
-    - set to False it you already downloaded a GNPS FBMN in step A
+  - **download_gnps_job: True**
+    - set to False it you already downloaded a GNPS FBMN
   - **do_spectral_match: True**
     - will perform MS2 matching using db_file_path .mgf
   - **keep_lowest_taxon: False**
@@ -123,16 +112,16 @@ repond_params:
   - **min_score_ms1: 5**
     - Minimum taxonomical score (7 = species, 6 = genus, 5 = family, ...)
   
-### 2.  launch the job
+## 2. Launch the job
+
+From the home folder of this repository. In the activated conda environment.
 
 `python src/dev/met_annot_enhancer.py`
 
-
-# R implementation
-
-An R based implementation of the metabolite annotation enhancing process is available here https://github.com/taxonomicallyinformedannotation/tima-r
 
 # References
 
 Description and original implementation of the taxonomically informed metabolite annotation process is available here https://doi.org/10.3389/FPLS.2019.01329, associated data have been deposited in the following OSF repository: <https://osf.io/bvs6x/>.
 A snapshot of the code at the time of publication is also available at <https://github.com/oolonek/taxo_scorer>.
+
+An R based implementation of the metabolite annotation enhancing process is available here https://github.com/taxonomicallyinformedannotation/tima-r
