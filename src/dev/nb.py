@@ -335,6 +335,7 @@ table_for_plots_formatted = table_for_plots_formatter(df_flat=df_flat,
 # Some optional filtering can be done
 
 samples_metadata_filtered = samples_metadata_filterer(dt_samples_metadata=dt_samples_metadata,
+                                                      organism_header=params_list['repond_params']['organism_header'],
                                                       sampletype_header=params_list['repond_params']['sampletype_header'],
                                                       drop_pattern=params_list['plotting_params']['drop_pattern'])
 
@@ -352,13 +353,14 @@ plotter_single(dt_isdb_results_int=table_for_plots_formatted,
                treemap_chemo_counted_results_path=paths_dic['treemap_chemo_counted_results_path'],
                treemap_chemo_intensity_results_path=paths_dic['treemap_chemo_intensity_results_path'])
 
+if params_list['plotting_params']['multi_plot'] == True:
 
-plotter_multi(dt_isdb_results_int=table_for_plots_formatted,
-              dt_samples_metadata=samples_metadata_filtered,
-              organism_header=params_list['repond_params']['organism_header'],
-              sampletype_header=params_list['repond_params']['sampletype_header'],
-              treemap_chemo_multi_counted_results_path=paths_dic['treemap_chemo_multi_counted_results_path'],
-              treemap_chemo_multi_intensity_results_path=paths_dic['treemap_chemo_multi_intensity_results_path'])
+    plotter_multi(dt_isdb_results_int=table_for_plots_formatted,
+                dt_samples_metadata=samples_metadata_filtered,
+                organism_header=params_list['repond_params']['organism_header'],
+                sampletype_header=params_list['repond_params']['sampletype_header'],
+                treemap_chemo_multi_counted_results_path=paths_dic['treemap_chemo_multi_counted_results_path'],
+                treemap_chemo_multi_intensity_results_path=paths_dic['treemap_chemo_multi_intensity_results_path'])
 
 
 pivot_tabler(df_input= dt_taxo_chemo_reweighed_chembl,

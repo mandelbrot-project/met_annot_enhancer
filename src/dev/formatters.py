@@ -103,7 +103,7 @@ def table_for_plots_formatter(df_flat, feature_intensity_table_formatted, dt_sam
 
 
 
-def samples_metadata_filterer(dt_samples_metadata, sampletype_header, drop_pattern):
+def samples_metadata_filterer(dt_samples_metadata, organism_header, sampletype_header, drop_pattern):
 
     """Formats a feature intensity table to an appropriate format for biosource_contribution_fetcher()
     Args:
@@ -115,6 +115,7 @@ def samples_metadata_filterer(dt_samples_metadata, sampletype_header, drop_patte
     """
 
     if len(drop_pattern) != 0:
+        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern)]
         dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[sampletype_header].str.contains(drop_pattern)]
     else:
         dt_samples_metadata = dt_samples_metadata

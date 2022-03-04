@@ -102,7 +102,7 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sam
 
     i=1
     for n in unique_group_labels:
-        print(n)
+        #print(n)
 
         dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
         fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
@@ -126,7 +126,7 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sam
 
     i=1
     for n in unique_group_labels:
-        print(n)
+        #print(n)
 
         dt = dt_isdb_results_int[dt_isdb_results_int[n] > 0]
         fig.add_trace(px.treemap(dt, path=[px.Constant("all"), 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class'], 
