@@ -41,7 +41,7 @@ def plotter_single(dt_isdb_results_int, dt_samples_metadata,organism_header,tree
         row=1,col=i)
         i+=1
 
-    fig.update_traces(root_color="lightgrey")
+    # fig.update_traces(root_color="lightgrey")
     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
     title_text="Metabolite annotation overview (size proportional to individual count)")
     fig.update_annotations(font_size=12)
@@ -64,7 +64,7 @@ def plotter_single(dt_isdb_results_int, dt_samples_metadata,organism_header,tree
         row=1,col=i)
         i+=1
 
-    fig.update_traces(root_color="lightgrey")
+    # fig.update_traces(root_color="lightgrey")
     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
     title_text="Metabolite annotation overview (size proportional to mean intensity)")
     fig.update_annotations(font_size=12)
@@ -110,7 +110,7 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sam
         row=1,col=i)
         i+=1
 
-    fig.update_traces(root_color="lightgrey")
+    # fig.update_traces(root_color="lightgrey")
     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
     title_text="Metabolite annotation overview (size proportional to individual count)")
     fig.update_annotations(font_size=12)
@@ -134,7 +134,7 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sam
         row=1,col=i)
         i+=1
 
-    fig.update_traces(root_color="lightgrey")
+    # fig.update_traces(root_color="lightgrey")
     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
     title_text="Metabolite annotation overview (size proportional to mean intensity)")
     fig.update_annotations(font_size=12)

@@ -285,15 +285,21 @@ def chembl_id_fetcher(df_input):
 
     chembl_df = json_normalize(flat_list)
 
-    chembl_df = chembl_df[['molecule_chembl_id', 'molecule_structures.standard_inchi_key']]
+    # A security in case no chembl results are outputted
+    
+    if len(chembl_df) > 0: 
+
+        chembl_df = chembl_df[['molecule_chembl_id', 'molecule_structures.standard_inchi_key']]
 
 
-    df_output = pd.merge(left=df_input, right=chembl_df, left_on='structure_inchikey', right_on='molecule_structures.standard_inchi_key', how = 'left')
+        df_output = pd.merge(left=df_input, right=chembl_df, left_on='structure_inchikey', right_on='molecule_structures.standard_inchi_key', how = 'left')
 
-    df_output.rename(columns={'molecule_chembl_id': 'structure_chembl_id'}, inplace=True)
-    df_output.drop(['molecule_structures.standard_inchi_key'], axis=1, inplace=True)
+        df_output.rename(columns={'molecule_chembl_id': 'structure_chembl_id'}, inplace=True)
+        df_output.drop(['molecule_structures.standard_inchi_key'], axis=1, inplace=True)
 
-    return df_output
+        return df_output
+    else:
+        return df_input
 
 
 

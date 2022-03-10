@@ -80,7 +80,7 @@ def table_for_plots_formatter(df_flat, feature_intensity_table_formatted, dt_sam
 
 
     if multi_plot == True:
-
+        # a security when numeric values are passed
         feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,sampletype_header]).mean()
         feature_intensity_meta_gp_multi = feature_intensity_meta_gp_multi.transpose()
         feature_intensity_meta_gp_multi.columns = feature_intensity_meta_gp_multi.columns.map('_'.join)
