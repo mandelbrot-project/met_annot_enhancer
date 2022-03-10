@@ -39,7 +39,7 @@ def clusterinfo_summary_loader(clusterinfo_summary_path):
     return clusterinfo_summary
 
 
-def isdb_metadata_loader(isdb_metadata_path):
+def isdb_metadata_loader(isdb_metadata_path, organism_header):
 
     df_metadata = pd.read_csv(isdb_metadata_path,
                               sep=',', error_bad_lines=False, low_memory=False)
@@ -51,7 +51,7 @@ def isdb_metadata_loader(isdb_metadata_path):
     # at this step we can only keep unique short_ik - organisms pairs
 
     df_metadata.drop_duplicates(subset=[
-                                'short_inchikey', 'organism_wikidata'], keep='first', inplace=True, ignore_index=True)
+                                'short_inchikey', organism_header], keep='first', inplace=True, ignore_index=True)
 
     return df_metadata
 

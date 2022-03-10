@@ -114,7 +114,8 @@ clusterinfo_summary = clusterinfo_summary_loader(
     clusterinfo_summary_path=paths_dic['clusterinfo_summary_path'])
 
 dt_isdb_metadata = isdb_metadata_loader(
-    isdb_metadata_path=params_list['paths']['metadata_path'])
+    isdb_metadata_path=params_list['paths']['metadata_path'],
+    organism_header=params_list['metadata_params']['organism_header'])
 
 dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
                                               organism_header=params_list['repond_params']['organism_header'])
