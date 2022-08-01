@@ -115,8 +115,8 @@ def samples_metadata_filterer(dt_samples_metadata, organism_header, sampletype_h
     """
 
     if len(drop_pattern) != 0:
-        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern)]
-        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[sampletype_header].str.contains(drop_pattern)]
+        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern, na=False)]
+        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[sampletype_header].str.contains(drop_pattern, na=False)]
     else:
         dt_samples_metadata = dt_samples_metadata
 
