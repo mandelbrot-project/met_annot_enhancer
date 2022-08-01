@@ -74,7 +74,7 @@ def plotter_single(dt_isdb_results_int, dt_samples_metadata,organism_header,tree
                 include_plotlyjs='cdn')
 
 
-def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sampletype_header, treemap_chemo_multi_counted_results_path, treemap_chemo_multi_intensity_results_path):
+def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, var_one_header, treemap_chemo_multi_counted_results_path, treemap_chemo_multi_intensity_results_path):
 
     """ This function will get the CHEMBL ids from the structure_inchikey field
 
@@ -87,7 +87,7 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, sam
     dt_isdb_results_int = dt_isdb_results_int.replace({np.nan:'None'})
 
 
-    dt_samples_metadata['combined'] = dt_samples_metadata[organism_header] + '_' + dt_samples_metadata[sampletype_header]
+    dt_samples_metadata['combined'] = dt_samples_metadata[organism_header] + '_' + dt_samples_metadata[var_one_header]
     unique_group_labels = dt_samples_metadata['combined'].unique()
     type(unique_group_labels)
 

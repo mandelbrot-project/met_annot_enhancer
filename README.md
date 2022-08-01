@@ -99,7 +99,7 @@ repond_params:
     - ion mode you are working with (pos or neg)
   - **organism_header: 'ATTRIBUTE_Species'**
     - Mandatory: header of your samples' organism in metadata file
-  - **sampletype_header: 'SAMPLE_info'**
+  - **var_one_header: 'SAMPLE_info'**
     - Optional parameter
   - **use_post_taxo: True**
     - Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False

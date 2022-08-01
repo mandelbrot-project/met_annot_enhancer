@@ -35,7 +35,7 @@ repond_params:
   ppm_tol: 2 # ppm tol to be used for ms1 match
   polarity: 'pos' # ion mode you are working with (pos or neg)
   organism_header: 'species' # Mandatory: header of your samples' organism in metadata file
-  sampletype_header: 'genotype' # Optional (Run_line_x_line parameter)
+  var_one_header: 'genotype' # Optional (Run_line_x_line parameter)
   use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
   top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
   file_extension: '.mzML' # MS filename extension (or any common pattern in all your MS filenames)
