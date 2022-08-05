@@ -212,6 +212,19 @@ print('Total number of annotations with unique biosource per line: ' +
 # Resolving the taxon information from the samples metadata file
 
 
+dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
+                                              organism_header=params_list['repond_params']['organism_header'])
+
+dt_samples_metadata = dt_samples_metadata.replace('nd', np.NaN)
+
+dt_samples_metadata.dropna(inplace=True)
+
+# We test here another option which would be to duplicate rows directly at the metadata level when multiples sources are detected
+
+dt_samples_metadata = dt_samples_metadata.set_index(['filename']).apply(lambda x: x.str.split(',').explode()).reset_index()
+
+
+
 dt_samples_metadata = taxa_lineage_appender(samples_metadata=dt_samples_metadata,
                                             organism_header=params_list['repond_params']['organism_header'],
                                             do_taxo_resolving=params_list['options']['do_taxo_resolving'],

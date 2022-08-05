@@ -34,6 +34,8 @@ def taxon_info_fetcher(ott_list, path_to_results_folders, project_name):
             out.write('{}\n'.format(yo))
 
 
+
+
 def taxa_lineage_appender(samples_metadata, organism_header, do_taxo_resolving, path_to_results_folders, project_name):
 
     # Now we want to get the taxonomic information for each of the samples
@@ -41,8 +43,15 @@ def taxa_lineage_appender(samples_metadata, organism_header, do_taxo_resolving, 
 
     samples_metadata[organism_header].dropna(inplace=True)
     samples_metadata[organism_header] = samples_metadata[organism_header].str.lower()
+    samples_metadata[organism_header] = samples_metadata[organism_header].str.strip()
     species = samples_metadata[organism_header].unique()
+
+    # df = samples_metadata[organism_header].str.split(',').apply(pd.Series)
+    # # This line allows to remove leading and trailing spaces (but not intermediary spaces) and return unique values)
+    # species = df.stack().reset_index()[0].str.strip().unique()
+
     len_species = len(species)
+
 
     print("%s unique species have been selected from the metadata table." % len_species)
 
@@ -152,3 +161,4 @@ def taxa_lineage_appender(samples_metadata, organism_header, do_taxo_resolving, 
                                 df_tax_lineage_filtered_flat, how='left', left_on='taxon.ott_id', right_on='ott_id')
 
     return samples_metadata
+
