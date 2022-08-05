@@ -225,6 +225,7 @@ dt_samples_metadata = dt_samples_metadata.set_index(['filename']).apply(lambda x
 
 
 
+
 dt_samples_metadata = taxa_lineage_appender(samples_metadata=dt_samples_metadata,
                                             organism_header=params_list['repond_params']['organism_header'],
                                             do_taxo_resolving=params_list['options']['do_taxo_resolving'],
@@ -274,10 +275,17 @@ dt_taxo_reweighed = taxonomical_reponderator(dt_isdb_results=dt_isdb_results_top
 ######################################################################################################
 
 
+
 dt_taxo_chemo_reweighed = chemical_reponderator(clusterinfo_summary_file=clusterinfo_summary,
                                                 dt_isdb_results=dt_taxo_reweighed,
-                                                top_N_chemical_consistency=params_list['repond_params']['top_N_chemical_consistency'])
+                                                top_N_chemical_consistency=params_list['repond_params']['top_N_chemical_consistency'],
+                                                msms_weight=params_list['repond_params']['msms_weight'],
+                                                taxo_weight=params_list['repond_params']['taxo_weight'],
+                                                chemo_weight=params_list['repond_params']['chemo_weight']
+                                                )
 
+
+# dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['feature_id'] == 7830]
 
 ######################################################################################################
 ######################################################################################################
@@ -294,8 +302,16 @@ dt_taxo_chemo_reweighed_topN = top_N_slicer(dt_isdb_results=dt_taxo_chemo_reweig
 # Fetching CHEMBL Ids
 ######################################################################################################
 
-dt_taxo_chemo_reweighed_chembl = chembl_id_fetcher(
+
+if params_list['options']['do_chembl_match'] == True:
+    
+    df = chembl_id_fetcher(
     df_input=dt_taxo_chemo_reweighed_topN)
+    
+else :
+    df = dt_taxo_chemo_reweighed_topN
+
+
 
 
 ######################################################################################################
@@ -304,7 +320,7 @@ dt_taxo_chemo_reweighed_chembl = chembl_id_fetcher(
 ######################################################################################################
 
 
-df_flat, df_for_cyto = annotation_table_formatter(dt_input=dt_taxo_chemo_reweighed_chembl,
+df_flat, df_for_cyto = annotation_table_formatter(dt_input=df,
                                                   keep_lowest_taxon=params_list['options']['keep_lowest_taxon'],
                                                   min_score_taxo_ms1=params_list[
                                                       'repond_params']['min_score_taxo_ms1'],
@@ -379,7 +395,7 @@ if params_list['plotting_params']['multi_plot'] == True:
                 treemap_chemo_multi_intensity_results_path=paths_dic['treemap_chemo_multi_intensity_results_path'])
 
 
-pivot_tabler(df_input= dt_taxo_chemo_reweighed_chembl,
+pivot_tabler(df_input= df,
              lib_to_keep=params_list['filtering_params']['lib_to_keep'],
              minimal_taxo_score=params_list['filtering_params']['minimal_taxo_score'],
              minimal_chemo_score=params_list['filtering_params']['minimal_chemo_score'],
