@@ -113,9 +113,22 @@ isdb_results = isdb_results_loader(
 clusterinfo_summary = clusterinfo_summary_loader(
     clusterinfo_summary_path=paths_dic['clusterinfo_summary_path'])
 
-dt_isdb_metadata = isdb_metadata_loader(
-    isdb_metadata_path=params_list['paths']['metadata_path'],
-    organism_header=params_list['metadata_params']['organism_header'])
+
+# below we allow to load one or multiple metadata file 
+
+if type(params_list['paths']['metadata_path']) is str: 
+    dt_isdb_metadata = isdb_metadata_loader(
+        isdb_metadata_path=params_list['paths']['metadata_path'],
+        organism_header=params_list['metadata_params']['organism_header'])
+elif type(params_list['paths']['metadata_path']) is list: 
+    li = []
+    for filename in params_list['paths']['metadata_path']:
+        df = isdb_metadata_loader(
+        isdb_metadata_path=filename,
+        organism_header=params_list['metadata_params']['organism_header'])
+        li.append(df)
+    dt_isdb_metadata = pd.concat(li, axis=0, ignore_index=True)
+
 
 dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
                                               organism_header=params_list['repond_params']['organism_header'])
@@ -285,7 +298,10 @@ dt_taxo_chemo_reweighed = chemical_reponderator(clusterinfo_summary_file=cluster
                                                 )
 
 
-# dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['feature_id'] == 7830]
+dt_taxo_chemo_reweighed_sel = dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['component_id'] == 282]
+
+
+dt_taxo_chemo_reweighed_sel.to_csv('~/02_tmp/out_sel.tsv')
 
 ######################################################################################################
 ######################################################################################################
