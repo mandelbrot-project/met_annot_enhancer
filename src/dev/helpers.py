@@ -203,16 +203,16 @@ def annotation_table_formatter(dt_input, keep_lowest_taxon, min_score_taxo_ms1, 
             dt_input['lowest_matched_taxon'].fillna(
                 dt_input[col], inplace=True)
 
-        annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
-                      'structure_exact_mass', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',
-                      'structure_taxonomy_npclassifier_03class',
+        annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_wikidata', 'structure_inchikey', 'structure_inchi', 'structure_smiles', 'structure_molecular_formula', 'adduct',
+                      'structure_exact_mass', 'structure_nameTraditional', 'structure_taxonomy_npclassifier_01pathway', 'structure_taxonomy_npclassifier_02superclass',
+                      'structure_taxonomy_npclassifier_03class', 'organism_wikidata', 
                       'query_otol_species', 'lowest_matched_taxon', 'score_taxo', 'score_max_consistency', 'final_score', 'rank_final']
 
     else:
-        annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_inchikey', 'structure_inchi',
+        annot_attr = ['rank_spec', 'msms_score', 'libname', 'structure_wikidata', 'structure_inchikey', 'structure_inchi',
                       'structure_smiles', 'structure_molecular_formula', 'adduct',
-                      'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway',
-                      'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
+                      'structure_exact_mass', 'structure_nameTraditional', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway',
+                      'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class', 'organism_wikidata', 
                       'organism_name', 'organism_taxonomy_ottid',
                       'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
                       'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe',

@@ -123,7 +123,7 @@ def samples_metadata_filterer(dt_samples_metadata, organism_header, var_one_head
     return dt_samples_metadata
 
 
-def samples_metadata_filterer_sampletype(dt_samples_metadata, organism_header, var_one_header, sampletype_header, sampletype_value_sample, drop_pattern):
+def samples_metadata_filterer_sampletype(dt_samples_metadata, organism_header, var_one_header, sampletype_header, sampletype_value_sample, drop_pattern, multi_plot):
 
     """Formats a feature intensity table to an appropriate format for biosource_contribution_fetcher()
     Args:
@@ -134,9 +134,12 @@ def samples_metadata_filterer_sampletype(dt_samples_metadata, organism_header, v
         feature_intensity_table (dataframe): a formatted feature intensity table 
     """
 
-    if len(drop_pattern) != 0:
+    if len(drop_pattern) != 0 and multi_plot == True:
         dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern, na=False)]
         dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[var_one_header].str.contains(drop_pattern, na=False)]
+        dt_samples_metadata = dt_samples_metadata[dt_samples_metadata[sampletype_header] == sampletype_value_sample]
+    if len(drop_pattern) != 0 and multi_plot == False:
+        dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern, na=False)]
         dt_samples_metadata = dt_samples_metadata[dt_samples_metadata[sampletype_header] == sampletype_value_sample]
     else:
         dt_samples_metadata = dt_samples_metadata

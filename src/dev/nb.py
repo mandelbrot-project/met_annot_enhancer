@@ -202,11 +202,11 @@ dt_isdb_results.reset_index(inplace=True, drop=True)
 
 # now we merge with the Occurences DB metadata after selection of our columns of interest
 
-cols_to_use = ['structure_inchikey', 'structure_inchi',
-               'structure_smiles', 'structure_molecular_formula',
+cols_to_use = ['structure_wikidata','structure_inchikey', 'structure_inchi',
+               'structure_smiles', 'structure_molecular_formula', 'structure_nameTraditional',
                'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway',
                'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
-               'organism_name', 'organism_taxonomy_ottid',
+               'organism_wikidata','organism_name', 'organism_taxonomy_ottid',
                'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
                'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas']
 
@@ -385,7 +385,8 @@ samples_metadata_filtered = samples_metadata_filterer_sampletype(dt_samples_meta
                                                       var_one_header=params_list['repond_params']['var_one_header'],
                                                       sampletype_header=params_list['repond_params']['sampletype_header'], 
                                                       sampletype_value_sample=params_list['repond_params']['sampletype_value_sample'],
-                                                      drop_pattern=params_list['plotting_params']['drop_pattern'])
+                                                      drop_pattern=params_list['plotting_params']['drop_pattern'],
+                                                      multi_plot=params_list['plotting_params']['multi_plot'])
 
 # %%
 ######################################################################################################
