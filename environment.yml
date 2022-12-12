@@ -13,5 +13,6 @@ dependencies:
   - pip
   - pyyaml
   - chembl_webresource_client
+  - jupyter_pivottablejs
   - pip :
     - opentree

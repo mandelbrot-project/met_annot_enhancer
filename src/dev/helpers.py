@@ -15,6 +15,19 @@ from tqdm import tqdm
 from pivottablejs import pivot_ui
 
 
+def switch_downloader(switch_id, path_to_file):
+    """Downloads a switch file if given a swicth id
+    Args:
+            switch_id (string): a SWITCH Drive id
+    Returns:
+        nothing
+    """
+
+    switch_url = "https://drive.switch.ch/index.php/s/"+switch_id+"/download"
+
+    cmd = 'wget '+switch_url+' -O '+ path_to_file
+    subprocess.call(shlex.split(cmd))
+
 
 def gnps_job_fetcher(gnps_job_id, input_folder):
     """Fetch a GNPS job and saves its to a given folder

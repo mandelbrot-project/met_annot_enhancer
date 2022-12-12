@@ -17,8 +17,10 @@ def feature_intensity_table_formatter(feature_intensity_table_path, file_extensi
     # formatting the feature table 
     feature_intensity_table.rename(columns={'row ID': 'row_ID'}, inplace=True)
     feature_intensity_table.set_index('row_ID', inplace=True)
-    feature_intensity_table = feature_intensity_table.filter(regex=file_extension)
-    feature_intensity_table.columns = feature_intensity_table.columns.str.replace(msfile_suffix, '') 
+    if len(file_extension) > 0:
+        feature_intensity_table = feature_intensity_table.filter(regex=file_extension)
+    if len(msfile_suffix) > 0:
+        feature_intensity_table.columns = feature_intensity_table.columns.str.replace(msfile_suffix, '') 
     # this above is not safe, we should find an alternative. Maybe raising an issue if the suffix is not found 
     feature_intensity_table.rename_axis("MS_filename", axis="columns", inplace = True)
 
@@ -114,7 +116,7 @@ def samples_metadata_filterer(dt_samples_metadata, organism_header, sampletype_h
         feature_intensity_table (dataframe): a formatted feature intensity table 
     """
 
-    if len(drop_pattern) != 0:
+    if len(drop_pattern) != 0 and len(sampletype_header) != 0:
         dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[organism_header].str.contains(drop_pattern)]
         dt_samples_metadata = dt_samples_metadata[~dt_samples_metadata[sampletype_header].str.contains(drop_pattern)]
     else:
