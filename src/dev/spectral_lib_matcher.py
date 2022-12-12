@@ -89,8 +89,17 @@ def main(query_file_path,
     #remove spectra with no peaks
     spectrums_query = [require_minimum_number_of_peaks(s, n_required=1) for s in spectrums_query]
     spectrums_query = [s for s in spectrums_query if s]
+    
 
-    spectrums_db = list(load_from_mgf(db_file_path))
+    # Below the loading of external db is modified to accommodate multiple spectral db as input
+    
+    if type(db_file_path) is str : 
+        spectrums_db = list(load_from_mgf(db_file_path))
+    elif type(db_file_path) is list:
+        spectrums_db = []
+        for n in db_file_path:
+            spectrums_db.extend(list(load_from_mgf(n)))
+            
     #spectrums_db = list(load_from_mgf('../../db_spectra/LOTUS_DNP_ISDB.mgf'))
 
     print('%s spectra were found in the query file.' % len(spectrums_query))

@@ -1,22 +1,24 @@
+
 # default.yaml
 
 ---
 # parameters
 
 options:
-  download_gnps_job: False
-  do_spectral_match: False
+  download_gnps_job: True
+  do_spectral_match: True
   do_taxo_resolving: True
+  do_chembl_match: True
   keep_lowest_taxon: False
   output_plots: True
   
 paths:
-  gnps_job_id: 5a1155e09437489bb36faed68e57f779 # The path were you want your folder to be placed
-  input_folder: /Users/pma/Dropbox/git_repos/mapp-metabolomics-unit/urs-albrecht-group/docs/results/met_annot_enhancer/ # The path were you want your GNPS job folder to be placed
-  project_name: mapp01_16_x_csf_pos_inhouse #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
-  output_folder: /Users/pma/Dropbox/git_repos/mapp-metabolomics-unit/urs-albrecht-group/docs/results/met_annot_enhancer/ # the path for your output to be stored in
-  metadata_path: /Users/pma/01_large_files/tabular/210715_inhouse_metadata.csv # Path to the metadata of the spectral file /210715_inhouse_metadata.csv /211220_frozen_metadata.csv
-  db_file_path: /Users/pma/01_large_files/mgf/MultiSources_ISDB_pos.mgf  # Path to your spectral library file
+  gnps_job_id: 69b8ca5151584e33ac8fc31cd524a351 # The path were you want your folder to be placed
+  input_folder: /Users/pma/Dropbox/git_repos/mapp-metabolomics-unit/urs-albrecht-group/docs/mapp_project_00013/mapp_batch_00027/results/met_annot_enhancer # The path were you want your GNPS job folder to be placed
+  project_name: mapp_batch_00027_attributed #ISDB_annot_LP_plantfungi_set # The name you want to give to your project, output resulst in data_out/project_name
+  output_folder: /Users/pma/Dropbox/git_repos/mapp-metabolomics-unit/urs-albrecht-group/docs/mapp_project_00013/mapp_batch_00027/results/met_annot_enhancer # the path for your output to be stored in
+  metadata_path: /Users/pma/01_large_files/tabular/210715_inhouse_metadata.csv # Path to the metadata of the spectral file /210715_inhouse_metadata.csv /211220_frozen_metadata.csv You can use multiple ones. Just list them as [a.csv, b.csv, c.csv]
+  db_file_path: /Users/pma/01_large_files/mgf/MultiSources_ISDB_pos.mgf  # Path to your spectral library file. You can use multiple ones. Just list them as [a.mgf, b.mgf, c.mgf]
   adducts_pos_path: data_loc/db_prepared_pos.tsv.gz # Path to the adducts file in pos mode
   adducts_neg_path: data_loc/db_prepared_neg.tsv.gz # Path to the adducts file in neg mode
 
@@ -26,26 +28,33 @@ metadata_params:
 spectral_match_params:
   parent_mz_tol: 0.01 # the parent mass tolerance to use for spectral matching (in Da)
   msms_mz_tol: 0.01 # the msms mass tolerance to use for spectral matching (in Da)
-  min_cos: 0.3 # the minimal cosine to use for spectral matching
+  min_cos: 0.2 # the minimal cosine to use for spectral matching
   min_peaks: 6 # the minimal matching peaks number to use for spectral matching
 
 repond_params:
-  Top_N_Sample: 4 # Max number of contributors to take into account for taxo reponderation, set to 0 for all
+  Top_N_Sample: 2 # Max number of contributors to take into account for taxo reponderation, set to 0 for all
   top_to_output: 1 # Top X for final ouput
   ppm_tol: 2 # ppm tol to be used for ms1 match
   polarity: 'pos' # ion mode you are working with (pos or neg)
   organism_header: 'species' # Mandatory: header of your samples' organism in metadata file
-  sampletype_header: 'genotype' # Optional (Run_line_x_line parameter)
+  var_one_header: 'brainregion' # Optional (Run_line_x_line parameter)
+  sampletype_header: 'sample_type' # The header for a column describing the sample type (sample, BK or QC)
+  sampletype_value_sample: 'sample' # The value related to samples in the column describing the sample type.
+  sampletype_value_bk: 'BK' # The value related to blanks in the column describing the sample type.
+  sampletype_value_qc: 'QC' # The value related to QC in the column describing the sample type.
   use_post_taxo: True # Set True if you want to use rank after taxonomical reweighting for consensus chemical class determination, else set to False
   top_N_chemical_consistency: 15 # Top N to use for chemical consistency 
   file_extension: '.mzML' # MS filename extension (or any common pattern in all your MS filenames)
   msfile_suffix: ' Peak area' # MS filename suffix (for example ' Peak area') to remove to match with metadata, empty if nothing to remove
   min_score_taxo_ms1: 6 # Minimum taxonomical score (5 = order, 6 = family, 7 = genus, 8 = species)
   min_score_chemo_ms1: 1 # Minimum chemical consistency score (1 = NPClassifier pathway level consistency, 2 = NPClassifier superclass level consistency, 3 = NPClassifier class level consistency )
+  msms_weight: 4
+  taxo_weight: 1
+  chemo_weight: 0.5
 
 plotting_params:
-  drop_blanks: True #Wether to consider blanks or not in the outputs
-  drop_pattern: '^bk$|^QC$|^media$|^nd$' #Wether to consider blanks or not in the outputs. These are regex be sure to add ^and $ to specify the position of the pattern
+  drop_blanks: False #Wether to consider blanks or not in the outputs
+  drop_pattern: '^bk$|^QC$|^media$|^nd$|^ND$|^ND$|^Blank$|^BK$' #Wether to consider blanks or not in the outputs. These are regex be sure to add ^and $ to specify the position of the pattern
   multi_plot: True #Wether to consider a single or a combined header in the sample selection
 
 filtering_params:

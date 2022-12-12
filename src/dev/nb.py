@@ -113,9 +113,22 @@ isdb_results = isdb_results_loader(
 clusterinfo_summary = clusterinfo_summary_loader(
     clusterinfo_summary_path=paths_dic['clusterinfo_summary_path'])
 
-dt_isdb_metadata = isdb_metadata_loader(
-    isdb_metadata_path=params_list['paths']['metadata_path'],
-    organism_header=params_list['metadata_params']['organism_header'])
+
+# below we allow to load one or multiple metadata file 
+
+if type(params_list['paths']['metadata_path']) is str: 
+    dt_isdb_metadata = isdb_metadata_loader(
+        isdb_metadata_path=params_list['paths']['metadata_path'],
+        organism_header=params_list['metadata_params']['organism_header'])
+elif type(params_list['paths']['metadata_path']) is list: 
+    li = []
+    for filename in params_list['paths']['metadata_path']:
+        df = isdb_metadata_loader(
+        isdb_metadata_path=filename,
+        organism_header=params_list['metadata_params']['organism_header'])
+        li.append(df)
+    dt_isdb_metadata = pd.concat(li, axis=0, ignore_index=True)
+
 
 dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
                                               organism_header=params_list['repond_params']['organism_header'])
@@ -189,11 +202,11 @@ dt_isdb_results.reset_index(inplace=True, drop=True)
 
 # now we merge with the Occurences DB metadata after selection of our columns of interest
 
-cols_to_use = ['structure_inchikey', 'structure_inchi',
-               'structure_smiles', 'structure_molecular_formula',
+cols_to_use = ['structure_wikidata','structure_inchikey', 'structure_inchi',
+               'structure_smiles', 'structure_molecular_formula', 'structure_nameTraditional',
                'structure_exact_mass', 'short_inchikey', 'structure_taxonomy_npclassifier_01pathway',
                'structure_taxonomy_npclassifier_02superclass', 'structure_taxonomy_npclassifier_03class',
-               'organism_name', 'organism_taxonomy_ottid',
+               'organism_wikidata','organism_name', 'organism_taxonomy_ottid',
                'organism_taxonomy_01domain', 'organism_taxonomy_02kingdom', 'organism_taxonomy_03phylum',
                'organism_taxonomy_04class', 'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species', 'organism_taxonomy_10varietas']
 
@@ -210,6 +223,20 @@ print('Total number of annotations with unique biosource per line: ' +
 # Taxonomical resolving
 ######################################################################################################
 # Resolving the taxon information from the samples metadata file
+
+
+dt_samples_metadata = samples_metadata_loader(samples_metadata_table_path=paths_dic['samples_metadata_table_path'],
+                                              organism_header=params_list['repond_params']['organism_header'])
+
+dt_samples_metadata = dt_samples_metadata.replace('nd', np.NaN)
+
+dt_samples_metadata.dropna(inplace=True)
+
+# We test here another option which would be to duplicate rows directly at the metadata level when multiples sources are detected
+
+dt_samples_metadata = dt_samples_metadata.set_index(['filename']).apply(lambda x: x.str.split(',').explode()).reset_index()
+
+
 
 
 dt_samples_metadata = taxa_lineage_appender(samples_metadata=dt_samples_metadata,
@@ -261,10 +288,20 @@ dt_taxo_reweighed = taxonomical_reponderator(dt_isdb_results=dt_isdb_results_top
 ######################################################################################################
 
 
+
 dt_taxo_chemo_reweighed = chemical_reponderator(clusterinfo_summary_file=clusterinfo_summary,
                                                 dt_isdb_results=dt_taxo_reweighed,
-                                                top_N_chemical_consistency=params_list['repond_params']['top_N_chemical_consistency'])
+                                                top_N_chemical_consistency=params_list['repond_params']['top_N_chemical_consistency'],
+                                                msms_weight=params_list['repond_params']['msms_weight'],
+                                                taxo_weight=params_list['repond_params']['taxo_weight'],
+                                                chemo_weight=params_list['repond_params']['chemo_weight']
+                                                )
 
+
+dt_taxo_chemo_reweighed_sel = dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['component_id'] == 282]
+
+
+dt_taxo_chemo_reweighed_sel.to_csv('~/02_tmp/out_sel.tsv')
 
 ######################################################################################################
 ######################################################################################################
@@ -281,8 +318,16 @@ dt_taxo_chemo_reweighed_topN = top_N_slicer(dt_isdb_results=dt_taxo_chemo_reweig
 # Fetching CHEMBL Ids
 ######################################################################################################
 
-dt_taxo_chemo_reweighed_chembl = chembl_id_fetcher(
+
+if params_list['options']['do_chembl_match'] == True:
+    
+    df = chembl_id_fetcher(
     df_input=dt_taxo_chemo_reweighed_topN)
+    
+else :
+    df = dt_taxo_chemo_reweighed_topN
+
+
 
 
 ######################################################################################################
@@ -291,7 +336,7 @@ dt_taxo_chemo_reweighed_chembl = chembl_id_fetcher(
 ######################################################################################################
 
 
-df_flat, df_for_cyto = annotation_table_formatter(dt_input=dt_taxo_chemo_reweighed_chembl,
+df_flat, df_for_cyto = annotation_table_formatter(dt_input=df,
                                                   keep_lowest_taxon=params_list['options']['keep_lowest_taxon'],
                                                   min_score_taxo_ms1=params_list[
                                                       'repond_params']['min_score_taxo_ms1'],
@@ -330,15 +375,18 @@ table_for_plots_formatted = table_for_plots_formatter(df_flat=df_flat,
                                                       feature_intensity_table_formatted=feature_intensity_table_formatted,
                                                       dt_samples_metadata=dt_samples_metadata,
                                                       organism_header=params_list['repond_params']['organism_header'],
-                                                      sampletype_header=params_list['repond_params']['sampletype_header'],
+                                                      var_one_header=params_list['repond_params']['var_one_header'],
                                                       multi_plot=params_list['plotting_params']['multi_plot'])
 
 # Some optional filtering can be done
 
-samples_metadata_filtered = samples_metadata_filterer(dt_samples_metadata=dt_samples_metadata,
+samples_metadata_filtered = samples_metadata_filterer_sampletype(dt_samples_metadata=dt_samples_metadata,
                                                       organism_header=params_list['repond_params']['organism_header'],
-                                                      sampletype_header=params_list['repond_params']['sampletype_header'],
-                                                      drop_pattern=params_list['plotting_params']['drop_pattern'])
+                                                      var_one_header=params_list['repond_params']['var_one_header'],
+                                                      sampletype_header=params_list['repond_params']['sampletype_header'], 
+                                                      sampletype_value_sample=params_list['repond_params']['sampletype_value_sample'],
+                                                      drop_pattern=params_list['plotting_params']['drop_pattern'],
+                                                      multi_plot=params_list['plotting_params']['multi_plot'])
 
 # %%
 ######################################################################################################
@@ -359,12 +407,12 @@ if params_list['plotting_params']['multi_plot'] == True:
     plotter_multi(dt_isdb_results_int=table_for_plots_formatted,
                 dt_samples_metadata=samples_metadata_filtered,
                 organism_header=params_list['repond_params']['organism_header'],
-                sampletype_header=params_list['repond_params']['sampletype_header'],
+                var_one_header=params_list['repond_params']['var_one_header'],
                 treemap_chemo_multi_counted_results_path=paths_dic['treemap_chemo_multi_counted_results_path'],
                 treemap_chemo_multi_intensity_results_path=paths_dic['treemap_chemo_multi_intensity_results_path'])
 
 
-pivot_tabler(df_input= dt_taxo_chemo_reweighed_chembl,
+pivot_tabler(df_input= df,
              lib_to_keep=params_list['filtering_params']['lib_to_keep'],
              minimal_taxo_score=params_list['filtering_params']['minimal_taxo_score'],
              minimal_chemo_score=params_list['filtering_params']['minimal_chemo_score'],

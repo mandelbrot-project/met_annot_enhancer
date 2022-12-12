@@ -40,9 +40,12 @@ def clusterinfo_summary_loader(clusterinfo_summary_path):
 
 
 def isdb_metadata_loader(isdb_metadata_path, organism_header):
-
-    df_metadata = pd.read_csv(isdb_metadata_path,
-                              sep=',', error_bad_lines=False, low_memory=False)
+    
+    if '.csv' in isdb_metadata_path :
+        df_metadata = pd.read_csv(isdb_metadata_path, sep=',', error_bad_lines=False, low_memory=False)
+        
+    if '.tsv' in isdb_metadata_path :
+        df_metadata = pd.read_csv(isdb_metadata_path, sep='\t', error_bad_lines=False, low_memory=False)
 
     df_metadata['short_inchikey'] = df_metadata.structure_inchikey.str.split(
         "-", expand=True)[0]
