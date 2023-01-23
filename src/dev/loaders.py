@@ -77,3 +77,13 @@ def feature_intensity_table_loader(feature_intensity_table_path):
         os.listdir(feature_intensity_table_path)[0]), sep=',')
 
     return feature_intensity
+
+# This function loads a datatable from a csv and select three differents headers. It then return and save the output as a tsv file
+
+def datatable_loader(datatable_path, header1, header2, header3, output_path):
+    datatable = pd.read_csv(datatable_path, sep=',', usecols=[header1, header2, header3])
+    datatable.to_csv(output_path, sep='\t', index=False)
+    return datatable
+
+
+

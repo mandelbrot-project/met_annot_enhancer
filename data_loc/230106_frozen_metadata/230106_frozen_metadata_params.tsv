@@ -1,0 +1,41 @@
+	adduct_pos	adduct_neg
+0	pos_3_3proton	neg_3_3proton
+1	pos_3_2proton1sodium	neg_2_2proton
+2	pos_3_1proton2sodium	neg_1_minus1proton
+3	pos_3_3sodium	neg_1_minus2proton1sodium
+4	pos_2_2proton	neg_1_1chlorine
+5	pos_2_2proton1ammonium	neg_1_minus2proton1potassium
+6	pos_2_1proton1sodium	neg_1_minus1proton1formic
+7	pos_2_1magnesium	neg_1_minus1proton1acetic
+8	pos_2_1proton1potassium	neg_1_minus2proton1sodium1formic
+9	pos_2_1calcium	neg_1_1bromine
+10	pos_2_2proton1acetonitrile	neg_1_minus1proton1tfa
+11	pos_2_2sodium	neg_2MH
+12	pos_2_1iron	neg_2MFAH
+13	pos_2_2proton2acetonitrile	neg_2MACH
+14	pos_2_2proton3acetonitrile	neg_3MH
+15	pos_1_1proton	
+16	pos_1_1proton1ammonium	
+17	pos_1_1sodium	
+18	pos_1_minus1proton1magnesium	
+19	pos_1_1proton1methanol	
+20	pos_1_1potassium	
+21	pos_1_minus1proton1calcium	
+22	pos_1_1proton1acetonitrile	
+23	pos_1_minus1proton2sodium	
+24	pos_1_1proton1ethylamine	
+25	pos_1_minus1proton1iron	
+26	pos_1_1proton1isopropanol	
+27	pos_1_1sodium1acetonitrile	
+28	pos_1_minus1proton2potassium	
+29	pos_1_1proton1dmso	
+30	pos_1_1proton2acetonitrile	
+31	pos_2MMg	
+32	pos_2MCa	
+33	pos_2MFe	
+34	pos_2MH	
+35	pos_2MHNH3	
+36	pos_2MNa	
+37	pos_2MK	
+38	pos_2MHCH3CN	
+39	pos_2MCH3CNNa	
