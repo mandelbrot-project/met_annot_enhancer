@@ -59,14 +59,35 @@ def taxonomical_reponderator(dt_isdb_results, min_score_taxo_ms1):
     Proceeding to taxonomically informed reponderation ...
     ''')
 
-    cols_ref = ['organism_taxonomy_01domain', 'organism_taxonomy_02kingdom',  'organism_taxonomy_03phylum', 'organism_taxonomy_04class',
-                'organism_taxonomy_05order', 'organism_taxonomy_06family', 'organism_taxonomy_07tribe', 'organism_taxonomy_08genus', 'organism_taxonomy_09species']
+    cols_ref = ['organism_taxonomy_01domain', 
+                'organism_taxonomy_02kingdom',  
+                'organism_taxonomy_03phylum', 
+                'organism_taxonomy_04class',
+                'organism_taxonomy_05order', 
+                'organism_taxonomy_06family',
+                'organism_taxonomy_07tribe', 
+                'organism_taxonomy_08genus', 
+                'organism_taxonomy_09species']
 
-    cols_att = ['query_otol_domain', 'query_otol_kingdom', 'query_otol_phylum', 'query_otol_class',
-                'query_otol_order', 'query_otol_family', 'query_otol_tribe', 'query_otol_genus', 'query_otol_species']
+    cols_att = ['query_otol_domain', 
+                'query_otol_kingdom', 
+                'query_otol_phylum', 
+                'query_otol_class',
+                'query_otol_order', 
+                'query_otol_family', 
+                'query_otol_tribe', 
+                'query_otol_genus', 
+                'query_otol_species']
 
-    cols_match = ['matched_domain', 'matched_kingdom', 'matched_phylum', 'matched_class',
-                'matched_order', 'matched_family', 'matched_tribe', 'matched_genus', 'matched_species']
+    cols_match = ['matched_domain', 
+                  'matched_kingdom', 
+                  'matched_phylum', 
+                  'matched_class',
+                  'matched_order', 
+                  'matched_family', 
+                  'matched_tribe', 
+                  'matched_genus', 
+                  'matched_species']
 
     col_prev = None
 
@@ -84,8 +105,21 @@ def taxonomical_reponderator(dt_isdb_results, min_score_taxo_ms1):
     # Note for future self. If you get a TypeError: unhashable type: 'list' error. before messing around with the previous line make sure that the taxonomy has been appended at the dt_isdb_results = pd.merge(
     #  ' dt_isdb_results, df_merged, left_on='feature_id', right_on='row_ID', how='left')' step before. Usuall this comes from a bad definition of the regex (ex .mzXMl insted of .mzML) in the params file. Should find a safer way to deal with these extensions in the header.
 
+    # We count the number of matches at each taxo level
+    # But we ignore the matched_tribe column as it is not used in the final score
+    
+    cols_for_repond = ['matched_domain', 
+                       'matched_kingdom', 
+                       'matched_phylum', 
+                       'matched_class',
+                       'matched_order', 
+                       'matched_family', 
+                    #    'matched_tribe', 
+                       'matched_genus', 
+                       'matched_species']
+     
+    dt_isdb_results['score_taxo'] = dt_isdb_results[cols_for_repond].count(axis=1)
 
-    dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
     # Filter out MS1 annotations without a reweighting at a given taxo level prior to chemo repond
 
@@ -137,13 +171,15 @@ def taxonomical_reponderator(dt_isdb_results, min_score_taxo_ms1):
 
 
 def chemical_reponderator(clusterinfo_summary_file, dt_isdb_results, top_N_chemical_consistency, msms_weight, taxo_weight, chemo_weight):
-
-    """Generates pathes used by the script according to parameters of the yaml file
+    """Perform chemical consistency reweighting on a list of candidates annotations
+    
     Args:
-        params_list (list) : the yaml parameters
+        clusterinfo_summary_file (DataFrame): The MN metadata file
+        dt_isdb_results (DataFrame): An annotation table
+        top_N_chemical_consistency (int): Top N candidates to consider for cluster chemical consistency determination
+        
     Returns:
-        pathes (str)
-
+        DataFrame: An annotation table
     """
 
     cluster_count = cluster_counter(clusterinfo_summary_file)
