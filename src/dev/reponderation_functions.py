@@ -45,13 +45,15 @@ def biosource_contribution_fetcher(feature_intensity_table, samples_metadata, to
 
 
 def taxonomical_reponderator(dt_isdb_results, min_score_taxo_ms1):
+    """Perform taxonomical consistency reweighting on a list of candidates annotations
 
-    """Generates pathes used by the script according to parameters of the yaml file
     Args:
-        params_list (list) : the yaml parameters
+        dt_isdb_results (DataFrame): An annotation table
+        min_score_taxo_ms1 (int): Minimal score of MS1 annotations 
+
     Returns:
-        pathes (str)
-    """
+        DataFrame: An annotation table
+    """ 
 
 
 
