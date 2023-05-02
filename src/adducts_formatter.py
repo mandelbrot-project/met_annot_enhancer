@@ -23,9 +23,9 @@ args = parser.parse_args()
 db_metadata_path = os.path.normpath(args.db_metadata_path)
 
 if db_metadata_path.endswith('.csv.gz'):
-    db_metadata = pd.read_csv(db_metadata_path, sep=',', compression='gzip', error_bad_lines=False, low_memory=False)
+    db_metadata = pd.read_csv(db_metadata_path, sep=',', compression='gzip', on_bad_lines='skip', low_memory=False)
 elif db_metadata_path.endswith('.csv'):
-    db_metadata = pd.read_csv(db_metadata_path, sep=',', error_bad_lines=False, low_memory=False)
+    db_metadata = pd.read_csv(db_metadata_path, sep=',', on_bad_lines='skip', low_memory=False)
 
 exact_masses = list(db_metadata[['structure_exact_mass']].drop_duplicates()['structure_exact_mass'])
 

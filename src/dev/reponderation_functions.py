@@ -109,18 +109,18 @@ def taxonomical_reponderator(dt_isdb_results, min_score_taxo_ms1):
 
     # We count the number of matches at each taxo level
     # But we ignore the matched_tribe column as it is not used in the final score
-    
-    cols_for_repond = ['matched_domain', 
-                       'matched_kingdom', 
-                       'matched_phylum', 
-                       'matched_class',
-                       'matched_order', 
-                       'matched_family', 
-                    #    'matched_tribe', 
-                       'matched_genus', 
-                       'matched_species']
+    # #NOt very sure of what I was aiming to do here ...
+    # cols_for_repond = ['matched_domain', 
+    #                    'matched_kingdom', 
+    #                    'matched_phylum', 
+    #                    'matched_class',
+    #                    'matched_order', 
+    #                    'matched_family', 
+    #                 #    'matched_tribe', 
+    #                    'matched_genus', 
+    #                    'matched_species']
      
-    dt_isdb_results['score_taxo'] = dt_isdb_results[cols_for_repond].count(axis=1)
+    dt_isdb_results['score_taxo'] = dt_isdb_results[cols_match].count(axis=1)
 
 
     # Filter out MS1 annotations without a reweighting at a given taxo level prior to chemo repond

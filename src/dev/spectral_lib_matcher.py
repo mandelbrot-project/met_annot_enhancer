@@ -137,9 +137,11 @@ def main(query_file_path,
     # spectrums_db = spectrums_db
     with nostdout():
         spectrums_db_cleaned = [metadata_processing(s) for s in spectrums_db]
+
     #     spectrums_db_cleaned = [peak_processing(s) for s in spectrums_db_cleaned]
 
     # save_as_mgf(spectrums_db_cleaned, '/Users/pma/tmp/LOTUS_DNP_ISDB_msmatchready.mgf')
+
 
 
     print('Proceeding to the spectral match ...')
@@ -153,8 +155,11 @@ def main(query_file_path,
 
     for chunk in chunks_query:
         scores = calculate_scores(chunk, spectrums_db_cleaned, similarity_score)
-        indices = np.where(np.asarray(scores.scores))
-        idx_row, idx_col = indices
+        # indices = np.where(np.asarray(scores.scores))
+        # idx_row, idx_col = indices
+        # This modification is to handle the Sparse array format (introduced in matchms https://github.com/matchms/matchms/pull/370)
+        idx_row = scores.scores[:,:][0]
+        idx_col = scores.scores[:,:][1]
         scans_id_map = {}
         i = 0
         for s in chunk:
@@ -171,7 +176,7 @@ def main(query_file_path,
                                 'matched_peaks':n_matches,
                                 'feature_id': feature_id,
                                 'reference_id':y + 1,
-                                'short_inchikey': spectrums_db_cleaned[y].get("name")})
+                                'short_inchikey': spectrums_db_cleaned[y].get("compound_name")})
         df = pd.DataFrame(data)
         df.to_csv(output_file_path, mode='a', header=not os.path.exists(output_file_path), sep = '\t')
 

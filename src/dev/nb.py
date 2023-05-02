@@ -97,6 +97,15 @@ if params_list['options']['do_spectral_match'] == True:
     print('''
     Spectral matching done !
     ''')
+    
+query_file_path=paths_dic['query_file_path']
+db_file_path=params_list['paths']['db_file_path']
+parent_mz_tol=params_list['spectral_match_params']['parent_mz_tol']
+msms_mz_tol=params_list['spectral_match_params']['msms_mz_tol']
+min_cos=params_list['spectral_match_params']['min_cos']
+min_peaks=params_list['spectral_match_params']['min_peaks']
+output_file_path=paths_dic['isdb_results_path']
+
 
 ######################################################################################################
 
