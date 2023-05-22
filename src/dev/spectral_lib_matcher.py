@@ -5,6 +5,7 @@ import sys
 import time
 import numpy as np
 import pandas as pd
+import pickle
 
 
 import tqdm
@@ -15,6 +16,7 @@ from tqdm.contrib import tzip
 
 from matchms.importing import load_from_mgf
 from matchms.exporting import save_as_mgf
+
 
 # define a warning silencer
 # I added this because of annoying stdout prints after the spectra cleaning function.
@@ -93,14 +95,24 @@ def main(query_file_path,
 
     # Below the loading of external db is modified to accommodate multiple spectral db as input
     
-    if type(db_file_path) is str : 
+    if type(db_file_path) is str and '.mgf' in db_file_path : 
         spectrums_db = list(load_from_mgf(db_file_path))
+    if type(db_file_path) is str and '.pkl' in db_file_path :
+        with open(db_file_path, 'rb') as f:
+            spectrums_db = pickle.load(f)
     elif type(db_file_path) is list:
         spectrums_db = []
         for n in db_file_path:
             spectrums_db.extend(list(load_from_mgf(n)))
             
-    #spectrums_db = list(load_from_mgf('../../db_spectra/LOTUS_DNP_ISDB.mgf'))
+    # spectrums_db = list(load_from_mgf('/Users/pma/01_large_files/mgf/isdb_pos.mgf'))
+
+    
+    # with open('isdb_pos_cleaned.pkl', 'wb') as f:
+    #     pickle.dump(spectrums_db_cleaned, f)
+    
+    # with open('isdb_pos.pkl', 'rb') as f:
+    #     mynewlist = pickle.load(f)
 
     print('%s spectra were found in the query file.' % len(spectrums_query))
 
@@ -122,7 +134,7 @@ def main(query_file_path,
         spectrum = default_filters(spectrum)
         spectrum = normalize_intensities(spectrum)
         spectrum = select_by_intensity(spectrum, intensity_from=0.01)
-        spectrum = select_by_mz(spectrum, mz_from=10, mz_to=1000)
+        spectrum = select_by_mz(spectrum, mz_from=10, mz_to=2000)
         return spectrum
 
     with nostdout():
@@ -135,8 +147,14 @@ def main(query_file_path,
     print('Cleaning the spectral database metadata fields ...')
 
     # spectrums_db = spectrums_db
-    with nostdout():
-        spectrums_db_cleaned = [metadata_processing(s) for s in spectrums_db]
+    if 'cleaned' in db_file_path :
+        print('The spectral library is already cleaned.')
+        spectrums_db_cleaned = spectrums_db
+    else:
+        with nostdout():
+            spectrums_db_cleaned = [metadata_processing(s) for s in spectrums_db]
+    
+    
 
     #     spectrums_db_cleaned = [peak_processing(s) for s in spectrums_db_cleaned]
 
