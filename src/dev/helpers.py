@@ -41,6 +41,8 @@ def gnps_job_fetcher(gnps_job_id, input_folder):
         os.path.join(input_folder, gnps_job_id))
     path_to_file = os.path.expanduser(
         os.path.join(input_folder, gnps_job_id + '.zip'))
+    
+    print(path_to_file)
 
     print('''
     Fetching the GNPS job: '''
@@ -50,7 +52,7 @@ def gnps_job_fetcher(gnps_job_id, input_folder):
     job_url_zip = "https://gnps.ucsd.edu/ProteoSAFe/DownloadResult?task=" + \
         gnps_job_id+"&view=download_cytoscape_data"
 
-    cmd = 'curl -d "" '+job_url_zip+' -o '+path_to_file + ' --create-dirs'
+    cmd = 'curl -d "" '+job_url_zip+ ' --ssl-no-revoke' +' -o '+path_to_file + ' --create-dirs'
     subprocess.call(shlex.split(cmd))
 
     with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
