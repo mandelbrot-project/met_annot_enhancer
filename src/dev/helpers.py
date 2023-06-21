@@ -42,8 +42,6 @@ def gnps_job_fetcher(gnps_job_id, input_folder):
     path_to_file = os.path.expanduser(
         os.path.join(input_folder, gnps_job_id + '.zip'))
     
-    print(path_to_file)
-
     print('''
     Fetching the GNPS job: '''
     + gnps_job_id
