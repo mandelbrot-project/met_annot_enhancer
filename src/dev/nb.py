@@ -307,10 +307,10 @@ dt_taxo_chemo_reweighed = chemical_reponderator(clusterinfo_summary_file=cluster
                                                 )
 
 
-dt_taxo_chemo_reweighed_sel = dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['component_id'] == 282]
+# dt_taxo_chemo_reweighed_sel = dt_taxo_chemo_reweighed[dt_taxo_chemo_reweighed['component_id'] == 282]
 
 
-dt_taxo_chemo_reweighed_sel.to_csv('~/02_tmp/out_sel.tsv')
+# dt_taxo_chemo_reweighed_sel.to_csv('~/02_tmp/out_sel.tsv')
 
 ######################################################################################################
 ######################################################################################################
