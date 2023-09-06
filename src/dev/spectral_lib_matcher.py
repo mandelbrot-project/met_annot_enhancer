@@ -6,6 +6,7 @@ import time
 import numpy as np
 import pandas as pd
 import pickle
+import matchms
 
 
 import tqdm
@@ -78,7 +79,7 @@ def main(query_file_path,
     output_file_path
     ):
         
-    from matchms.filtering.require_minimum_number_of_peaks  import require_minimum_number_of_peaks 
+    from matchms.filtering import require_minimum_number_of_peaks 
     
     if os.path.exists(output_file_path):
         os.remove(output_file_path)

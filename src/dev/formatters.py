@@ -69,7 +69,7 @@ def table_for_plots_formatter(df_flat, feature_intensity_table_formatted, dt_sam
     feature_intensity_meta = pd.merge(left=dt_samples_metadata, right=feature_intensity_table_t, left_on='filename', right_on='MS_filename',how='inner')
 
 
-    feature_intensity_meta_gp_species = feature_intensity_meta.groupby(organism_header).mean()
+    feature_intensity_meta_gp_species = feature_intensity_meta.groupby(organism_header).mean(numeric_only=True)
     feature_intensity_meta_gp_species = feature_intensity_meta_gp_species.transpose()
     feature_intensity_meta_gp_species.index.name = 'row_ID'
 
@@ -83,7 +83,7 @@ def table_for_plots_formatter(df_flat, feature_intensity_table_formatted, dt_sam
 
     if multi_plot == True:
         # a security when numeric values are passed
-        feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,var_one_header]).mean()
+        feature_intensity_meta_gp_multi = feature_intensity_meta.groupby([organism_header,var_one_header]).mean(numeric_only=True)
         feature_intensity_meta_gp_multi = feature_intensity_meta_gp_multi.transpose()
         feature_intensity_meta_gp_multi.columns = feature_intensity_meta_gp_multi.columns.map('_'.join)
         feature_intensity_meta_gp_multi.index.name = 'row_ID'

@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -142,7 +143,9 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, var
 
     dt_samples_metadata['combined'] = dt_samples_metadata[organism_header] + '_' + dt_samples_metadata[var_one_header]
     unique_group_labels = dt_samples_metadata['combined'].unique()
-    type(unique_group_labels)
+    # nan are removed from the list of unique labels
+    unique_group_labels = unique_group_labels[~pd.isnull(unique_group_labels)]
+    # type(unique_group_labels)
 
     pattern=[{"type": "domain"}]
 

@@ -404,7 +404,6 @@ samples_metadata_filtered = samples_metadata_filterer_sampletype(dt_samples_meta
 ######################################################################################################
 # Single parameters
 
-
 plotter_single(dt_isdb_results_int=table_for_plots_formatted,
                dt_samples_metadata=samples_metadata_filtered,
                organism_header=params_list['repond_params']['organism_header'],
@@ -428,5 +427,3 @@ pivot_tabler(df_input= df,
              minimal_total_score=params_list['filtering_params']['minimal_total_score'],
              isdb_results_repond_flat_sel_path=paths_dic['isdb_results_repond_flat_sel_path'],
              pivot_table_results_path=paths_dic['pivot_table_results_path'])
-
-
