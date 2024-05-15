@@ -134,12 +134,12 @@ def paths_generator(params_list):
         os.makedirs(paths_dic['path_to_results_folders'])
     
     # Generating GNPS pathes
-    paths_dic['clusterinfo_summary_path'] = os.path.join(path_to_gnps_folder,'clusterinfo_summary','')
-    paths_dic['samples_metadata_table_path'] = os.path.join(path_to_gnps_folder,'metadata_table','')
-    paths_dic['quantification_table_reformatted_path'] = os.path.join(path_to_gnps_folder,'quantification_table_reformatted','')
+    paths_dic['clusterinfo_summary_path'] = os.path.join(path_to_gnps_folder,'nf_output', 'networking', 'clustersummary_with_network.tsv')
+    paths_dic['samples_metadata_table_path'] = os.path.join(path_to_gnps_folder,'nf_output', 'metadata', '')
+    paths_dic['quantification_table_reformatted_path'] = os.path.join(path_to_gnps_folder,'nf_output', 'clustering', 'featuretable_reformated.csv')
 
 
-    paths_dic['query_file_path'] = os.path.join(path_to_gnps_folder,'spectra/specs_ms.mgf')
+    paths_dic['query_file_path'] = os.path.join(path_to_gnps_folder, 'nf_output', 'clustering', 'specs_ms.mgf')
 
     spectral_match_results_filename = project_name + '_spectral_match_results.tsv'
     paths_dic['isdb_results_path'] = os.path.join(paths_dic['path_to_results_folders'], spectral_match_results_filename)
