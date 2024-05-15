@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import zipfile
+import tarfile
 import glob
 import os
 import sys
@@ -63,6 +64,39 @@ def gnps_job_fetcher(gnps_job_id, input_folder):
     Job successfully downloaded: results are in: '''
     + path_to_folder
     )
+
+def gnps2_job_fetcher(gnps_job_id, input_folder):
+    """Fetch a GNPS2 job and saves it to a given folder
+    Args:
+            gnps_job_id (str): a GNPS Job id
+            input_folder (str): the folder where the job should be kept
+    Returns:
+        nothing
+    """
+    path_to_folder = os.path.expanduser(os.path.join(input_folder, gnps_job_id))
+    path_to_file = os.path.expanduser(os.path.join(input_folder, gnps_job_id + '.tar'))
+    
+    print(f'''
+    Fetching the GNPS job: {gnps_job_id}
+    ''')
+
+    job_url_tar = f"https://gnps2.org/taskzip?task={gnps_job_id}"
+
+    cmd = f'wget -O {path_to_file} {job_url_tar}'
+    subprocess.call(shlex.split(cmd))
+
+    try:
+        with tarfile.open(path_to_file, 'r') as tar_ref:
+            tar_ref.extractall(path_to_folder)
+    except tarfile.ReadError as e:
+        print(f"Error extracting tar file: {e}")
+
+    # We finally remove the tar file
+    os.remove(path_to_file)
+
+    print(f'''
+    Job successfully downloaded: results are in: {path_to_folder}
+    ''')
 
 
 def paths_generator(params_list):

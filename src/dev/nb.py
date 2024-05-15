@@ -45,7 +45,7 @@ with open(r'configs/user_defined/default.yaml') as file:
 # Downloading GNPS files
 if params_list['options']['download_gnps_job'] == True:
 
-    gnps_job_fetcher(gnps_job_id=params_list['paths']['gnps_job_id'],
+    gnps2_job_fetcher(gnps_job_id=params_list['paths']['gnps_job_id'],
                      input_folder=params_list['paths']['input_folder'])
 # %%
 # Generating pathes
