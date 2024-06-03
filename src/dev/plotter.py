@@ -42,6 +42,12 @@ def plotter_single(dt_isdb_results_int, dt_samples_metadata,organism_header,tree
     dt_isdb_results_int = dt_isdb_results_int.replace({np.nan:'None'})
 
 
+    # Here we make sure to keep only entries for which there is a source_taxon (i.e. not NaN).
+    # In other words dt_samples_metadata[organism_header] is not nan
+
+    dt_samples_metadata = dt_samples_metadata[~pd.isnull(dt_samples_metadata[organism_header])]
+
+
     unique_group_labels = dt_samples_metadata[organism_header].unique()
 
     pattern=[{"type": "domain"}]
@@ -139,6 +145,12 @@ def plotter_multi(dt_isdb_results_int, dt_samples_metadata, organism_header, var
         None
     """
     dt_isdb_results_int = dt_isdb_results_int.replace({np.nan:'None'})
+
+
+    # Here we make sure to keep only entries for which there is a source_taxon (i.e. not NaN).
+    # In other words dt_samples_metadata[organism_header] is not nan
+
+    dt_samples_metadata = dt_samples_metadata[~pd.isnull(dt_samples_metadata[organism_header])]
 
 
     dt_samples_metadata['combined'] = dt_samples_metadata[organism_header] + '_' + dt_samples_metadata[var_one_header]
