@@ -13,6 +13,10 @@ def feature_intensity_table_formatter(feature_intensity_table_path, file_extensi
     """
     # The feature_intensity_table is loaded
     feature_intensity_table = feature_intensity_table_loader(feature_intensity_table_path)
+    # For GNPS2 outputs, we drop the `intensity_measure` column
+    if 'intensity_measure' in feature_intensity_table.columns:
+        feature_intensity_table.drop('intensity_measure', axis=1, inplace=True)
+    
 
     # formatting the feature table 
     feature_intensity_table.rename(columns={'row ID': 'row_ID'}, inplace=True)

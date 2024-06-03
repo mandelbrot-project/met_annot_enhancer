@@ -358,9 +358,9 @@ df_flat, df_for_cyto = annotation_table_formatter(dt_input=df,
 ######################################################################################################
 
 
-df_flat.to_csv(paths_dic['isdb_results_repond_flat_path'], sep='\t')
+df_flat.to_csv(paths_dic['isdb_results_repond_flat_path'], sep='\t', index=False)
 
-df_for_cyto.to_csv(paths_dic['isdb_results_repond_path'], sep='\t')
+df_for_cyto.to_csv(paths_dic['isdb_results_repond_path'], sep='\t', index=False)
 
 # %%
 ######################################################################################################
