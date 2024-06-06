@@ -106,6 +106,15 @@ def taxa_lineage_appender(samples_metadata, organism_header, do_taxo_resolving, 
                                     errors='ignore'
                                     )
 
+    # !!! This is a dirty trick and should not be a permanent solution
+    # We take the first two words of the 'unique_name' to get the scientific denomination
+    # for example for "unique_name": "Morinda citrifolia (species in Opisthokonta)", we would get "Morinda citrifolia"
+    # We also need to make sure that this works when their is only one word in the unique_name
+
+    print('Splitting the unique_name to get the species name. In case this crash please look at the code. We said. Dirty trick.')
+    df_tax_lineage['unique_name'] = df_tax_lineage['unique_name'].str.split(' ').str[0] + ' ' + df_tax_lineage['unique_name'].str.split(' ').str[1]
+
+
     # This keeps the last occurence of each ott_id / sub_rank grouping https://stackoverflow.com/a/41886945
     df_tax_lineage_filtered = df_tax_lineage.groupby(
         ['ott_id', 'sub_rank'], as_index=False).last()
