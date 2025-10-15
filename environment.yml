@@ -1,4 +1,4 @@
-name: met_annot_enhancer_env
+name: met_annot_enhancer
 channels:
   - conda-forge
   - bioconda

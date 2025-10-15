@@ -47,6 +47,10 @@ def plotter_single(dt_isdb_results_int, dt_samples_metadata,organism_header,tree
 
     dt_samples_metadata = dt_samples_metadata[~pd.isnull(dt_samples_metadata[organism_header])]
 
+    # We also drop is 'NA'
+
+    dt_samples_metadata = dt_samples_metadata[dt_samples_metadata[organism_header] != 'NA']
+
 
     unique_group_labels = dt_samples_metadata[organism_header].unique()
 
